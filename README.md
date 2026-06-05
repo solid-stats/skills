@@ -51,7 +51,7 @@ The v1 skill set. Status: `Planned` (not started) · `WIP` (in progress) · `Don
 
 | Skill | Install name | Status | Description |
 |-------|-------------|--------|-------------|
-| Review Standards | `solidstats-process-review-standards` | Planned | Shared foundation for every SolidStats code-review skill: severity buckets, report output format, verdict rules, scope discipline, the test-file rule, and the noise filter. Hard-required by all code-review skills; not used standalone. |
+| Review Standards | `solidstats-process-review-standards` | Done | Shared foundation for every SolidStats code-review skill: severity buckets, report output format, verdict rules, scope discipline, the test-file rule, and the noise filter. Hard-required by all code-review skills; not used standalone. |
 | Testing Standards | `solidstats-process-testing-standards` | Planned | Shared testing philosophy for every SolidStats stack: AAA structure, isolation, determinism, test doubles, and file placement. Hard-required by the per-stack test skills; not used standalone. |
 
 ### Backend — TypeScript / Fastify
