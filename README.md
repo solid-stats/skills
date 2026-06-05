@@ -60,7 +60,7 @@ The v1 skill set. Status: `Planned` (not started) · `WIP` (in progress) · `Don
 |-------|-------------|--------|-------------|
 | Conventions | `solidstats-backend-ts-conventions` | Done | Prescriptive architecture and coding conventions for the TS/Fastify backend (`server-2`, `replays-fetcher`). Absorbs Fastify, Node, and API-design best practices into one SolidStats standard. |
 | Code Review | `solidstats-backend-ts-code-review` | Done | Pedantic code review for the TS/Fastify backend. Delegates the ruleset to `solidstats-backend-ts-conventions` and the review format to `solidstats-process-review-standards`. |
-| Tests | `solidstats-backend-ts-tests` | Planned | Backend test guidance (unit + integration) on top of `solidstats-process-testing-standards`. |
+| Tests | `solidstats-backend-ts-tests` | Done | Backend test guidance (unit + integration) on top of `solidstats-process-testing-standards`. |
 
 ### Parser — Rust
 
