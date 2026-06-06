@@ -75,7 +75,7 @@ The v1 skill set. Status: `Planned` (not started) · `WIP` (in progress) · `Don
 | Skill | Install name | Status | Description |
 |-------|-------------|--------|-------------|
 | Conventions | `solidstats-frontend-react-conventions` | Done | Prescriptive conventions for the `web` frontend. As `web` is greenfield, this doubles as its architecture contract (state, data, routing, styling). References the external `tanstack-start` skill. |
-| Code Review | `solidstats-frontend-react-code-review` | Planned | Pedantic code review for the React/TanStack frontend. Delegates to `solidstats-frontend-react-conventions` and `solidstats-process-review-standards`. |
+| Code Review | `solidstats-frontend-react-code-review` | Done | Pedantic code review for the React/TanStack frontend. Delegates to `solidstats-frontend-react-conventions` and `solidstats-process-review-standards`. |
 | Tests | `solidstats-frontend-react-tests` | Planned | Frontend test guidance (unit + integration) on top of `solidstats-process-testing-standards`. |
 
 ## Relationship to external skills
