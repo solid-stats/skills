@@ -67,7 +67,7 @@ The v1 skill set. Status: `Planned` (not started) · `WIP` (in progress) · `Don
 | Skill | Install name | Status | Description |
 |-------|-------------|--------|-------------|
 | Conventions | `solidstats-parser-rust-conventions` | Done | Prescriptive conventions for the Rust OCAP parser (`replay-parser-2`). Absorbs Rust best-practice and async patterns into one SolidStats standard. |
-| Code Review | `solidstats-parser-rust-code-review` | Planned | Pedantic code review for the Rust parser. Delegates to `solidstats-parser-rust-conventions` and `solidstats-process-review-standards`. |
+| Code Review | `solidstats-parser-rust-code-review` | Done | Pedantic code review for the Rust parser. Delegates to `solidstats-parser-rust-conventions` and `solidstats-process-review-standards`. |
 | Tests | `solidstats-parser-rust-tests` | Planned | Rust test guidance (unit + integration) on top of `solidstats-process-testing-standards`; encodes the parser's fuzz/coverage policy (references the external `cargo-fuzz` and `coverage-analysis` tool skills). |
 
 ### Frontend — React / TanStack Start
