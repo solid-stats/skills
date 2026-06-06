@@ -6,6 +6,8 @@ description: >
   components and critical journeys), the journey coverage list (list→detail→back restoration, SSE,
   loading/error/offline states), accessibility checks (axe), the CI browser/budget matrix, and the
   seeded-backend E2E policy. Use when writing or reviewing frontend unit, component, or E2E tests.
+  Use this proactively — apply it when writing or reviewing ANY frontend test, even when not
+  explicitly asked.
   Triggers: "write frontend tests", "playwright test", "test this component", "e2e test", "test the page",
   "напиши тесты фронта", "playwright тест", "тест компонента", "e2e тест", "протестируй страницу".
 ---

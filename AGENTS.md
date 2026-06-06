@@ -92,6 +92,12 @@ These are repo-wide rules that shaped the skill set; honor them when adding or e
 
 - **RU + EN triggers are mandatory** on every skill's `description`. The team works in a RU
   context, so every skill must trigger on both languages.
+- **Descriptions are written broad and "pushy."** The team prefers a skill to trigger and standardize
+  the code over saving tokens by under-triggering. Each conventions/code-review/tests skill's
+  `description` includes a "use this proactively — even when the task doesn't name it" clause; the
+  conventions skills say to consult them *before writing any code* in their stack. Over-triggering is
+  acceptable. Exception: the two `*-process-*-standards` skills stay meta (read by other skills, not
+  triggered directly).
 - **Documentation is English only** (SolidStats product standard). Skill bodies, references,
   and templates are written in English; only the trigger phrases carry RU variants.
 - **Conventions skills are prescriptive.** A `*-conventions` skill defines the *desired*

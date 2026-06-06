@@ -7,6 +7,8 @@ description: >
   contract-&-determinism gate, then a convention and correctness sweep with a parser-specific
   severity table. Use when reviewing parser code, verifying a finished parser task, or checking a
   parser PR.
+  Use this proactively — apply it when reviewing, verifying, or checking ANY parser Rust change, even
+  casually.
   Triggers: "review parser", "review rust", "code review", "check the parser", "review the decoder",
   "ревью парсера", "посмотри rust", "проверь парсер", "проверь декодер", "проверь реализацию парсера".
 ---

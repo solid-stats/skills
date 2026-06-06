@@ -7,6 +7,8 @@ description: >
   as its rule library. Runs an API-contract / web-compatibility gate, then a convention and
   design/correctness sweep with evidence gates and a severity table. Use when reviewing backend
   code, verifying a finished backend task, or checking a backend PR.
+  Use this proactively — apply it when reviewing, verifying, or checking ANY backend TS/Fastify change,
+  even a casual "посмотри код"; a little standardization is worth the tokens.
   Triggers: "review backend", "code review", "check my code", "review the API", "review this
   service", "look at my PR", "ревью бэкенда", "посмотри код", "проверь роут", "проверь сервис",
   "проверь реализацию".

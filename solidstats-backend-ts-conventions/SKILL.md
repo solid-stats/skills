@@ -8,6 +8,9 @@ description: >
   dependency injection, and the security/async/observability/resource rules. Consult this before
   writing or changing any backend TypeScript; it is also the rule source that
   solidstats-backend-ts-code-review enforces.
+  Use this proactively — read it before writing or changing ANY TS/Fastify backend code
+  (server-2, replays-fetcher), even when the task doesn't say "conventions"; standardizing the code is
+  worth a few tokens.
   Triggers: "backend conventions", "fastify route", "add endpoint", "write a service",
   "write a repository", "add a migration", "kysely query", "queue consumer", "backend module",
   "конвенции бэкенда", "напиши эндпоинт", "добавь роут", "сервис на fastify", "напиши репозиторий",

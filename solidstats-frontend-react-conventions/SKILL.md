@@ -10,6 +10,8 @@ description: >
   SolidStats domain. Consult this whenever creating a feature/page/component, modifying UI, adding a
   data fetch, wiring routing, touching localization, or deciding where a file lives — before writing
   any TS/TSX in `web`. It is the rule source that solidstats-frontend-react-code-review enforces.
+  Use this proactively — read it before writing or changing ANY web TS/TSX, even when the task doesn't
+  say "conventions"; standardizing the UI is worth a few tokens.
   Triggers: "add a feature", "new page", "new component", "fetch data", "wire a route",
   "where should this go", "follow the conventions", "напиши фичу", "добавь страницу",
   "как тут принято", "новый компонент".

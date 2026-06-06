@@ -107,3 +107,20 @@ and one systemic coherence bug; no skill needed a rewrite.
 4. **Parser conventions single-file vs split** — consider moving §J/CI + deep contract mechanics into `references/` if it keeps growing.
 5. **review-standards calibration** — blocking-I/O default severity (🔴 vs 🟠) and the missing-test §C/§F double-home — leave or tweak to taste.
 6. **Frontend image-upload depth** (magic-bytes/EXIF/drag-drop a11y) — partly added via security.md; expand in domain-rules if you want a full upload spec.
+
+---
+
+## Resolution — 2026-06-06 (user directives, all applied)
+
+1. **Trigger collision → aggressive triggering by directive.** User wants skills read proactively even
+   when maybe-unneeded (standardization > token thrift). Added a "use proactively" clause to all 9
+   conventions/code-review/tests descriptions; recorded in AGENTS.md. Standards stay meta.
+2. **Frontend form library → TanStack Form** — new `references/patterns/forms.md`.
+3. **Frontend lint/format → Vite+** (`vp check`: Oxlint + Oxfmt + tsgo) — `typescript.md` + code-review/
+   tests gates.
+4. **Parser conventions → split** into spine + `references/{determinism-and-contract, parsing-types-errors,
+   worker-build-perf}`.
+5. **review-standards calibration → applied** — blocking-I/O 🟠 (🔴 on hot/shared path); missing-test
+   severity owned by §F (propagated to backend).
+6. **Frontend image-upload → expanded** in `security.md` (magic-bytes, both-side limits, EXIF strip,
+   no-SVG, accessible drop-zone/progress, object-URL cleanup, safe external links).

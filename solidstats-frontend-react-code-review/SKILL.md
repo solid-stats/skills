@@ -7,6 +7,8 @@ description: >
   (accessibility, Core Web Vitals, bundle budgets, console errors, generated-types freshness, the
   list→detail→back contract), then a convention and correctness sweep with a frontend-specific
   severity table. Use when reviewing frontend code, verifying a finished UI task, or checking a `web` PR.
+  Use this proactively — apply it when reviewing, verifying, or checking ANY web/UI change, even
+  casually.
   Triggers: "review frontend", "review the UI", "code review", "check my component", "review this page",
   "look at my PR", "ревью фронта", "посмотри компонент", "проверь страницу", "проверь ui",
   "проверь реализацию".

@@ -6,6 +6,8 @@ description: >
   harness, determinism tests, required property testing (proptest), snapshot testing (insta), required
   fuzzing (cargo-fuzz), and the coverage gate. Use when writing or reviewing parser unit, property,
   snapshot, golden, or fuzz tests.
+  Use this proactively — apply it when writing or reviewing ANY parser test, even when not explicitly
+  asked.
   Triggers: "write parser tests", "rust tests", "fuzz the parser", "proptest", "snapshot test",
   "golden test", "напиши тесты парсера", "rust тесты", "фаззинг парсера", "property тест",
   "golden тест".

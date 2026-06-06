@@ -7,6 +7,8 @@ description: >
   the integration harness (testcontainers for PostgreSQL/RabbitMQ/S3, Fastify app.inject), a
   per-layer testing map, and the coverage gate. Use when writing or reviewing backend unit or
   integration tests.
+  Use this proactively — apply it when writing or reviewing ANY backend test, even when not explicitly
+  asked.
   Triggers: "write backend tests", "test this service", "integration test", "vitest",
   "test the route", "напиши тесты бэкенда", "юнит-тест сервиса", "интеграционный тест",
   "покрой бэкенд тестами", "тест на роут".

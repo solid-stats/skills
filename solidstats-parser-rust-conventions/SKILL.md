@@ -7,6 +7,8 @@ description: >
   typing, malformed-input totality, the tokio worker, and build/supply-chain gates — on top of the
   repo's strict lint floor. Consult before writing or changing any parser Rust; it is the rule source
   that solidstats-parser-rust-code-review enforces and solidstats-parser-rust-tests assumes.
+  Use this proactively — read it before writing or changing ANY parser Rust, even when the task
+  doesn't say "conventions".
   Triggers: "parser conventions", "rust conventions", "edit the parser", "ocap parsing",
   "deterministic output", "parser contract", "artifact schema", "конвенции парсера",
   "детерминизм парсера", "контракт парсера", "поменяй парсер", "разбор ocap".
