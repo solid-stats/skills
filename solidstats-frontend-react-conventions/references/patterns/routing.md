@@ -10,6 +10,9 @@ search params are typed and the single source of truth for shareable state.
   page. No feature/business logic in the route file.
 - Route-level **code splitting** and **preloading on intent** (hover/viewport) are enabled for catalog
   and detail flows (brief: fast list→detail).
+- Each route declares an `errorComponent`, a `pendingComponent` (with a min-show to avoid flash), and
+  a `notFoundComponent`; slow secondary data streams via `defer` + `Await` — this is how replay pages
+  keep LCP (summary first, timeline progressive). See `errors.md` and `performance.md`.
 - **Scroll restoration** is enabled at the router level; virtualized row position is restored on Back
   (the signature requirement). Don't hand-manage scroll.
 
@@ -49,4 +52,6 @@ Review flags:
 - A volatile filter/sort/cursor URL left indexable (crawl-trap risk).
 
 > **Validation:** all route search schemas use **`zod/v4-mini`** — the bundle-conscious Zod v4 build,
-> consistent with the TypeScript conventions (`typescript.md`) and the CWV/bundle budgets.
+> consistent with the TypeScript conventions (`typescript.md`) and the CWV/bundle budgets. Pass the
+> mini schema to `validateSearch` directly (Zod v4/mini implements Standard Schema) or via
+> `@tanstack/zod-adapter` when you want `fallback` / `stripSearchParams`.

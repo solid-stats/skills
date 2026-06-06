@@ -26,7 +26,8 @@ and [`solidstats-frontend-react-tests`](../solidstats-frontend-react-tests/SKILL
 
 > **Stack (locked by the brief):** TanStack Start (SSR) + Router + Query + Table · Nano Stores (light
 > client state only) · vanilla-extract · Ark UI (headless primitives) · Lucide (the only icon set) ·
-> typed ICU i18n (`/ru` `/en`) · `openapi-typescript` + a typed thin client · Node/Docker · SSE realtime.
+> typed ICU i18n (`/ru` `/en`) · `openapi-typescript` paths + a typed thin client (`openapi-fetch` /
+> `openapi-react-query`) · Node/Docker · SSE realtime.
 > **Quality order:** UX continuity → accessibility (WCAG 2.2 AA) → SEO → CWV (LCP≤2.5s, INP≤200ms,
 > CLS≤0.02) → visual polish. **Signature requirement:** list → filter/sort → deep scroll → detail →
 > Back restores table state, scroll, virtualized position, and cache with **no** blocking reload or CLS.
@@ -173,6 +174,12 @@ breakdown; separate guided request flows (identity, kills, teamkills, remove-fro
 dispute) with `server-2` drafts; risk+age moderation queue with immutable audit timeline. Detail in
 `references/patterns/domain-rules.md`.
 
+## 16.1 Security (SSR server)
+
+The Node SSR server sets a Content-Security-Policy + security headers; secrets are server-only and
+never read at module scope in client-reachable code; evidence uploads are content-validated. Detail in
+`references/patterns/security.md`.
+
 ## 17. Reference files
 
 The sections above are the authoritative summary. Load the specific file from `references/patterns/`
@@ -194,9 +201,10 @@ index mapping `src/` paths → pattern files) to decide scope.
 | `seo.md` | SSR for indexable pages, titles/meta, canonical/sitemap/structured-data, `/ru` `/en` hreflang, crawl-trap avoidance. |
 | `realtime.md` | SSE per-page merge discipline, no-CLS updates, reconnect/offline/stale states. |
 | `errors.md` | Stable error codes, recovery copy, user-vs-app distinction. |
+| `security.md` | SSR-server CSP/headers, env/secret handling, upload content-validation. |
 | `tests.md` | Playwright-for-components / Vitest-for-hooks split, CI gate summary. |
 | `domain-rules.md` | Players/squads/rotations/commander/bounty, slug model, provenance, request/moderation flows. |
-| `project-patterns.md` | Index: `src/` path → pattern files, with common search commands. |
+| `../project-patterns.md` (at `references/`, not `patterns/`) | Index: `src/` path → pattern files, with common search commands. |
 
 ## 18. Companion skills
 

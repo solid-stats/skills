@@ -20,7 +20,8 @@ export const $api = createClient(fetchClient);
 ```
 
 - `openapi-fetch` is the thin typed client (centralizes base URL, auth/session headers via middleware,
-  error normalization, SSE wiring). `openapi-react-query` wraps it with TanStack Query, typed by
+  and error normalization); **SSE is wired in the surrounding client module**, not by openapi-fetch
+  itself (it has no SSE feature). `openapi-react-query` wraps it with TanStack Query, typed by
   `paths` — method + path + params are checked against the generated schema.
 - **No raw `fetch` in components/hooks; no hand-written request/response DTOs.** Path/query params go
   through the typed `params` arg, never string interpolation.

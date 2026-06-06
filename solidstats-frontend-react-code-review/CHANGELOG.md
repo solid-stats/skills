@@ -1,5 +1,11 @@
 # Changelog — solidstats-frontend-react-code-review
 
+## 2026-06-06 — Analysis fixes (see .planning/SKILLS-ANALYSIS.md)
+- Severity now comes from the in-skill Severity reference table (the conventions pattern files carry
+  no severity tags); dropped "uses the severity that rule is tagged with."
+- Added a Security gate line, a Security (SSR) sweep step, and a CSP/secret-leak severity row
+  (`[conv: security]`); fixed the loose `project-patterns.md` link path.
+
 ## 2026-06-06 — Initial
 - Operational frontend reviewer: hard-requires `solidstats-process-review-standards` and enforces
   `solidstats-frontend-react-conventions` as its rule library (cites pattern files, doesn't restate).

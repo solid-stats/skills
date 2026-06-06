@@ -20,8 +20,10 @@ buckets (🔴🟠🟡🔵), continuous-numbering output, verdict rules, the test
 
 **The rule library is [`solidstats-frontend-react-conventions`](../solidstats-frontend-react-conventions/SKILL.md)** —
 this skill enforces it, it does not restate it. Every finding cites the convention it breaks
-(`[conv: a11y]`, `[conv: data-flow]`, `[conv: styling]`, …) and uses the severity that rule is tagged
-with. Use `conventions/references/project-patterns.md` to find the right pattern file for the change.
+(`[conv: a11y]`, `[conv: data-flow]`, `[conv: styling]`, …) and takes its severity from the
+**Severity reference** table below — the `[conv: …]` citation identifies *which* rule, not its severity
+(the conventions pattern files carry rules, not severity tags). Use `../solidstats-frontend-react-conventions/references/project-patterns.md` to find the right
+pattern file for the change.
 
 Review happens in two phases, in order.
 
@@ -45,6 +47,8 @@ the gate; verify the change doesn't breach them.
   reload, no CLS. A change that breaks it is a gate failure. `[conv: data-flow / routing / state]`
 - **SEO (public indexable pages)** — SEO-critical content is server-rendered in initial HTML, not
   client-only. `[conv: seo]`
+- **Security headers** — the SSR server sets a CSP + security headers, and no secret is reachable from
+  client code. `[conv: security]`
 
 Render the gate at the top of the report:
 
@@ -90,6 +94,8 @@ order** (UX continuity is the top product priority, then a11y, then SEO — mirr
 12. **Errors** — stable codes, recovery copy, user-vs-app distinction. `[conv: errors]`
 13. **Domain rules** — slug/owner model, provenance/unknown/conflict, masked SteamID, request/
     moderation flows. `[conv: domain-rules]`
+14. **Security (SSR)** — CSP / security headers on the Node server, no client-reachable secrets,
+    upload content-validation. `[conv: security]`
 
 Each finding lands in one severity bucket, carries a `[topic]` tag, and cites `[conv: …]`.
 
@@ -109,6 +115,7 @@ Each finding lands in one severity bucket, carries a `[topic]` tag, and cites `[
 | Optimistic update on a moderation/correction action | 🟠 |
 | SSE update that shifts viewport / steals focus | 🟠 |
 | Bundle-budget breach / heavy dep in a shared path | 🟠 |
+| Missing CSP / security headers; secret reachable from client code | 🟠 (🔴 if a secret leaks) |
 | Render-unstable prop (inline object/array, unmemoized handler) | 🟡 |
 | Missing reserved space (minor CLS), un-virtualized large table | 🟡 |
 | Wrong layer/slice placement; uikit importing business | 🟡 |

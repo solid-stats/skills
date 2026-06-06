@@ -1,5 +1,9 @@
 # Changelog — solidstats-process-review-standards
 
+## 2026-06-06 — Analysis fix (see .planning/SKILLS-ANALYSIS.md)
+- §E verdict: a review with only 🔵 findings now → **APPROVE** (note the optional nits), instead of
+  being forced to REQUEST CHANGES — reconciles §E with §C marking 🔵 as "optional."
+
 ## 2026-06-05 — Initial
 - Adapted from `estesis-process-review-standards` (stack-agnostic review foundation).
 - Retargeted name, description, and body to the SolidStats reviewers:

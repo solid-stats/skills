@@ -16,6 +16,9 @@ accessibility in the quality order.
 - LCP content is in the **initial server-rendered HTML** and does not wait for a client-side fetch
   (prefetch in the loader — see `data-flow.md`). Critical fonts/images are loaded deliberately; avoid
   unnecessary preloads.
+- **Fonts:** self-host WOFF2 with `font-display: swap` (or `optional`) and a metric-matched fallback
+  (`size-adjust`) to kill the swap shift; preload at most the 1–2 critical fonts with `crossorigin`
+  (omitting it double-downloads). The tabular-numeral face (see `styling.md`) is loaded this way.
 
 ## INP
 

@@ -1,5 +1,14 @@
 # Changelog — solidstats-frontend-react-conventions
 
+## 2026-06-06 — Analysis fixes (see .planning/SKILLS-ANALYSIS.md)
+- Added `references/patterns/security.md` (SSR CSP/headers, env/secret leakage, upload
+  content-validation) + a spine §16.1 and the reference-map entry.
+- Added hydration-safety (localization.md), font-loading strategy (performance.md), and route
+  `errorComponent`/`pendingComponent`/`notFoundComponent` + `defer` streaming (routing.md).
+- Corrected: SSE attributed to the client module, not openapi-fetch (data-flow.md); `validateSearch`
+  wiring note — Standard Schema / `@tanstack/zod-adapter` (routing.md); stack line clarified
+  (openapi-fetch *is* the thin client); `project-patterns.md` path noted (it lives in `references/`).
+
 ## 2026-06-06 — Initial
 - Full modular conventions skill for the `web` frontend (TanStack Start / React), mirroring the estesis
   VC conventions structure (spine `SKILL.md` + `references/patterns/*` + a `project-patterns.md`

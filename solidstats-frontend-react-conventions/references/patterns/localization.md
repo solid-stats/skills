@@ -10,6 +10,10 @@ discipline is adapted from the estesis `ln` pattern.
   user choice.
 - Dates/times/numbers are localized for the user; ops/moderation contexts expose UTC in a secondary
   hint where useful. Stats numerals use the tabular-numeral face (see `styling.md`).
+- **Hydration safety:** server and client must render localized dates/numbers identically — serialize
+  to ISO/epoch and format with the same locale/timezone on both sides; never branch on a
+  `new Date()` / `Intl` default that differs server vs client. `suppressHydrationWarning` is a
+  leaf-only escape hatch, not a fix.
 
 ## Keys & usage
 

@@ -18,6 +18,7 @@ only the relevant ones, not all at once.
 | localization files / UI strings | `localization.md` |
 | SSE / live updates | `realtime.md`, `a11y.md`, `performance.md` |
 | error handling / request states | `errors.md` |
+| SSR server headers / CSP / env / secrets / uploads | `security.md` |
 | any TS/TSX | `typescript.md`, `component-shape.md` (cross-cutting) |
 | tests | `tests.md` (+ the `solidstats-frontend-react-tests` skill) |
 | anything touching player/squad/rotation/commander/bounty/request/moderation behavior | `domain-rules.md` |

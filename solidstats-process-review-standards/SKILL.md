@@ -243,7 +243,8 @@ finding:
 - A reviewer's own hard gate failing (e.g. a typecheck/lint gate, or a missing contract without
   justification) → **BLOCK**.
 - Only 🟠 findings → **REQUEST CHANGES** (must fix before merge).
-- Only 🟡 / 🔵 findings → **REQUEST CHANGES** (may negotiate a follow-up PR).
+- Only 🟡 findings → **REQUEST CHANGES** (may negotiate a follow-up PR).
+- Only 🔵 findings → **APPROVE** — note the optional nits; cosmetic-only findings do not block.
 - No findings → **APPROVE**.
 
 When the verdict is REQUEST CHANGES, reference the blocking findings by number and separate
