@@ -1,5 +1,11 @@
 # Changelog — solidstats-backend-ts-code-review
 
+## 2026-06-06 — Analysis fixes (see .planning/SKILLS-ANALYSIS.md)
+- Severity now comes from the in-skill Severity reference table (only `correctness-and-quality.md`
+  carries inline tags); dropped the "apply the severity the rule is tagged with — don't re-derive"
+  instruction that was unsatisfiable for the untagged layer/schema rules.
+- Softened the asserted OpenAPI export path to "e.g. `src/openapi/`".
+
 ## 2026-06-06 — Initial
 - The operational backend reviewer: hard-requires `solidstats-process-review-standards` (format,
   severity buckets, verdict, scope, noise filter) and enforces `solidstats-backend-ts-conventions`

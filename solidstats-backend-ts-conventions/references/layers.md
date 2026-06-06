@@ -98,7 +98,7 @@ business logic — guards and simple checks. Orchestrating several services is a
 talking to storage is a repository's.
 
 ```ts
-type AppealService = { getById(id: string, tx?: Tx): Promise<AppealFull> };
+type AppealService = { getById(id: string, tx?: Transaction<DB>): Promise<AppealFull> };
 
 const createAppealService = (deps: {
   appealRepository: AppealRepository;
@@ -107,7 +107,7 @@ const createAppealService = (deps: {
   async getById(id, tx) {
     const row = await deps.appealRepository.findById(id, tx);
     if (!row) throw new deps.errors.NotFound({ id });   // the service decides "not found"
-    return AppealFull.parse(row);                        // returns validated domain data
+    return Value.Parse(AppealFull, row);                        // returns validated domain data
   },
 });
 ```
@@ -119,7 +119,7 @@ const createAppealService = (deps: {
 - Errors from **external HTTP** calls use `ExternalServiceError`, not a domain error (preserve the
   taxonomy — see `correctness-and-quality.md` → external adapters).
 - Contains **no Kysely queries** — only repository calls.
-- Row → domain validation (`AppealFull.parse(row)`) happens here, not in the repository or the
+- Row → domain validation (`Value.Parse(AppealFull, row)`, from `@sinclair/typebox/value`) happens here, not in the repository or the
   usecase.
 - A "not found" / "empty" outcome is **decided here** (the repository returns `undefined`); the
   service turns it into a typed error or a domain-meaningful value.
@@ -138,8 +138,8 @@ repository throws.
 
 ```ts
 type AppealRepository = {
-  findById(id: string, tx?: Tx): Promise<AppealRow | undefined>;
-  findPage(filter: AppealFilter, page: Pagination, tx?: Tx): Promise<Paged<AppealRow>>;
+  findById(id: string, tx?: Transaction<DB>): Promise<AppealRow | undefined>;
+  findPage(filter: AppealFilter, page: Pagination, tx?: Transaction<DB>): Promise<Paged<AppealRow>>;
 };
 
 const createAppealRepository = (deps: { db: Database }): AppealRepository => ({

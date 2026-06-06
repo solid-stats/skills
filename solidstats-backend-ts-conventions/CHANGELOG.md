@@ -1,5 +1,20 @@
 # Changelog — solidstats-backend-ts-conventions
 
+## 2026-06-06 — Analysis fixes (see .planning/SKILLS-ANALYSIS.md)
+- Corrected row→domain validation: TypeBox has no `.parse()` — use `Value.Parse(Schema, x)` from
+  `@sinclair/typebox/value` (was Zod's API).
+- Reworked the `AppError` example: ctor takes message + `ErrorOptions` and forwards `{ cause }` to
+  `super` (was dropping cause + empty message); `code`/`httpStatus` no longer `readonly`-abstract
+  (compiles under ES2022 class fields).
+- Fixed the 422 claim (Fastify's Ajv validation defaults to **400**; 422 is a project override).
+- Named the Kysely transaction type (`Transaction<DB>`, was an undefined `Tx`); added explicit
+  `pg.Pool` config rule.
+- Added a **Security & runtime hardening** section (rate-limit, helmet/CORS, bodyLimit, graceful
+  shutdown, auth/session+CSRF, secrets-in-responses) and a **Queue reliability** section (manual ack,
+  prefetch/QoS, DLQ, idempotency).
+- Dropped the bogus "§T–§AB" section range (only §Z/§AA/§AB are lettered); added repository/migration/
+  Kysely/queue triggers; removed the stale "(not yet built)" note.
+
 ## 2026-06-06 — Initial
 - Rebased on `estesis-backend-vc-code-review` (the team's proven backend doctrine), translated
   Python/FastAPI → TypeScript/Fastify at **full fidelity** (§A–§AB), anchored to server-2's actual
@@ -26,5 +41,5 @@
 - Absorbs `fastify-best-practices`, `nodejs-backend-patterns`, `api-design-principles` — those
   generic skills are not installed separately; their guidance lives here, tuned to SolidStats.
 - The design/correctness rules are stated as conventions; the separate
-  `solidstats-backend-ts-code-review` skill (not yet built) operationalizes them into hunts with
+  `solidstats-backend-ts-code-review` skill operationalizes them into hunts with
   evidence gates, the OpenAPI conformance gate, and the severity table.

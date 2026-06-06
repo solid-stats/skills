@@ -14,15 +14,26 @@ bare value from a service/usecase.
 ```ts
 // src/infra/errors/app-error.ts
 abstract class AppError extends Error {
-  abstract readonly code: string;        // snake_case, unique within its module
-  abstract readonly httpStatus: number;  // semantic — see table below
-  readonly isOperational = true;         // expected/handled vs a programmer bug
-  constructor(readonly details?: Record<string, unknown>) { super(); }
+  readonly isOperational = true;                 // expected/handled vs a programmer bug
+  protected constructor(
+    readonly code: string,                       // snake_case, unique within its module
+    readonly httpStatus: number,                 // semantic — see table below
+    message: string,
+    readonly details?: Record<string, unknown>,
+    options?: ErrorOptions,                       // { cause } is forwarded to Error
+  ) {
+    super(message, options);                      // keeps error.message; preserves the cause chain
+  }
 }
 
 // modules/appeal/appeal.errors.ts
-class AppealNotFound extends AppError { code = 'appeal_not_found'; httpStatus = 404; }
-const appealErrors = { NotFound: AppealNotFound /* … */ };
+class AppealNotFound extends AppError {
+  constructor(details?: Record<string, unknown>, options?: ErrorOptions) {
+    super('appeal_not_found', 404, 'Appeal not found', details, options);
+  }
+}
+// throw new AppealNotFound({ id });                 // simple
+// throw new AppealNotFound({ id }, { cause: err }); // with the source chain
 ```
 
 - Errors are defined **per module** in `<feature>.errors.ts`; `code` is `snake_case` and unique.
@@ -31,7 +42,7 @@ const appealErrors = { NotFound: AppealNotFound /* … */ };
   - `403` — insufficient permissions
   - `404` — entity does not exist
   - `409` — uniqueness / conflict
-  - `422` — invalid request payload (schema validation; Fastify/Ajv emits this)
+  - `422` — invalid request payload (a project override; Fastify's Ajv validation defaults to **400**)
   - `502` — an upstream service returned an error
   - `500` — reserved for the unknown/unexpected error only, never a domain error
 - **Domain errors extend `AppError`; external-service failures use a separate `ExternalServiceError`**
@@ -79,7 +90,8 @@ type AppealCreate = Static<typeof AppealCreate>;
 - A **response schema is always declared** on a route — it gates serialization and feeds the
   generated OpenAPI (the contract `web` consumes). Share common schemas via `$id` + `app.addSchema`.
 - IDs are typed `string`; timestamps are ISO strings with `format: 'date-time'`.
-- TypeBox/Ajv handles *shape* validation (→ 422 automatically). **Domain** validation (a rule that
+- TypeBox/Ajv handles *shape* validation (→ **400** by default; the central handler remaps it to 422
+  if that's the project's chosen code). **Domain** validation (a rule that
   needs data or context) lives in the **service** and raises a typed `AppError` — do not push
   business rules into schema keywords.
 
@@ -99,6 +111,8 @@ type AppealCreate = Static<typeof AppealCreate>;
 - Frequently-filtered columns are indexed (declared in the migration).
 - If Postgres schemas/namespaces are used to separate domains, the schema is explicit in the table
   definition — never implicit `public`.
+- Configure the `pg.Pool` explicitly — `max`, `connectionTimeoutMillis` (default `0` = wait forever),
+  `idleTimeoutMillis`, `maxUses` — so DB pressure surfaces as a timeout, not a hung request.
 
 ### Migrations
 

@@ -9,8 +9,9 @@ description: >
   writing or changing any backend TypeScript; it is also the rule source that
   solidstats-backend-ts-code-review enforces.
   Triggers: "backend conventions", "fastify route", "add endpoint", "write a service",
-  "backend module", "конвенции бэкенда", "напиши эндпоинт", "добавь роут", "сервис на fastify",
-  "структура модуля бэкенда".
+  "write a repository", "add a migration", "kysely query", "queue consumer", "backend module",
+  "конвенции бэкенда", "напиши эндпоинт", "добавь роут", "сервис на fastify", "напиши репозиторий",
+  "добавь миграцию", "воркер очереди", "структура модуля бэкенда".
 ---
 
 # SolidStats Backend Conventions — TypeScript / Fastify
@@ -41,7 +42,7 @@ The detailed rules live in `references/`. Read the one you need:
 |------|--------|
 | `references/layers.md` | Per-layer rules: controllers/routes, usecases, services, repositories, and Fastify-plugin DI. |
 | `references/schemas-and-data.md` | TypeBox schemas, the typed error system, Kysely data access & query rules, enums/filters/pagination, config/env. |
-| `references/correctness-and-quality.md` | The design & correctness rules (full §T–§AB fidelity): LSP, async safety, security depth (IDOR, mass assignment), SOLID thresholds, DRY, observability, log diagnosability, resource lifecycle — plus code-quality bugs, imports, comments. |
+| `references/correctness-and-quality.md` | The design & correctness rules: LSP, async safety, security depth (IDOR, mass assignment) + security/runtime hardening, queue reliability, SOLID thresholds, DRY, observability (§Z), log diagnosability (§AA), resource lifecycle (§AB) — plus code-quality bugs, imports, comments. |
 
 This SKILL.md owns the spine that everything else hangs off: the architecture, the module layout,
 and naming.

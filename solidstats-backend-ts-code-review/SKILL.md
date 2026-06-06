@@ -22,8 +22,9 @@ and the noise filter. It must be installed alongside this skill.
 
 **The rule library is [`solidstats-backend-ts-conventions`](../solidstats-backend-ts-conventions/SKILL.md)** —
 this skill does not restate the rules; it *enforces* them. Every finding cites the convention it
-breaks (`[conv: layers.md → Services]`, `[conv: correctness §AA]`) as its objective evidence, and
-uses the **severity each rule is tagged with** in that skill.
+breaks (`[conv: layers.md → Services]`, `[conv: correctness §AA]`) as its objective evidence; the
+severity comes from the **Severity reference** table below — the citation identifies *which* rule, not
+its severity (only `correctness-and-quality.md` carries inline severity tags).
 
 Review happens in two phases, in order. Do not skip or reorder.
 
@@ -46,8 +47,8 @@ For every public route the change adds or touches:
   client. It is acceptable only if it is backward-compatible **or** the adjacent `web` app is updated
   in lockstep (per the cross-app rule in AGENTS.md). An unflagged breaking change to a public
   contract, with no justification, is a **BLOCK**.
-- **The OpenAPI artifact is regenerated** when the API shape changed (server-2 exposes an export
-  under `src/openapi/`). If the change alters the contract but doesn't refresh the artifact, note it.
+- **The OpenAPI artifact is regenerated** when the API shape changed (server-2 exposes an export,
+  e.g. under `src/openapi/`). If the change alters the contract but doesn't refresh the artifact, note it.
 
 Render the gate result at the top of the report, above the severity buckets:
 
@@ -93,8 +94,9 @@ first" ordering becomes concrete for the backend:
     correctness → Code-quality / Comments / Imports]`
 
 Each finding lands in exactly one severity bucket (from review-standards), carries a `[topic]` tag,
-and cites the `[conv: …]` section it breaks. Apply the **severity the convention rule is tagged
-with** — don't re-derive it. Group identical 🟡/🔵 findings; never drop a 🔴/🟠.
+and cites the `[conv: …]` section it breaks. Take the severity from the **Severity reference** table below
+(where `correctness-and-quality.md` tags a rule, the table matches it). Group identical 🟡/🔵 findings;
+never drop a 🔴/🟠.
 
 ---
 

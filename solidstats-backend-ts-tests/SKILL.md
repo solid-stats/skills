@@ -19,7 +19,8 @@ That skill owns the philosophy (RITE, AAA, the unit-vs-integration boundary, det
 oracle strength, the coverage mindset, naming, TDD). This skill adds only the **TS/Fastify HOW**:
 the runner, layout, idioms, integration harness, per-layer map, and the coverage gate. It covers
 server-2; the non-Fastify parts also bind the `replays-fetcher` CLI (Fastify-specific items are
-tagged **[HTTP]**).
+tagged **[HTTP]**). It assumes [`solidstats-backend-ts-conventions`](../solidstats-backend-ts-conventions/SKILL.md) —
+the factory-DI shape that makes the unit doubles below trivial.
 
 ## Runner
 
@@ -92,9 +93,13 @@ expect(res.json()).toMatchObject({ id: expect.any(String) });
 
 - `@vitest/coverage-v8`. The gate is **100% reachable-source** coverage (per server-2 AGENTS) —
   maximize coverage with **rare, justified** exceptions only, marked with an explicit
-  `/* v8 ignore next -- <reason> */` so each gap is auditable.
+  `/* v8 ignore next -- @preserve */` (the `@preserve` legal-comment marker keeps esbuild from
+  stripping the ignore hint during TS transpile) so each gap is auditable.
 - Coverage is a **floor, not proof** (testing-standards §H): pair it with strong oracles, and use
   mutation thinking to check that the tests would actually catch a fault.
+- Coverage gates are **per-stack by design** (testing-standards §H delegates the number): backend
+  gates on 100% reachable-source, the parser on llvm-cov, the frontend on CI/Lighthouse + bundle
+  budgets rather than a line %.
 
 ## Not owned here
 

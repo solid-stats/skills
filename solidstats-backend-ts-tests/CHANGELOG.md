@@ -1,5 +1,11 @@
 # Changelog — solidstats-backend-ts-tests
 
+## 2026-06-06 — Analysis fixes (see .planning/SKILLS-ANALYSIS.md)
+- Added the missing reference to `solidstats-backend-ts-conventions` (siblings already referenced
+  theirs).
+- Fixed the coverage-ignore comment to `/* v8 ignore next -- @preserve */` (esbuild strips a bare
+  hint during TS transpile); noted that coverage gates are per-stack by design.
+
 ## 2026-06-06 — Initial
 - The thin per-stack backend test skill on top of `solidstats-process-testing-standards` (which owns
   the philosophy). Adds only the TS/Fastify how-to; does not restate RITE/AAA/determinism.

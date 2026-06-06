@@ -61,6 +61,42 @@ The event loop is single-threaded; blocking it freezes every concurrent request.
 
 ---
 
+## Security & runtime hardening
+
+A backend owning Steam OAuth, moderation, and money-like bounty data needs HTTP/process hardening
+beyond input validation:
+
+- **Rate limiting** — `@fastify/rate-limit`: a global baseline plus stricter limits on auth/login and
+  bounty/moderation mutation routes (OWASP API4/API2 — brute-force + resource exhaustion). [🔴 on
+  auth/mutation routes, else 🟠]
+- **Security headers + CORS** — `@fastify/helmet` (HSTS/CSP/frame options) and an explicit
+  `@fastify/cors` **allow-list** (the `web` origin only; credentials handled deliberately). Permissive
+  CORS on a credentialed API is an account-takeover vector. [🔴]
+- **Body/payload limits** — set `bodyLimit` globally and per-route (uploads); a schema `maxLength`
+  doesn't stop a multi-MB body from being parsed first. [🟠]
+- **Graceful shutdown** — on `SIGTERM`/`SIGINT`, `await app.close()` to drain in-flight requests and
+  close DB/queue/consumers, with a forced-exit timeout; consider `@fastify/under-pressure` for 503 on
+  overload. Per-resource `onClose` alone doesn't drain HTTP. [🟠]
+- **Auth & session** — verify the Steam OAuth `state` (CSRF) on callback; session cookies are
+  `HttpOnly` + `Secure` + `SameSite`; sessions expire/rotate; cookie-auth mutations carry CSRF
+  protection. [🟠]
+- **Secrets in responses** — never in error `details`/responses, logs, or OpenAPI examples; env-only
+  and rotatable. [🔵]
+
+## Queue reliability
+
+The durable `parse_jobs` claim (SKILL §A) requires consumer discipline:
+
+- **Manual ack** (no auto-ack) so a crash mid-process redelivers rather than loses the job; bound
+  in-flight work with a **prefetch/QoS** cap. [🟠]
+- **Dead-letter + poison cap** — a message that always fails routes to a DLQ (or hits a delivery-count
+  cap) instead of requeuing forever. [🟠]
+- **Idempotent writes** — money-like / duplicate-sensitive mutations (bounty grants, moderation
+  actions) accept an `Idempotency-Key` (or dedupe on a natural key) so a client retry can't
+  double-apply. [🟠]
+
+---
+
 ## Contract compliance (LSP)
 
 A factory that implements a contract must honor it exactly — the type system catches most of this,
