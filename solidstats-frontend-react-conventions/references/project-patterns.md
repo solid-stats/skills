@@ -19,7 +19,9 @@ only the relevant ones, not all at once.
 | SSE / live updates | `realtime.md`, `a11y.md`, `performance.md` |
 | error handling / request states | `errors.md` |
 | SSR server headers / CSP / env / secrets / uploads | `security.md` |
+| request forms / steppers / field validation | `forms.md` |
 | any TS/TSX | `typescript.md`, `component-shape.md` (cross-cutting) |
+| lint / format / type-check config (Vite+ `vp check`) | `typescript.md` |
 | tests | `tests.md` (+ the `solidstats-frontend-react-tests` skill) |
 | anything touching player/squad/rotation/commander/bounty/request/moderation behavior | `domain-rules.md` |
 

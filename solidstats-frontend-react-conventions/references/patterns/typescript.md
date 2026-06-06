@@ -48,6 +48,23 @@ SolidStats stack (OpenAPI types + `zod/v4-mini`).
   (`Pick`/`Omit`/`Except`/`Modify`) rather than redeclaring primitives.
 - Domain ID props prefer property references: `PlayerData['id']`, `RequestData['id']`.
 
+## Lint, format & type-check — Vite+
+
+The repo's lint/format/type-check toolchain is **Vite+** (`vp`, by VoidZero) — Oxlint + Oxfmt + tsgo
+on the shared oxc core, configured in `vite.config.ts`.
+
+- **Lint — Oxlint, configured strict:** enable the `correctness`, `suspicious`, and `pedantic`
+  categories plus type-aware rules (tsgo-backed) and the framework plugins (React hooks, import,
+  jsx-a11y). Warnings are errors in CI. A suppression carries a one-line justification — never a
+  blanket file disable. "Strict but within reason": don't enable a rule that fights the documented
+  conventions here (e.g. a rule banning a pattern this skill mandates) — turn those off deliberately,
+  with a comment.
+- **Format — Oxfmt** (Prettier-compatible): formatting is **not** hand-reviewed — `vp check --fix`
+  owns it.
+- **Type-check — tsgo** with the strict flags above (`noUncheckedIndexedAccess`, no `any`, …).
+- **Gate:** `vp check` (format + lint + type-check) must pass in CI, alongside the Playwright /
+  Lighthouse / bundle gates (see `tests.md`).
+
 Review flags:
 
 - `interface`, `any`, `!`, or an unexplained `as`; an indexed access `!`-ed instead of handled.

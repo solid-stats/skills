@@ -27,7 +27,8 @@ and [`solidstats-frontend-react-tests`](../solidstats-frontend-react-tests/SKILL
 > **Stack (locked by the brief):** TanStack Start (SSR) + Router + Query + Table · Nano Stores (light
 > client state only) · vanilla-extract · Ark UI (headless primitives) · Lucide (the only icon set) ·
 > typed ICU i18n (`/ru` `/en`) · `openapi-typescript` paths + a typed thin client (`openapi-fetch` /
-> `openapi-react-query`) · Node/Docker · SSE realtime.
+> `openapi-react-query`) · Node/Docker · SSE realtime · **TanStack Form** (request steppers) ·
+> **Vite+** (`vp check`: Oxlint + Oxfmt + tsgo) for lint/format/type-check.
 > **Quality order:** UX continuity → accessibility (WCAG 2.2 AA) → SEO → CWV (LCP≤2.5s, INP≤200ms,
 > CLS≤0.02) → visual polish. **Signature requirement:** list → filter/sort → deep scroll → detail →
 > Back restores table state, scroll, virtualized position, and cache with **no** blocking reload or CLS.
@@ -190,6 +191,7 @@ index mapping `src/` paths → pattern files) to decide scope.
 |---|---|
 | `architecture.md` | Root/UI layers, slices/entrypoints, uikit-vs-feature boundary. |
 | `component-shape.md` | Component shape, props order, server/client boundary, Lucide icons. |
+| `forms.md` | TanStack Form for the request steppers — validation, drafts, SSR, field subscription. |
 | `data-flow.md` | Query + Router loader-prefetch, the typed thin client, query keys, mutations, pagination. |
 | `state.md` | URL/Router vs Query cache vs Nano Stores boundaries. |
 | `routing.md` | Typed routes, search-param single-source-of-truth, scroll restoration, auth/role gates, `/ru` `/en`. |

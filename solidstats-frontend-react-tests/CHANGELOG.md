@@ -1,5 +1,8 @@
 # Changelog — solidstats-frontend-react-tests
 
+## 2026-06-06 — Follow-up (user directives)
+- CI gate now includes `vp check` (Vite+ lint/format/type-check).
+
 ## 2026-06-06 — Initial
 - The thin per-stack frontend test skill on top of `solidstats-process-testing-standards` (which owns
   the philosophy). Adds the frontend how-to; assumes `solidstats-frontend-react-conventions`.

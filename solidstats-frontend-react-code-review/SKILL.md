@@ -43,6 +43,8 @@ the gate; verify the change doesn't breach them.
 - **Console errors** — none on critical journeys (the CI blocks them). `[conv: errors]`
 - **Generated types freshness** — `openapi-typescript` types are current vs the `server-2` schema; a
   change consuming a stale/hand-written shape is a gate failure. `[conv: typescript]`
+- **Lint / format / type-check** — `vp check` (Vite+: Oxlint + Oxfmt + tsgo) passes; warnings are
+  errors. `[conv: typescript]`
 - **The list→detail→back contract** — preserved: scroll/virtualization/cache restored, no blocking
   reload, no CLS. A change that breaks it is a gate failure. `[conv: data-flow / routing / state]`
 - **SEO (public indexable pages)** — SEO-critical content is server-rendered in initial HTML, not

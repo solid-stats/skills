@@ -1,5 +1,13 @@
 # Changelog — solidstats-frontend-react-conventions
 
+## 2026-06-06 — Follow-up (user directives)
+- Added `references/patterns/forms.md` — **TanStack Form** for the request steppers (zod/v4-mini,
+  live-after-submit validation, SSR drafts, field-level subscription).
+- Added the **Vite+** lint/format/type-check baseline to `typescript.md` (Oxlint + Oxfmt + tsgo via
+  `vp check`, strict-but-sane) + the stack line.
+- Expanded the evidence-upload spec in `security.md` (magic-bytes validation, both-side limits, EXIF
+  strip, no-SVG, accessible drop-zone/progress, object-URL cleanup, safe external links).
+
 ## 2026-06-06 — Analysis fixes (see .planning/SKILLS-ANALYSIS.md)
 - Added `references/patterns/security.md` (SSR CSP/headers, env/secret leakage, upload
   content-validation) + a spine §16.1 and the reference-map entry.

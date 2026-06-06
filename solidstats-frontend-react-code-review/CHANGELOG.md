@@ -1,5 +1,8 @@
 # Changelog — solidstats-frontend-react-code-review
 
+## 2026-06-06 — Follow-up (user directives)
+- Phase-1 gate now includes `vp check` (Vite+ lint/format/type-check).
+
 ## 2026-06-06 — Analysis fixes (see .planning/SKILLS-ANALYSIS.md)
 - Severity now comes from the in-skill Severity reference table (the conventions pattern files carry
   no severity tags); dropped "uses the severity that rule is tagged with."

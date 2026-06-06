@@ -25,6 +25,7 @@ These block merge; honor them when writing/reviewing UI:
 - **Console errors** during critical journeys block.
 - **Scroll restoration, cache restoration, and CLS** regressions block.
 - **Lighthouse / budgets** (performance, a11y, SEO) and **bundle budgets** block.
+- **`vp check`** (Vite+ Oxlint + Oxfmt + tsgo) passes — the lint/format/type-check gate.
 - E2E runs against a **deterministic seeded `server-2`** backend; local dev uses a reachable `server-2`,
   not mocks as the primary mode.
 

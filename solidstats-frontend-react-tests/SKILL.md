@@ -53,6 +53,7 @@ From the brief — these block merge:
 - **axe** a11y (serious/critical block); **console errors** on critical journeys block; **scroll
   restoration / cache restoration / CLS** regressions block.
 - **Lighthouse / budgets** (performance, a11y, SEO) and **bundle budgets** block for critical pages.
+- **`vp check`** (Vite+: Oxlint + Oxfmt + tsgo) — lint/format/type-check — blocks.
 - **Smoke screenshot** regression for key desktop/mobile states (not a high-maintenance full visual gate).
 
 ## E2E data & doubles
