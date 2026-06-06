@@ -1,5 +1,9 @@
 # Changelog — solidstats-parser-rust-tests
 
+## 2026-06-06 — Analysis fixes (see .planning/SKILLS-ANALYSIS.md)
+- Fixed the CI fuzz command: `-max_total_time` is a libFuzzer flag and must follow `--`
+  (`cargo fuzz run <target> -- -max_total_time=300`).
+
 ## 2026-06-06 — Initial
 - The thin per-stack Rust parser test skill on top of `solidstats-process-testing-standards` (which
   owns the philosophy). Adds the cargo runner, the golden harness, and the property/snapshot/fuzz

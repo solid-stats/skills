@@ -1,5 +1,17 @@
 # Changelog — solidstats-parser-rust-conventions
 
+## 2026-06-06 — Analysis fixes (see .planning/SKILLS-ANALYSIS.md)
+- Corrected §C: serde_json serializes `f64` via ryu deterministically **by default**; `float_roundtrip`
+  reframed as parse-side canonicalization (was wrongly stated as the source of cross-arch determinism).
+- Corrected §C overflow wording (wrapping is deterministic-but-wrong, not "arch-dependent").
+- §F: dropped the misattributed RUSTSEC-2024-0012 (that advisory is `serde-json-wasm`); cite
+  serde_json's own 128-deep guard. Added: reject non-finite floats; default `deny_unknown_fields`;
+  S3 stream + content-length cap.
+- §H worker hardening: poison-message/DLX + `delivery-limit`, `basic_qos` prefetch bound, `JoinSet`
+  drain on shutdown, consumer-cancel/recovery, S3 operation timeouts.
+- §D: C-GOOD-ERR error bounds (`Error + Send + Sync + 'static`, lowercase Display).
+- Tightened the description and added determinism/contract triggers (the two headline rules had none).
+
 ## 2026-06-06 — Initial
 - Authored fresh — there is no estesis Rust doctrine; grounded on the absorbed Rust generics
   (`rust-best-practices`, `rust-async-patterns`, `rust-testing`) plus replay-parser-2's actual stack.

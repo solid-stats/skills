@@ -1,5 +1,12 @@
 # Changelog — solidstats-parser-rust-code-review
 
+## 2026-06-06 — Analysis fixes (see .planning/SKILLS-ANALYSIS.md)
+- Severity now comes from the in-skill Severity reference table (the conventions skill carries no
+  severity tags); dropped the "use the severity the rule is tagged with" instruction.
+- Reordered the severity table 🔴→🔵; removed the wrong "missing float_roundtrip" nondeterminism cause;
+  added hunt rows for poison-message/no-DLX, unbounded prefetch, `deny_unknown_fields` off, unbounded
+  S3 read, and shutdown-without-drain.
+
 ## 2026-06-06 — Initial
 - The operational parser reviewer: hard-requires `solidstats-process-review-standards` (format,
   severity, verdict, scope, noise filter) and enforces `solidstats-parser-rust-conventions` as its

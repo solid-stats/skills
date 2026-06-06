@@ -78,7 +78,8 @@ References the external `cargo-fuzz` tool skill for mechanics; the policy here:
   (exercises aggregation/normalization logic that random bytes rarely reach).
 - **Seed corpus** committed under `fuzz/corpus/`, seeded from the golden `.ocap.json` fixtures;
   minimize with `cargo fuzz cmin` before long runs.
-- **CI smoke**: run each target a bounded time (`-max_total_time=300`) on a nightly job; upload
+- **CI smoke**: run each target for a bounded time — `cargo fuzz run <target> -- -max_total_time=300`
+  (the `-max_total_time` arg is a libFuzzer flag, so it must follow `--`) — on a nightly job; upload
   `fuzz/artifacts/` on a crash for reproduction.
 - **Close the loop**: use `cargo fuzz coverage` to find decode branches the fuzzer didn't reach, then
   add seeds or adjust the target.

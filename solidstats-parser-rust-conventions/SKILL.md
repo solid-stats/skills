@@ -1,16 +1,15 @@
 ---
 name: solidstats-parser-rust-conventions
 description: >
-  Prescriptive architecture and coding conventions for the SolidStats Rust OCAP parser
-  (replay-parser-2). Defines the crate architecture, the determinism rules (byte-identical
-  artifacts), the versioned parser-contract discipline, error handling (thiserror), domain typing,
-  malformed-input totality, async/worker rules, and docs/performance — all built on top of the
-  repo's already-strict lint floor. Consult before writing or changing any parser Rust; it is the
-  rule source that solidstats-parser-rust-code-review enforces and solidstats-parser-rust-tests
-  assumes.
-  Triggers: "rust conventions", "parser conventions", "edit the parser", "add a parser feature",
-  "ocap parsing", "конвенции парсера", "правила rust", "поменяй парсер", "добавь в парсер",
-  "разбор ocap".
+  Prescriptive conventions for the SolidStats Rust OCAP parser (replay-parser-2). Two
+  non-negotiables: the parser is deterministic (byte-identical artifacts) and the versioned
+  parser-contract stays stable. Also covers crate architecture, thiserror error handling, domain
+  typing, malformed-input totality, the tokio worker, and build/supply-chain gates — on top of the
+  repo's strict lint floor. Consult before writing or changing any parser Rust; it is the rule source
+  that solidstats-parser-rust-code-review enforces and solidstats-parser-rust-tests assumes.
+  Triggers: "parser conventions", "rust conventions", "edit the parser", "ocap parsing",
+  "deterministic output", "parser contract", "artifact schema", "конвенции парсера",
+  "детерминизм парсера", "контракт парсера", "поменяй парсер", "разбор ocap".
 ---
 
 # SolidStats Parser Conventions — Rust / OCAP
@@ -37,7 +36,7 @@ The workspace is five crates, each with one job. Keep logic in the core, keep bi
 | `parser-core` | Deterministic parsing, normalization, aggregation. Pure logic — no I/O, no clock, no network. | contract |
 | `parser-cli` | `clap` binary `replay-parser-2` (Parse / Schema / Worker / Healthcheck). Thin adapter. | core, contract |
 | `parser-worker` | Durable RabbitMQ/S3 worker + axum healthcheck + graceful shutdown. | core, contract |
-| `parser-quality` | Coverage and fault-report quality gates (build-time, not runtime). | — |
+| `parser-quality` | Coverage and fault-injection (`fault_injection_regressions`) quality gates (build-time, not runtime). | — |
 
 - **`parser-core` is pure and deterministic**: it takes input and returns artifacts/errors with no
   side effects — no clock reads, no filesystem, no network, no randomness. I/O lives in the
@@ -74,12 +73,14 @@ The same input must produce a **byte-identical** artifact on every run, machine,
   reads, no thread-scheduling-dependent ordering feeding anything that lands in the artifact.
 - **Floats compare with an epsilon** (`float_cmp` is denied); define a tolerance, don't `==`. Prefer
   integers/fixed-point for derived quantities where feasible.
-- **Float *serialization* is deterministic too** — build `serde_json` with the **`float_roundtrip`**
-  feature (Ryu shortest round-trip) so an `f64` emits byte-identical text on every architecture.
-  Do **not** reach for `arbitrary_precision` for this — it preserves the input *string*, not the value.
+- **Float output is already deterministic** — `serde_json` serializes `f64` via ryu (shortest
+  round-trip) **unconditionally**, so emission is byte-identical across architectures with no feature
+  flag. Enable the **`float_roundtrip`** feature only for *parse-side* canonicalization (a value
+  parsed then re-serialized stays stable); do **not** use `arbitrary_precision` for determinism — it
+  preserves the input *string*, not the value.
 - **Integers are overflow-checked** — set `overflow-checks = true` in `[profile.release]`. Release
-  mode otherwise wraps silently, turning an overflow on an untrusted count/offset into a
-  wrong-but-non-panicking, arch-dependent result; use `checked_*`/`saturating_*` where graceful
+  mode otherwise wraps silently (two's-complement: deterministic but **wrong**), turning an overflow
+  on an untrusted count/offset into silent corruption; use `checked_*`/`saturating_*` where graceful
   handling is wanted.
 - **Canonical form for hashing** *(only if artifact content is ever hashed/signed)* — canonicalize
   per RFC 8785 (JCS), not `BTreeMap` byte order: JCS sorts object keys by UTF-16 code units, which
@@ -101,6 +102,9 @@ The same input must produce a **byte-identical** artifact on every run, machine,
   variant, never a crash (§F).
 - Preserve the source: `#[from]` / `#[source]` so the cause chain survives; carry an identifying
   detail (the offending field/offset) in the variant where it helps diagnosis.
+- Public error types are **well-behaved (C-GOOD-ERR)**: they `impl std::error::Error`, are
+  `Send + Sync + 'static` (the worker moves errors across tasks), and have a lowercase,
+  no-trailing-punctuation `Display`.
 
 ---
 
@@ -132,10 +136,16 @@ either parses to an artifact or returns a typed error; nothing panics, hangs, or
   RabbitMQ are read through a cap — `serde_json::from_reader(reader.take(MAX_BYTES))` — and an
   oversized payload is rejected rather than allowed to exhaust worker memory.
 - **Respect the recursion limit.** Never enable `serde_json`'s `unbounded_depth` /
-  `disable_recursion_limit` on untrusted input — the 128-depth guard prevents stack-overflow DoS on
-  adversarial nesting (RUSTSEC-2024-0012). The parse guard does **not** cover recursive `Drop` of a
-  deeply-nested value tree, so cap nesting at the boundary if arbitrarily deep input is ever
-  legitimate.
+  `disable_recursion_limit` on untrusted input — serde_json's built-in 128-deep guard prevents
+  stack-overflow DoS on adversarial nesting. The parse guard does **not** cover recursive `Drop` of a
+  deeply-nested `Value` tree (serde-rs/json#440), so cap nesting at the boundary if arbitrarily deep
+  input is ever legitimate.
+- **Reject non-finite floats.** `serde_json` serializes `NaN`/`±Inf` as `null` — a silent, lossy
+  corruption of the artifact. Reject or clamp non-finite `f64` before it enters a derived field.
+- **Default to `#[serde(deny_unknown_fields)]`** on artifact-bound types so unexpected/attacker-shaped
+  keys are a typed error, not silently ignored; note that serde keeps the *last* of duplicate JSON
+  keys. Read untrusted bodies with a size cap (above), and when pulling from S3 stream the object and
+  reject on `content_length > MAX` before downloading.
 - Unknown/extra fields and unexpected shapes are handled deliberately (rejected with a typed error or
   explicitly ignored per the contract) — not a silent default that hides corruption.
 - Because totality can't be proven by example tests alone, fuzzing the decode path is **required**
@@ -182,6 +192,18 @@ Applies to `parser-worker` (the `parser-core` logic stays sync and pure).
 - **Durability**: the worker coordinates through durable `parse_jobs` state — never fire-and-forget.
   Honor ack/nack semantics, make processing **idempotent** (a redelivered message must not double
   apply), and support **graceful shutdown** (`CancellationToken` / the existing `shutdown.rs`).
+- **Poison messages → dead-letter, never requeue-loop.** A parse/validation failure nacks with
+  `requeue=false` to a dead-letter exchange (or relies on a quorum-queue `delivery-limit`); only
+  *transient* failures requeue. An always-failing message must not redeliver forever.
+- **Bound prefetch.** Set a small `basic_qos(prefetch_count)` (e.g. 10–50) so unacked deliveries
+  don't stream unbounded into worker memory — the queue-level counterpart to the §F input-size cap.
+- **Drain on shutdown, don't just signal.** Graceful shutdown both *tells* (CancellationToken) and
+  *waits*: collect in-flight tasks in a `JoinSet` and `join_next` them (ack the in-flight delivery)
+  before exit, so SIGTERM doesn't drop a mid-parse message.
+- **Handle consumer cancellation / recovery.** A broker `basic.cancel` (queue deleted, failover) ends
+  the consumer stream — treat stream-end as reconnect, and enable connection recovery.
+- **Bound S3.** aws-sdk-s3 retries by default but sets **no** operation timeout — configure explicit
+  `operation_timeout` + `operation_attempt_timeout` so a stalled read can't hang a worker task.
 - Instrument with `tracing` (structured spans/fields), correlating by `replayId` / `jobId`.
 - *(Optional, once an OTLP collector exists)* propagate `traceparent` through the RabbitMQ message and
   export worker spans via `tracing-opentelemetry` / OTLP, so a parse is followable from server-2's

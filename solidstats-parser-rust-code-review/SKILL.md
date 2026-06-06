@@ -20,8 +20,9 @@ the noise filter. It must be installed alongside this skill.
 
 **The rule library is [`solidstats-parser-rust-conventions`](../solidstats-parser-rust-conventions/SKILL.md)** —
 this skill enforces it, it does not restate it. Every finding cites the convention it breaks
-(`[conv: §C]` determinism, `[conv: §F]` parsing, `[conv: §G]` contract, …) and uses the severity
-that rule is tagged with there.
+(`[conv: §C]` determinism, `[conv: §F]` parsing, `[conv: §G]` contract, …) and takes its severity
+from the Severity reference table below — the `[conv: …]` citation identifies *which* rule, not its
+severity (the conventions skill states rules, not severity tags).
 
 Review happens in two phases, in order.
 
@@ -94,8 +95,8 @@ order**:
 9. **Docs / perf / quality** — `missing_docs`, `#[must_use]`, perf (iterators, box large variants),
    the lint floor. `[conv: §I/§B]`
 
-Each finding lands in one severity bucket, carries a `[topic]` tag, and cites `[conv: …]`. Apply the
-severity the rule is tagged with.
+Each finding lands in one severity bucket, carries a `[topic]` tag, and cites `[conv: …]`. Take the
+severity from the Severity reference table below.
 
 ---
 
@@ -103,16 +104,18 @@ severity the rule is tagged with.
 
 | Finding | Severity |
 |---------|----------|
-| Nondeterminism in derived output (HashMap iteration, SystemTime/rand, missing `float_roundtrip`) | 🔴 (artifacts drift) |
+| Nondeterminism in derived output (HashMap iteration, SystemTime/rand, unsorted collection, non-finite float→`null`) | 🔴 (artifacts drift) |
 | `panic`/`unwrap`/`expect` reachable on the untrusted-input path | 🔴 |
 | Unflagged breaking contract / artifact-shape change (Phase 1) | 🔴 BLOCK |
 | Missing input-size cap / disabled serde_json recursion limit on untrusted input | 🟠 (🔴 if a reachable DoS) |
+| Poison message requeued with no DLX / `delivery-limit`; unbounded consumer prefetch | 🟠 |
 | `overflow-checks` off in release; integer overflow on untrusted counts | 🟠 |
-| Logic/clock/network in `parser-core` (impurity) | 🟠 |
-| Non-exhaustive `_` match hiding new variants; hand-written `Into`/`TryInto`; missing newtype | 🟡 |
-| `cargo-deny`/`cargo-audit` advisory; MSRV undeclared | 🟠 |
-| Missing `#[non_exhaustive]` on a growing public enum | 🟡 |
-| Docs/naming/style; missing `#[must_use]` | 🔵 |
+| Logic / clock / network in `parser-core` (impurity) | 🟠 |
+| `deny_unknown_fields` off on an artifact-bound type; unbounded S3 read | 🟠 |
+| `cargo-deny` / `cargo-audit` advisory; MSRV undeclared | 🟠 |
+| Non-exhaustive `_` match hiding variants; hand-written `Into`/`TryInto`; missing newtype | 🟡 |
+| Missing `#[non_exhaustive]` on a growing public enum; shutdown signals but doesn't drain | 🟡 |
+| Docs / naming / style; missing `#[must_use]` | 🔵 |
 
 ---
 
