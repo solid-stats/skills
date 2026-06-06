@@ -108,7 +108,7 @@ severity — this lists the *typical* mapping; classify by actual impact.)
 | Finding | Severity |
 |---------|----------|
 | IDOR — no ownership/permission check | 🔴 BLOCK |
-| Blocking I/O on an async path | 🔴 |
+| Blocking I/O on an async path | 🟠 (🔴 if it stalls a hot/shared path) |
 | LSP / contract break that breaks callers | 🔴 |
 | Breaking public API-contract change, unflagged (Phase 1) | 🔴 BLOCK |
 | N+1 query (await in a loop) | 🟠 |

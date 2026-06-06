@@ -1,5 +1,9 @@
 # Changelog — solidstats-process-review-standards
 
+## 2026-06-06 — Calibration (user-confirmed)
+- §C: "blocking I/O on an async path" moved from 🔴 to 🟠 (🔴 only when it stalls a hot/shared path);
+  "missing important test" severity now stated as owned by §F (single source).
+
 ## 2026-06-06 — Analysis fix (see .planning/SKILLS-ANALYSIS.md)
 - §E verdict: a review with only 🔵 findings now → **APPROVE** (note the optional nits), instead of
   being forced to REQUEST CHANGES — reconciles §E with §C marking 🔵 as "optional."

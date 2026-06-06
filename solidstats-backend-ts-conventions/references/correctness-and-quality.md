@@ -28,7 +28,7 @@ External calls (Steam, other services) go through an adapter with a strict error
 The event loop is single-threaded; blocking it freezes every concurrent request.
 
 - **No blocking I/O inside `async` paths** — no sync `fs` reads, no sync hashing of large input on
-  the request path. Use the async API or offload to a worker. [🔴]
+  the request path. Use the async API or offload to a worker. [🟠 — 🔴 when it stalls a hot/shared path]
 - **No N+1** — no `await` on a per-item repo/service call inside a loop over a collection; batch into
   one query. [🟠]
   ```ts

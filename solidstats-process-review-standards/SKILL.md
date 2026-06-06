@@ -123,9 +123,9 @@ whole point of this skill.
 
 | Bucket | Meaning — what production impact puts a finding here | Topics that often land here | Verdict effect |
 |--------|------|------|----------------|
-| 🔴 **Blocker** (critical) | Ships a broken or insecure result. | data loss, auth bypass / IDOR, exploitable vuln, an unimplementable contract, production-wide breakage, an LSP break, blocking I/O on an async path. | **BLOCK** |
-| 🟠 **High** | Almost certainly wrong or incompatible, but local and fixable without reworking the change. | wrong layer or boundary, broken DI, logic in the wrong layer, broken request lifecycle, a missing realistic error path, a shape that won't fit shared patterns, N+1, mass assignment. | must fix before merge |
-| 🟡 **Medium** | A real but bounded problem — works, but degraded or risky. | naming, type annotation, missing field constraint, a material ambiguity, an unhandled edge case, log-level misuse, a missing important test. | fix or explicitly accept |
+| 🔴 **Blocker** (critical) | Ships a broken or insecure result. | data loss, auth bypass / IDOR, exploitable vuln, an unimplementable contract, production-wide breakage, an LSP break. | **BLOCK** |
+| 🟠 **High** | Almost certainly wrong or incompatible, but local and fixable without reworking the change. | wrong layer or boundary, broken DI, logic in the wrong layer, broken request lifecycle, a missing realistic error path, a shape that won't fit shared patterns, N+1, mass assignment, blocking I/O on an async path (🔴 when it stalls a hot/shared path). | must fix before merge |
+| 🟡 **Medium** | A real but bounded problem — works, but degraded or risky. | naming, type annotation, missing field constraint, a material ambiguity, an unhandled edge case, log-level misuse, a missing important test (severity owned by §F). | fix or explicitly accept |
 | 🔵 **Low** | Does not change behavior or the contract. | style, wording, import order, cosmetics, doc comments, a minor a11y nit. | optional |
 
 The "Topics" column is a guide to *typical* placement, not a rule — always classify by actual
