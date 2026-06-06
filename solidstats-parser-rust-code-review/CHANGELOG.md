@@ -1,5 +1,9 @@
 # Changelog — solidstats-parser-rust-code-review
 
+## 2026-06-06 — Follow-up
+- Conventions split into spine + `references/`; noted that the §-letters now live in those reference
+  files (citations unchanged, resolved via the conventions reference map).
+
 ## 2026-06-06 — Analysis fixes (see .planning/SKILLS-ANALYSIS.md)
 - Severity now comes from the in-skill Severity reference table (the conventions skill carries no
   severity tags); dropped the "use the severity the rule is tagged with" instruction.

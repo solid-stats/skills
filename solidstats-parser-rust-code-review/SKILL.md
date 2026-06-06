@@ -20,7 +20,8 @@ the noise filter. It must be installed alongside this skill.
 
 **The rule library is [`solidstats-parser-rust-conventions`](../solidstats-parser-rust-conventions/SKILL.md)** —
 this skill enforces it, it does not restate it. Every finding cites the convention it breaks
-(`[conv: §C]` determinism, `[conv: §F]` parsing, `[conv: §G]` contract, …) and takes its severity
+(`[conv: §C]` determinism, `[conv: §F]` parsing, `[conv: §G]` contract, … — the §-letters live in the
+conventions' `references/` files; see its reference map for which file holds each) and takes its severity
 from the Severity reference table below — the `[conv: …]` citation identifies *which* rule, not its
 severity (the conventions skill states rules, not severity tags).
 

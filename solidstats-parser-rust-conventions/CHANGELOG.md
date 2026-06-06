@@ -1,5 +1,10 @@
 # Changelog — solidstats-parser-rust-conventions
 
+## 2026-06-06 — Split into spine + references (user directive)
+- Restructured the single SKILL.md into a spine (intro + §A architecture + §B lint floor + reference
+  map) plus `references/`: `determinism-and-contract.md` (§C/§G), `parsing-types-errors.md` (§D/§E/§F),
+  `worker-build-perf.md` (§H/§I/§J) — matching the backend/frontend modular shape.
+
 ## 2026-06-06 — Analysis fixes (see .planning/SKILLS-ANALYSIS.md)
 - Corrected §C: serde_json serializes `f64` via ryu deterministically **by default**; `float_roundtrip`
   reframed as parse-side canonicalization (was wrongly stated as the source of cross-arch determinism).
