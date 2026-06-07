@@ -42,10 +42,27 @@ SolidStats stack (OpenAPI types + `zod/v4-mini`).
 - Don't re-validate data that already arrives typed from the generated OpenAPI client — validate at real
   trust boundaries only.
 
-## Derivation
+## Derivation & utilities
 
-- Local slice types live in `<slice>/lib/types.ts`; derive from models with `type-fest`
-  (`Pick`/`Omit`/`Except`/`Modify`) rather than redeclaring primitives.
+Both libraries are standard deps in `web` — reach for them actively rather than hand-rolling.
+
+- **Type-level — `type-fest`.** Actively derive types with `type-fest` (`Except`, `SetOptional`,
+  `SetRequired`, `PartialDeep`, `Merge`, `Tagged`, …) rather than redeclaring primitives or
+  hand-rolling conditional/mapped types. Local slice types live in `<slice>/lib/types.ts` and compose
+  from a model (the generated alias or a `*Data` shape), not a fresh redeclaration.
+- **Runtime — `es-toolkit`.** Use `es-toolkit` (`groupBy`, `keyBy`, `uniqBy`, `chunk`, `partition`,
+  `debounce`, `throttle`, `cloneDeep`, `isEqual`, …) before hand-writing a generic collection/object/
+  function helper or adding `lodash` — it is smaller and tree-shakeable (matters for the bundle/CWV
+  budgets) and ships its own types. Don't reimplement a function it already provides.
+- **Dates — `day.js`.** Use `dayjs` for parsing/formatting/manipulating dates rather than hand-rolling
+  `Date` math or pulling in Moment.js (legacy, mutable, not tree-shakeable). It is ~2 KB core with an
+  opt-in plugin system (`utc`, `timezone`, `relativeTime`, …) — load only the plugins a slice needs.
+  Wrap localization through the project's i18n layer; don't scatter raw `dayjs().format()` locale
+  strings.
+- **Unique IDs — `nanoid`.** Generate client-side IDs (optimistic keys, draft/form ids, file handles)
+  with `nanoid` rather than `Math.random`, `Date.now`, or `crypto.randomUUID` slugs — it is tiny,
+  URL-safe, and collision-resistant. Server-authoritative IDs still come from the backend; `nanoid` is
+  for ephemeral client-only keys.
 - Domain ID props prefer property references: `PlayerData['id']`, `RequestData['id']`.
 
 ## Lint, format & type-check — Vite+
@@ -72,3 +89,8 @@ Review flags:
 - A `*Model` consumed directly by a component instead of a processed `*Data`.
 - A backend enum map written as a `switch`/object literal instead of `Record<Enum,…>`.
 - Runtime validation with full `zod` instead of `zod/v4-mini`, or validating already-typed generated data.
+- A hand-rolled generic utility (deep clone, group-by, deep-equal, debounce, chunk) duplicating an
+  `es-toolkit` export, or `lodash` added in its place; a hand-written mapped/conditional type a
+  `type-fest` utility expresses; a slice type redeclared instead of derived from its model.
+- Hand-rolled `Date` math or `Moment.js` where `dayjs` fits; a client-only id from `Math.random`/
+  `Date.now` where `nanoid` belongs.

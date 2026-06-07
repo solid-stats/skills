@@ -1,5 +1,16 @@
 # Changelog — solidstats-frontend-react-conventions
 
+## 2026-06-07 — Add `day.js` + `nanoid` to utilities
+- `typescript.md`: added **`day.js`** (date parse/format/manipulate over `Date` math / Moment.js;
+  ~2 KB core, opt-in plugins) and **`nanoid`** (ephemeral client-only ids over `Math.random`/
+  `Date.now`) to **Derivation & utilities**, with matching review flags.
+
+## 2026-06-07 — Utility & type library recommendation
+- `typescript.md`: reworked **Derivation** → **Derivation & utilities** — `type-fest` is now an active
+  recommendation (corrected the example list; dropped the non-existent `Modify`), and added
+  `es-toolkit` as the runtime utility lib (tree-shakeable, bundle/CWV-friendly) to use before
+  hand-rolling helpers or adding `lodash`. Added a matching review flag.
+
 ## 2026-06-06 — Follow-up (user directives)
 - Added `references/patterns/forms.md` — **TanStack Form** for the request steppers (zod/v4-mini,
   live-after-submit validation, SSR drafts, field-level subscription).
