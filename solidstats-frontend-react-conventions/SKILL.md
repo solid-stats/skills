@@ -19,6 +19,13 @@ description: >
 
 # SolidStats Frontend Conventions — TanStack Start / React
 
+**This skill builds on [`solidstats-process-ts-standards`](../solidstats-process-ts-standards/SKILL.md) — read it first.**
+That skill owns the TypeScript baseline shared across all SolidStats TS repos: tsconfig
+strictness flags, code style (`type` over `interface`, no `any`, no `as`), Node 25 / pnpm 11,
+Prettier defaults, and Vitest 4 / V8 coverage gates. This skill adds only the **React /
+TanStack HOW** on top of that baseline: FSD architecture, component shape, data flow, routing,
+localization, styling, accessibility, CWV, SSR/SEO, and realtime.
+
 Authoritative guide for writing code in the SolidStats `web` frontend. The **product ground truth is
 `gsd-briefs/web.md`** (scope, quality bar, stack decisions, design direction) and the repo config
 (`tsconfig.json`, ESLint, `package.json`). If this skill contradicts those, they win — flag the drift.

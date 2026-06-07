@@ -51,6 +51,8 @@ The v1 skill set. Status: `Planned` (not started) · `WIP` (in progress) · `Don
 
 | Skill | Install name | Status | Description |
 |-------|-------------|--------|-------------|
+| Project Standards | `solidstats-process-project-standards` | Done | Universal baseline for all five SolidStats repos (server-2, replays-fetcher, replay-parser-2, web, infrastructure). GSD workflow obligations, session hygiene, git conventions, cross-app boundary map, cross-app compatibility protocol, security minimums, risk management, and documentation language. Auto-triggers on every task; all per-stack skills assume it. Includes CI/CD pipeline reference. |
+| TypeScript Standards | `solidstats-process-ts-standards` | Done | Baseline TypeScript/Node.js standard shared by server-2, replays-fetcher, and web. tsconfig strictness flags, code style (type/no-any/no-as), ESLint 10 baseline, Node 25 + pnpm 11, Prettier, Vitest 4 / V8 coverage gates. Hard-required by solidstats-backend-ts-conventions and solidstats-frontend-react-conventions; not used standalone. |
 | Review Standards | `solidstats-process-review-standards` | Done | Shared foundation for every SolidStats code-review skill: severity buckets, report output format, verdict rules, scope discipline, the test-file rule, and the noise filter. Hard-required by all code-review skills; not used standalone. |
 | Testing Standards | `solidstats-process-testing-standards` | Done | Shared testing philosophy for every SolidStats stack: AAA structure, isolation, determinism, test doubles, and file placement. Hard-required by the per-stack test skills; not used standalone. |
 
