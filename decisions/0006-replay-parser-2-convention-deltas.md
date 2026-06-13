@@ -90,13 +90,12 @@ which is why this ADR records them as confirmations rather than decisions.
 
 ## Consequences
 
-- The §K–§M rules and their severity scheme (§M findings default 🟠, escalate to 🔴 on the hot
-  delivery path, relax to 🟡 for low-frequency paths; a leak finding must cite all three legs —
-  outlives the job, unbounded write path, nothing removes/caps it) live in
-  `references/observability-and-lifecycle.md`. They are **not yet wired into
-  `solidstats-parser-rust-code-review`**: its Phase 2 sweep and severity table carry no §K–§M rows,
-  so observability/lifecycle violations are not caught by review today. Adding those rows is a
-  follow-up.
+- The §K–§M rules live in `references/observability-and-lifecycle.md` and are enforced by
+  `solidstats-parser-rust-code-review`: its Phase 2 sweep has Observability (`[conv: §K/§L]`) and
+  Resource-lifecycle (`[conv: §M]`) steps, and the Severity reference table carries the matching
+  rows — §M findings default 🟠, escalate to 🔴 on the hot delivery path, relax to 🟡 for
+  low-frequency paths; a leak finding cites all three legs (outlives the job, unbounded write path,
+  nothing removes/caps it). Wired 2026-06-13 (see the reviewer CHANGELOG).
 - The TS↔Rust parity contract now has a live obligation: any change to §Z/§AA/§AB or §K–§M must be
   applied to both sides in the same pass. The parser parity header previously missed a "§AB DB-rows
   leg N/A" note (the parser has no DB-row equivalent); that omission was caught and fixed in the
