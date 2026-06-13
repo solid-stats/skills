@@ -4,7 +4,7 @@
 - CI gate now includes `vp check` (Vite+ lint/format/type-check).
 
 ## 2026-06-06 — Initial
-- The thin per-stack frontend test skill on top of `solidstats-process-testing-standards` (which owns
+- The thin per-stack frontend test skill on top of `solidstats-shared-testing-standards` (which owns
   the philosophy). Adds the frontend how-to; assumes `solidstats-frontend-react-conventions`.
 - **Runner split:** Vitest for hooks/pure logic (mappers, Model→Data, query-key factories, zod/v4-mini
   schemas, Nano logic); Playwright for components and critical journeys. No RTL component DOM tests; no

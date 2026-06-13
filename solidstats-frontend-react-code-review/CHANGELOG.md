@@ -10,7 +10,7 @@
   (`[conv: security]`); fixed the loose `project-patterns.md` link path.
 
 ## 2026-06-06 — Initial
-- Operational frontend reviewer: hard-requires `solidstats-process-review-standards` and enforces
+- Operational frontend reviewer: hard-requires `solidstats-shared-review-standards` and enforces
   `solidstats-frontend-react-conventions` as its rule library (cites pattern files, doesn't restate).
 - **Phase 1 — quality gate** (the frontend analog of the API/contract gate): axe a11y serious/critical,
   Core Web Vitals (CLS/LCP/INP + Lighthouse), bundle budgets, console errors, generated-types

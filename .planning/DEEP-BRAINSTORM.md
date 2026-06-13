@@ -19,13 +19,13 @@ Create `solid-stats/skills`: a single source of truth for SolidStats AI agent sk
 ## Scope
 ### Must Have (v1 — 11 skills)
 **Shared standards (2):**
-- `solidstats-process-review-standards` — adapt from `estesis-process-review-standards` (severity buckets, output format, verdict rules, scope discipline, test-file rule, noise filter). Hard-required by all code-review skills.
-- `solidstats-process-testing-standards` — author fresh (no estesis analog). Shared testing philosophy (AAA, isolation, determinism, doubles, placement). Hard-required by all per-stack test skills.
+- `solidstats-shared-review-standards` — adapt from `estesis-process-review-standards` (severity buckets, output format, verdict rules, scope discipline, test-file rule, noise filter). Hard-required by all code-review skills.
+- `solidstats-shared-testing-standards` — author fresh (no estesis analog). Shared testing philosophy (AAA, isolation, determinism, doubles, placement). Hard-required by all per-stack test skills.
 
 **Backend (TS/Fastify) cluster (3):**
-- `solidstats-backend-ts-conventions` — prescriptive; absorbs `fastify-best-practices`, `nodejs-backend-patterns`, `api-design-principles`.
-- `solidstats-backend-ts-code-review` — delegates to review-standards + backend-ts-conventions.
-- `solidstats-backend-ts-tests` — thin; delegates to testing-standards; absorbs the TS half of `javascript-testing-patterns`.
+- `solidstats-server-ts-conventions` — prescriptive; absorbs `fastify-best-practices`, `nodejs-backend-patterns`, `api-design-principles`.
+- `solidstats-server-ts-code-review` — delegates to review-standards + backend-ts-conventions.
+- `solidstats-server-ts-tests` — thin; delegates to testing-standards; absorbs the TS half of `javascript-testing-patterns`.
 
 **Parser (Rust) cluster (3):**
 - `solidstats-parser-rust-conventions` — prescriptive; absorbs `rust-best-practices`, `rust-async-patterns`.
@@ -64,7 +64,7 @@ Create `solid-stats/skills`: a single source of truth for SolidStats AI agent sk
 | Topic | Decision/Default | Consuming-repo Consequence | Hidden Cost | Breaking Point |
 |-------|------------------|----------------------------|-------------|----------------|
 | Source type | GitHub `solid-stats/skills` | `skills-lock.json` entries swap from public sources to `solid-stats/skills` per skill. | Repo must be pushed and reachable (public, or private + auth) before `npx skills update` works elsewhere. | Private repo without CI/agent auth → installs fail. |
-| Absorb: `fastify-best-practices`, `nodejs-backend-patterns`, `api-design-principles` | → `solidstats-backend-ts-conventions` (+ review checks) | Removed from `server-2`/`replays-fetcher` locks. | Lose upstream updates; must re-check periodically. | Upstream gains a major pattern we miss. |
+| Absorb: `fastify-best-practices`, `nodejs-backend-patterns`, `api-design-principles` | → `solidstats-server-ts-conventions` (+ review checks) | Removed from `server-2`/`replays-fetcher` locks. | Lose upstream updates; must re-check periodically. | Upstream gains a major pattern we miss. |
 | Absorb: `javascript-testing-patterns` | → `testing-standards` + `backend-ts-tests` + `frontend-react-tests` | Removed from `server-2`/`replays-parser` locks. | Same drift risk. | — |
 | Absorb: `rust-best-practices`, `rust-async-patterns`, `rust-testing` | → `parser-rust-conventions` / `-tests` | Removed from `replay-parser-2` lock. | Same drift risk. | — |
 | Keep external (atomic): `tanstack-start`, `openapi-to-typescript` | Stay referenced in `web`/`server-2` locks | No change. | None. | — |
@@ -93,14 +93,14 @@ Create `solid-stats/skills`: a single source of truth for SolidStats AI agent sk
 ## Acceptance Criteria
 - Repo has `README.md` (skill catalog), `AGENTS.md` (structure + naming + add/modify rules), naming convention, and skill-creator installed in `.agents/skills`.
 - All 11 skills exist; each has `SKILL.md` (frontmatter with RU+EN triggers) + `CHANGELOG.md`.
-- Code-review skills hard-require `solidstats-process-review-standards` + their conventions skill; per-stack test skills hard-require `solidstats-process-testing-standards`.
+- Code-review skills hard-require `solidstats-shared-review-standards` + their conventions skill; per-stack test skills hard-require `solidstats-shared-testing-standards`.
 - No absorbed generic remains referenced in any consuming repo's `skills-lock.json`; atomic ones (`tanstack-start`, `openapi-to-typescript`, `cargo-fuzz`, `coverage-analysis`) retained.
 - Each consuming repo's `skills-lock.json` resolves the relevant `solidstats-*` skills from `solid-stats/skills`.
 - Repo pushed to GitHub; `npx skills add solid-stats/skills/<skill>` succeeds from a clean checkout.
 
 ## Verification Plan
 - Per skill: skill-creator eval batch (cheap model) for trigger accuracy + behavior; manual check of SKILL.md against AGENTS naming/frontmatter rules.
-- Integration: in `server-2`, trigger `solidstats-backend-ts-code-review` on a known diff; confirm it loads review-standards + conventions. Same for Rust in `replay-parser-2`.
+- Integration: in `server-2`, trigger `solidstats-server-ts-code-review` on a known diff; confirm it loads review-standards + conventions. Same for Rust in `replay-parser-2`.
 - Wiring: run `npx skills add solid-stats/skills/<skill>` in one repo; confirm install + lock entry resolves against the GitHub source.
 
 ## Open Questions

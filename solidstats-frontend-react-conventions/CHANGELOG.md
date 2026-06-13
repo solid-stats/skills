@@ -1,5 +1,19 @@
 # Changelog — solidstats-frontend-react-conventions
 
+## 2026-06-13 — Dedup `typescript.md` against solidstats-shared-ts-standards (taxonomy V5)
+
+- `typescript.md`: the **Derivation & utilities** library block (`es-toolkit` / `type-fest` /
+  `day.js` / `nanoid`) and the restated TS baseline rules (no `any`, no `interface`, no `!`,
+  `noUncheckedIndexedAccess` handling) are replaced with short pointers to
+  `solidstats-shared-ts-standards` §B/§F — the canonical tri-repo home. The web nuances
+  (dayjs i18n wrapping + per-slice plugin loading, nanoid's ephemeral client-only scope)
+  moved into §F as one-liners.
+- Kept only the genuinely web-specific additions: naming (`as const` value sets, `Schema`
+  suffix), the `switch`/branching rule, slice-type composition from a model, domain ID
+  property references, and the generated-types boundary. The `Record<Enum,…>` rule and the
+  Vite+ type-check line now cite the §A/§B baseline; the review flags for baseline/utility
+  violations cite §B/§F instead of restating them.
+
 ## 2026-06-07 — Add `day.js` + `nanoid` to utilities
 - `typescript.md`: added **`day.js`** (date parse/format/manipulate over `Date` math / Moment.js;
   ~2 KB core, opt-in plugins) and **`nanoid`** (ephemeral client-only ids over `Math.random`/
@@ -47,6 +61,6 @@
   styling, a11y, performance, seo, realtime, errors, tests, domain-rules, + the project-patterns index.
 - a11y / performance / seo / realtime / errors / domain-rules transcribe the brief's WCAG 2.2 AA, CWV
   budgets (LCP≤2.5s/INP≤200ms/CLS≤0.02), SEO/SSR, SSE merge discipline, error-code, and SolidStats
-  domain rules. Tests delegate to `solidstats-frontend-react-tests` + `solidstats-process-testing-standards`.
+  domain rules. Tests delegate to `solidstats-frontend-react-tests` + `solidstats-shared-testing-standards`.
 - Authored collaboratively — the user drove (frontend is their domain), unlike the backend/parser
   clusters.

@@ -1,8 +1,8 @@
 # Tests (conventions summary)
 
 The full how-to and the CI gate live in
-[`solidstats-frontend-react-tests`](../../solidstats-frontend-react-tests/SKILL.md) on top of
-[`solidstats-process-testing-standards`](../../solidstats-process-testing-standards/SKILL.md). This
+[`solidstats-frontend-react-tests`](../../../solidstats-frontend-react-tests/SKILL.md) on top of
+[`solidstats-shared-testing-standards`](../../../solidstats-shared-testing-standards/SKILL.md). This
 file is the conventions-level summary that the code review applies.
 
 ## The split

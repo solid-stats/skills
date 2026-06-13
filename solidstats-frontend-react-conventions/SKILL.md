@@ -19,7 +19,7 @@ description: >
 
 # SolidStats Frontend Conventions — TanStack Start / React
 
-**This skill builds on [`solidstats-process-ts-standards`](../solidstats-process-ts-standards/SKILL.md) — read it first.**
+**This skill builds on [`solidstats-shared-ts-standards`](../solidstats-shared-ts-standards/SKILL.md) — read it first.**
 That skill owns the TypeScript baseline shared across all SolidStats TS repos: tsconfig
 strictness flags, code style (`type` over `interface`, no `any`, no `as`), Node 25 / pnpm 11,
 Prettier defaults, and Vitest 4 / V8 coverage gates. This skill adds only the **React /
@@ -173,7 +173,7 @@ Playwright covers components and critical journeys (incl. list→detail→back r
 a11y via axe); Vitest covers hooks and pure logic — do **not** write RTL tests that render components
 and assert DOM. Detail and the CI gate live in
 [`solidstats-frontend-react-tests`](../solidstats-frontend-react-tests/SKILL.md) on top of
-[`solidstats-process-testing-standards`](../solidstats-process-testing-standards/SKILL.md);
+[`solidstats-shared-testing-standards`](../solidstats-shared-testing-standards/SKILL.md);
 `references/patterns/tests.md` holds the conventions summary.
 
 ## 16. Domain rules
@@ -219,8 +219,8 @@ index mapping `src/` paths → pattern files) to decide scope.
 
 ## 18. Companion skills
 
-Apply alongside this skill: `solidstats-process-review-standards` + `solidstats-frontend-react-code-review`
-(review), `solidstats-process-testing-standards` + `solidstats-frontend-react-tests` (tests). The
+Apply alongside this skill: `solidstats-shared-review-standards` + `solidstats-frontend-react-code-review`
+(review), `solidstats-shared-testing-standards` + `solidstats-frontend-react-tests` (tests). The
 external `tanstack-start` and `openapi-to-typescript` skills remain the framework/tool references
 (not vendored here).
 

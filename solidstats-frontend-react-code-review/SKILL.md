@@ -2,7 +2,7 @@
 name: solidstats-frontend-react-code-review
 description: >
   Pedantic code review for the SolidStats `web` frontend (TanStack Start / React). Builds on
-  solidstats-process-review-standards (severity buckets, output format, verdict, scope, noise filter)
+  solidstats-shared-review-standards (severity buckets, output format, verdict, scope, noise filter)
   and enforces solidstats-frontend-react-conventions as its rule library. Runs a quality gate
   (accessibility, Core Web Vitals, bundle budgets, console errors, generated-types freshness, the
   list→detail→back contract), then a convention and correctness sweep with a frontend-specific
@@ -16,7 +16,7 @@ description: >
 
 # Frontend Code Review — TanStack Start / React
 
-**This skill builds on [`solidstats-process-review-standards`](../solidstats-process-review-standards/SKILL.md) — read it first.**
+**This skill builds on [`solidstats-shared-review-standards`](../solidstats-shared-review-standards/SKILL.md) — read it first.**
 That skill owns the review philosophy, scope resolution (read every changed file in full), the severity
 buckets (🔴🟠🟡🔵), continuous-numbering output, verdict rules, the test-file rule, and the noise filter.
 
@@ -132,7 +132,7 @@ Each finding lands in one severity bucket, carries a `[topic]` tag, and cites `[
 ## Output
 
 Follow the output format, continuous numbering, severity buckets, and verdict rules from
-`solidstats-process-review-standards` (§D–§E). Open the report with the **Quality gate** result (above
+`solidstats-shared-review-standards` (§D–§E). Open the report with the **Quality gate** result (above
 the buckets); there is no "Good" section. Cite the broken convention on each finding. The test-file rule
 lives in review-standards §F; defer detailed test-quality judgement to
 [`solidstats-frontend-react-tests`](../solidstats-frontend-react-tests/SKILL.md).

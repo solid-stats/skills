@@ -2,7 +2,7 @@
 name: solidstats-frontend-react-tests
 description: >
   Testing for the SolidStats `web` frontend (TanStack Start / React) — the per-stack layer on top of
-  solidstats-process-testing-standards. Adds the runner split (Vitest for hooks/logic, Playwright for
+  solidstats-shared-testing-standards. Adds the runner split (Vitest for hooks/logic, Playwright for
   components and critical journeys), the journey coverage list (list→detail→back restoration, SSE,
   loading/error/offline states), accessibility checks (axe), the CI browser/budget matrix, and the
   seeded-backend E2E policy. Use when writing or reviewing frontend unit, component, or E2E tests.
@@ -14,7 +14,7 @@ description: >
 
 # Frontend Tests — TanStack Start / React
 
-**This skill builds on [`solidstats-process-testing-standards`](../solidstats-process-testing-standards/SKILL.md) — read it first.**
+**This skill builds on [`solidstats-shared-testing-standards`](../solidstats-shared-testing-standards/SKILL.md) — read it first.**
 That skill owns the philosophy (RITE, AAA, the unit-vs-integration boundary, determinism, doubles,
 oracle strength, the coverage mindset, TDD). This skill adds the **frontend HOW** and assumes
 [`solidstats-frontend-react-conventions`](../solidstats-frontend-react-conventions/SKILL.md).
@@ -72,6 +72,6 @@ From the brief — these block merge:
 
 ## Not owned here
 
-The philosophy lives in `solidstats-process-testing-standards`; the severity of a test-quality problem
-in review lives in `solidstats-process-review-standards` §F (test quality is never a standalone BLOCK
+The philosophy lives in `solidstats-shared-testing-standards`; the severity of a test-quality problem
+in review lives in `solidstats-shared-review-standards` §F (test quality is never a standalone BLOCK
 unless a test actively masks a real bug).

@@ -22,7 +22,7 @@ and one systemic coherence bug; no skill needed a rewrite.
 
 ---
 
-## solidstats-backend-ts-conventions
+## solidstats-server-ts-conventions
 
 | Sev | Lens | Finding | Resolution |
 |-----|------|---------|-----------|
@@ -36,7 +36,7 @@ and one systemic coherence bug; no skill needed a rewrite.
 | 🟡 | usability | Triggers skew HTTP/route; no repository/migration/Kysely/queue (EN+RU). | **FIXED** — added data/infra triggers. |
 | 🔴🟠 | gaps | Missing production hardening: rate-limit, helmet/security-headers, CORS allow-list, `bodyLimit`, graceful SIGTERM shutdown, DB pool config, secrets-not-in-error-responses; queue reliability (manual ack, prefetch/QoS, DLQ), idempotency keys; auth/session cookie + Steam-OAuth `state`/CSRF. | **FIXED** — added a "Security & runtime hardening" section + queue-reliability + auth-session rules. (OWASP API Top-10, Fastify docs.) |
 
-## solidstats-backend-ts-code-review
+## solidstats-server-ts-code-review
 
 | Sev | Finding | Resolution |
 |-----|---------|-----------|
@@ -83,14 +83,14 @@ and one systemic coherence bug; no skill needed a rewrite.
 | 🔵 | code-review: loose path `conventions/references/project-patterns.md`. | **FIXED** — `../solidstats-frontend-react-conventions/…`. |
 | 🟡 | tests: `/* v8 ignore next -- <reason> */` may be stripped by esbuild; use `-- @preserve`. | **FIXED.** |
 
-## solidstats-process-review-standards / -testing-standards
+## solidstats-shared-review-standards / -testing-standards
 
 | Sev | Finding | Resolution |
 |-----|---------|-----------|
 | 🟡 | review-standards §E vs §C: a pure-🔵 review can't APPROVE (only "no findings" → APPROVE), yet 🔵 is "optional." | **FIXED** — "only 🔵 → APPROVE (note optional nits); 🟡 present → REQUEST CHANGES." |
 | 🔵 | "blocking I/O on async" listed 🔴; usually 🟠 unless it stalls a hot/shared path. Missing-test rule double-homed §C/§F. | **FLAGGED** — calibration nuance; the "classify by impact" rule already covers it. |
 
-## solidstats-backend-ts-tests (suite check)
+## solidstats-server-ts-tests (suite check)
 
 | Sev | Finding | Resolution |
 |-----|---------|-----------|

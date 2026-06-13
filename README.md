@@ -7,9 +7,9 @@ code review, planning, and development.
 > Skills are agent-agnostic and work with any AI tool that supports the
 > [skills.sh](https://www.skills.sh/) format.
 
-These skills target the SolidStats stack: TypeScript / Fastify backend (`server-2`,
-`replays-fetcher`), the Rust OCAP parser (`replay-parser-2`), and the React / TanStack Start
-frontend (`web`).
+These skills target the SolidStats stack: the TypeScript / Fastify backend (`server-2`), the
+TypeScript ingest CLI (`replays-fetcher`), the Rust OCAP parser (`replay-parser-2`), and the
+React / TanStack Start frontend (`web`).
 
 ## Installation
 
@@ -45,40 +45,50 @@ This runs `npx skills update` for the global lock and every `skills-lock.json` u
 
 ## Available skills
 
-The v1 skill set. Status: `Planned` (not started) · `WIP` (in progress) · `Done` (built and reviewed).
+The v1 skill set. Status: `Planned` (not started) · `WIP` (in progress) · `Draft` (drafted in
+the working tree, pending review) · `Done` (built and reviewed).
 
-### Process — shared standards
-
-| Skill | Install name | Status | Description |
-|-------|-------------|--------|-------------|
-| Project Standards | `solidstats-process-project-standards` | Done | Universal baseline for all five SolidStats repos (server-2, replays-fetcher, replay-parser-2, web, infrastructure). GSD workflow obligations, session hygiene, git conventions, cross-app boundary map, cross-app compatibility protocol, security minimums, risk management, and documentation language. Auto-triggers on every task; all per-stack skills assume it. Includes CI/CD pipeline reference. |
-| TypeScript Standards | `solidstats-process-ts-standards` | Done | Baseline TypeScript/Node.js standard shared by server-2, replays-fetcher, and web. tsconfig strictness flags, code style (type/no-any/no-as), ESLint 10 baseline, Node 25 + pnpm 11, Prettier, Vitest 4 / V8 coverage gates. Hard-required by solidstats-backend-ts-conventions and solidstats-frontend-react-conventions; not used standalone. |
-| Review Standards | `solidstats-process-review-standards` | Done | Shared foundation for every SolidStats code-review skill: severity buckets, report output format, verdict rules, scope discipline, the test-file rule, and the noise filter. Hard-required by all code-review skills; not used standalone. |
-| Testing Standards | `solidstats-process-testing-standards` | Done | Shared testing philosophy for every SolidStats stack: AAA structure, isolation, determinism, test doubles, and file placement. Hard-required by the per-stack test skills; not used standalone. |
-
-### Backend — TypeScript / Fastify
+### Shared standards
 
 | Skill | Install name | Status | Description |
 |-------|-------------|--------|-------------|
-| Conventions | `solidstats-backend-ts-conventions` | Done | Prescriptive architecture and coding conventions for the TS/Fastify backend (`server-2`, `replays-fetcher`). Absorbs Fastify, Node, and API-design best practices into one SolidStats standard. |
-| Code Review | `solidstats-backend-ts-code-review` | Done | Pedantic code review for the TS/Fastify backend. Delegates the ruleset to `solidstats-backend-ts-conventions` and the review format to `solidstats-process-review-standards`. |
-| Tests | `solidstats-backend-ts-tests` | Done | Backend test guidance (unit + integration) on top of `solidstats-process-testing-standards`. |
+| Project Standards | `solidstats-shared-project-standards` | Done | Universal baseline for all five SolidStats repos (server-2, replays-fetcher, replay-parser-2, web, infrastructure). GSD workflow obligations, session hygiene, git conventions, cross-app boundary map, cross-app compatibility protocol, security minimums, risk management, and documentation language. Auto-triggers on every task; all per-stack skills assume it. Includes CI/CD pipeline reference. |
+| TypeScript Standards | `solidstats-shared-ts-standards` | Done | Baseline TypeScript/Node.js standard shared by server-2, replays-fetcher, and web. tsconfig strictness flags, code style (type/no-any/no-as), ESLint 10 baseline, Node 25 + pnpm 11, Prettier, Vitest 4 / V8 coverage gates, utility libraries (es-toolkit, type-fest, day.js, nanoid), TS test idioms. Hard-required by the TS conventions skills; not used standalone. |
+| Backend TS Standards | `solidstats-shared-backend-ts-standards` | Draft | Shared standard for TypeScript *backend* repos — audience defined intensionally, currently server-2 and replays-fetcher. Naming/factories, typed-error base, enums, config discipline, external adapters, async safety, process lifecycle, LSP/SOLID/DRY, and the observability doctrine (§Z/§AA/§AB, parity-linked to the parser's Rust mirror). Hard-required by the server and fetcher conventions skills; not used standalone. |
+| Review Standards | `solidstats-shared-review-standards` | Done | Shared foundation for every SolidStats code-review skill: severity buckets, report output format, verdict rules, scope discipline, the test-file rule, and the noise filter. Hard-required by all code-review skills; not used standalone. |
+| Testing Standards | `solidstats-shared-testing-standards` | Done | Shared testing philosophy for every SolidStats stack: AAA structure, isolation, determinism, test doubles, and file placement. Hard-required by the per-stack test skills; not used standalone. |
+
+### Server — TypeScript / Fastify (`server-2`)
+
+| Skill | Install name | Status | Description |
+|-------|-------------|--------|-------------|
+| Conventions | `solidstats-server-ts-conventions` | Done | Prescriptive architecture and coding conventions for the `server-2` TS/Fastify backend. Absorbs Fastify, Node, and API-design best practices into one SolidStats standard. |
+| Code Review | `solidstats-server-ts-code-review` | Done | Pedantic code review for the `server-2` TS/Fastify backend. Delegates the ruleset to `solidstats-server-ts-conventions` + `solidstats-shared-backend-ts-standards` and the review format to `solidstats-shared-review-standards`. |
+| Tests | `solidstats-server-ts-tests` | Done | `server-2` test guidance (unit + integration) on top of `solidstats-shared-testing-standards`. |
+
+### Fetcher — TypeScript CLI (ingest)
+
+| Skill | Install name | Status | Description |
+|-------|-------------|--------|-------------|
+| Conventions | `solidstats-fetcher-ts-conventions` | Draft | Prescriptive conventions for the `replays-fetcher` ingest CLI: the five-band converged architecture (PROPOSED — pending sign-off), ingest-boundary invariants as fences, Zod config form, and the CLI error boundary (exit codes + run summary). |
+| Code Review | `solidstats-fetcher-ts-code-review` | Draft | Pedantic code review for the fetcher. Phase 1 is the ingest-boundary gate (no parsing, write-scope, evidence, idempotency); delegates to `solidstats-fetcher-ts-conventions` and `solidstats-shared-review-standards`. |
+| Tests | `solidstats-fetcher-ts-tests` | Draft | Fetcher test guidance on top of `solidstats-shared-testing-standards`: testcontainers (PostgreSQL + MinIO, no RabbitMQ) and the 100% reachable-source gate; TS test idioms inherited from `solidstats-shared-ts-standards`. |
 
 ### Parser — Rust
 
 | Skill | Install name | Status | Description |
 |-------|-------------|--------|-------------|
-| Conventions | `solidstats-parser-rust-conventions` | Done | Prescriptive conventions for the Rust OCAP parser (`replay-parser-2`). Absorbs Rust best-practice and async patterns into one SolidStats standard. |
-| Code Review | `solidstats-parser-rust-code-review` | Done | Pedantic code review for the Rust parser. Delegates to `solidstats-parser-rust-conventions` and `solidstats-process-review-standards`. |
-| Tests | `solidstats-parser-rust-tests` | Done | Rust test guidance (unit + integration) on top of `solidstats-process-testing-standards`; encodes the parser's fuzz/coverage policy (references the external `cargo-fuzz` and `coverage-analysis` tool skills). |
+| Conventions | `solidstats-parser-rust-conventions` | Done | Prescriptive conventions for the Rust OCAP parser (`replay-parser-2`). Absorbs Rust best-practice and async patterns into one SolidStats standard. Includes the observability & lifecycle reference (§K–§M), parity-linked to the TS doctrine in `solidstats-shared-backend-ts-standards`. |
+| Code Review | `solidstats-parser-rust-code-review` | Done | Pedantic code review for the Rust parser. Delegates to `solidstats-parser-rust-conventions` and `solidstats-shared-review-standards`. |
+| Tests | `solidstats-parser-rust-tests` | Done | Rust test guidance (unit + integration) on top of `solidstats-shared-testing-standards`; encodes the parser's fuzz/coverage policy (references the external `cargo-fuzz` and `coverage-analysis` tool skills). |
 
 ### Frontend — React / TanStack Start
 
 | Skill | Install name | Status | Description |
 |-------|-------------|--------|-------------|
 | Conventions | `solidstats-frontend-react-conventions` | Done | Prescriptive conventions for the `web` frontend. As `web` is greenfield, this doubles as its architecture contract (state, data, routing, styling). References the external `tanstack-start` skill. |
-| Code Review | `solidstats-frontend-react-code-review` | Done | Pedantic code review for the React/TanStack frontend. Delegates to `solidstats-frontend-react-conventions` and `solidstats-process-review-standards`. |
-| Tests | `solidstats-frontend-react-tests` | Done | Frontend test guidance (unit + integration) on top of `solidstats-process-testing-standards`. |
+| Code Review | `solidstats-frontend-react-code-review` | Done | Pedantic code review for the React/TanStack frontend. Delegates to `solidstats-frontend-react-conventions` and `solidstats-shared-review-standards`. |
+| Tests | `solidstats-frontend-react-tests` | Done | Frontend test guidance (unit + integration) on top of `solidstats-shared-testing-standards`. |
 
 ## Relationship to external skills
 

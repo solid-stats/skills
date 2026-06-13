@@ -72,17 +72,37 @@ description: >
 solidstats-<scope>-<target>-<purpose>
 ```
 
-- **scope**: `backend`, `frontend`, `parser`, `infra`, `process`
+- **scope**: `server`, `fetcher`, `frontend`, `parser`, `infra`, `shared`
 - **target**: the stack the skill is tuned to — `ts`, `react`, `rust`, etc.
 - **purpose**: what the skill does — `conventions`, `code-review`, `tests`, `review-standards`,
   `testing-standards`, etc.
 
-Examples: `solidstats-backend-ts-code-review`, `solidstats-frontend-react-conventions`,
-`solidstats-parser-rust-tests`, `solidstats-process-review-standards`.
+Examples: `solidstats-server-ts-code-review`, `solidstats-frontend-react-conventions`,
+`solidstats-parser-rust-tests`, `solidstats-shared-review-standards`.
 
 The `<scope>` segment is always required. For cross-cutting skills without a specific stack
-target (e.g. the shared `solidstats-process-review-standards`), omit only the target segment —
+target (e.g. the shared `solidstats-shared-review-standards`), omit only the target segment —
 keep the scope.
+
+### The `shared-` prefix is a meta layer
+
+The `shared-` prefix **means** meta/shared layer: a `shared-*` skill is read by other skills
+(via their hard-require lists) and is never triggered directly for a coding task. In a
+`shared-*` name the target segment names the **audience**, not a stack:
+
+- no target (e.g. `solidstats-shared-review-standards`) — all repos;
+- `ts` (`solidstats-shared-ts-standards`) — all TypeScript repos;
+- `backend-ts` (`solidstats-shared-backend-ts-standards`) — TypeScript *backend* repos (the `ts` excludes the Rust parser).
+  Currently that is `server-2` and `replays-fetcher`, but the audience is defined intensionally —
+  by the kind of repo, not by an enumerated list — so a new TypeScript service adopts the layer
+  without any renames.
+
+Direct-use skills carry a **role** scope (`server`, `fetcher`, `parser`, `frontend`) — named for
+what the repo *is*, not a bare category like "backend" (ambiguous on its own: `server-2`,
+`replays-fetcher`, and the parser worker are all "backend"). The shared tier *does* use `backend`,
+but only as the qualified `backend-ts` audience token above, where the `ts` resolves the ambiguity
+(the Rust parser is out). Direct-use skills never carry `shared-`. A second Rust repo is the
+trigger to extract a `solidstats-shared-rust-standards` layer — not before.
 
 Workspace directories follow the same name as the skill with a `-workspace` suffix.
 
@@ -96,8 +116,8 @@ These are repo-wide rules that shaped the skill set; honor them when adding or e
   the code over saving tokens by under-triggering. Each conventions/code-review/tests skill's
   `description` includes a "use this proactively — even when the task doesn't name it" clause; the
   conventions skills say to consult them *before writing any code* in their stack. Over-triggering is
-  acceptable. Exception: the two `*-process-*-standards` skills stay meta (read by other skills, not
-  triggered directly).
+  acceptable. Exception: the `solidstats-shared-*-standards` skills stay meta (read by other skills,
+  not triggered directly).
 - **Documentation is English only** (SolidStats product standard). Skill bodies, references,
   and templates are written in English; only the trigger phrases carry RU variants.
 - **Conventions skills are prescriptive.** A `*-conventions` skill defines the *desired*
@@ -111,8 +131,8 @@ These are repo-wide rules that shaped the skill set; honor them when adding or e
   `skills-lock.json`, not duplicated here. Current external-by-design skills:
   `tanstack-start`, `openapi-to-typescript`, `cargo-fuzz`, `coverage-analysis`.
 - **Layered review/testing standards.** Code-review skills hard-require
-  `solidstats-process-review-standards` plus their stack's `*-conventions`. Per-stack test skills
-  hard-require `solidstats-process-testing-standards`. Keep the per-stack skills thin; push shared
+  `solidstats-shared-review-standards` plus their stack's `*-conventions`. Per-stack test skills
+  hard-require `solidstats-shared-testing-standards`. Keep the per-stack skills thin; push shared
   philosophy up into the standards skill.
 
 ## Adding a new skill
@@ -156,7 +176,7 @@ Commit messages follow the **Conventional Commits** format:
 Common types: `feat`, `fix`, `refactor`, `docs`, `chore`.
 Common scopes: `skills`, `conventions`, `docs`.
 
-Example: `feat(skills): add solidstats-process-review-standards`
+Example: `feat(skills): add solidstats-shared-review-standards`
 
 **Never commit or push without explicit user instruction.** AI assistants must not
 run `git commit`, `git push`, or any destructive git operation unless the user
