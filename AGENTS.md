@@ -30,6 +30,10 @@ Directories that are **not** skills:
   used to draft, evaluate, and improve skills.
 - `scripts/` — local maintenance utilities, not skills.
 - `.planning/` — planning artifacts (briefs, roadmaps), not skills.
+- `decisions/` — architecture decision records (ADRs) for the skill set itself: why the taxonomy,
+  per-stack architectures, and cross-stack rules are shaped the way they are. Raw provenance lives
+  in `decisions/research/`. Start at [decisions/README.md](decisions/README.md). Per-skill edits
+  still go in each skill's `CHANGELOG.md`; an ADR is for a decision that spans more than one skill.
 
 ## Skill structure
 

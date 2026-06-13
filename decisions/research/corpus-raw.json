@@ -1,0 +1,1260 @@
+{
+  "summary": "Inventory all SolidStats skills, repo skill-state, and the estesis reference family; classify every section by stack-specificity",
+  "agentCount": 19,
+  "logs": [],
+  "result": {
+    "skillReports": [
+      {
+        "name": "solidstats-process-project-standards",
+        "scope_claim": "Every SolidStats repository (server-2, replays-fetcher, replay-parser-2, web, infrastructure) and every session. Defines \"how work happens across the platform, not how any single stack is written.\"",
+        "hard_requires": [],
+        "sections": [
+          {
+            "where": "SKILL.md §A — GSD Workflow",
+            "title": "GSD Workflow Obligations",
+            "classification": "repo-specific",
+            "gist": "Mandates checking .planning/ docs before implementing, keeping them current, and using skills-first approach. The .planning/ layout and GSD workflow are SolidStats-specific conventions."
+          },
+          {
+            "where": "SKILL.md §B — Session Hygiene",
+            "title": "Session Hygiene",
+            "classification": "universal-doctrine",
+            "gist": "End-of-session git commit discipline: commit all intended work, never fake a clean state by discarding incomplete work."
+          },
+          {
+            "where": "SKILL.md §C — Git Conventions",
+            "title": "Conventional Commits + Destructive Op Safety",
+            "classification": "repo-specific",
+            "gist": "Conventional Commits format with SolidStats-specific scope examples (phase numbers like 17-03). Git safety rules (no --no-verify, no amend-after-hook-failure) are universal doctrine but co-located here."
+          },
+          {
+            "where": "SKILL.md §D — Cross-App Boundary Map",
+            "title": "Cross-App Boundary Map",
+            "classification": "repo-specific",
+            "gist": "Per-repo ownership table for all five SolidStats repos: what each owns and must not cross. Entirely SolidStats-specific topology."
+          },
+          {
+            "where": "SKILL.md §E — Cross-App Compatibility Protocol",
+            "title": "Cross-App Compatibility Protocol",
+            "classification": "repo-specific",
+            "gist": "Risk-based checklist of cross-repo contract surfaces (API shape, DB schema, RabbitMQ message, S3 key layout, parser contract, auth shape, moderation workflow) that require verification before implementation."
+          },
+          {
+            "where": "SKILL.md §F — Security Minimums",
+            "title": "Security Minimums",
+            "classification": "ts-shared",
+            "gist": "No secrets in logs/commits, no hardcoded env values, env-var validation at startup (envalid for Node, config struct for Rust), pre-commit .env/.gitignore check. Mostly universal doctrine with repo-specific tool names."
+          },
+          {
+            "where": "SKILL.md §G — Risk Management Protocol",
+            "title": "Risk Management Protocol",
+            "classification": "repo-specific",
+            "gist": "Procedure for risky requests: explain, propose safer alternatives, require explicit confirmation. References §D/§E boundaries and .planning/PROJECT.md — making it SolidStats-specific despite a universal underlying principle."
+          },
+          {
+            "where": "SKILL.md §H — Documentation Language",
+            "title": "Documentation Language",
+            "classification": "repo-specific",
+            "gist": "English for code/comments/planning docs; Russian for GSD session replies; bilingual EN+RU mandatory for skill trigger phrases. Specific to this team's bilingual RU/EN context."
+          },
+          {
+            "where": "SKILL.md §I — MCP Usage",
+            "title": "MCP Usage Guidelines",
+            "classification": "repo-specific",
+            "gist": "Context7 as primary library docs MCP with a per-repo library lookup table (Fastify/TypeBox/Kysely for server-2, tokio/lapin for replay-parser-2, TanStack/ark-ui for web, etc.). ToolSearch deferred-load pattern for Claude Code + subagent contexts."
+          },
+          {
+            "where": "references/ci-cd-pattern.md — Canonical workflow structure + Concurrency",
+            "title": "GitHub Actions Workflow Shape + Concurrency",
+            "classification": "repo-specific",
+            "gist": "Single cd.yml per repo, verify→image job topology, concurrency block with cancel-in-progress. The exact structure is standard CI doctrine but the specific job names and conditions are SolidStats conventions."
+          },
+          {
+            "where": "references/ci-cd-pattern.md — Verify job (TS)",
+            "title": "Verify Job — TypeScript repos",
+            "classification": "stack-specific",
+            "gist": "pnpm 11 + Node 25, frozen lockfile, Docker Compose services (PG 17, RabbitMQ 4, MinIO), prettier+eslint+tsc+test+integration+coverage (V8, 100% gates). Applies to server-2 and replays-fetcher."
+          },
+          {
+            "where": "references/ci-cd-pattern.md — Verify job (Rust)",
+            "title": "Verify Job — Rust repo",
+            "classification": "stack-specific",
+            "gist": "Rust 1.95.0, dtolnay/rust-toolchain, Swatinem/rust-cache, fmt+clippy -D warnings+test. Applies to replay-parser-2 only."
+          },
+          {
+            "where": "references/ci-cd-pattern.md — Image job",
+            "title": "Docker Image Build + GHCR Push",
+            "classification": "repo-specific",
+            "gist": "docker/metadata-action with sha+branch tags, push to ghcr.io/${{ github.repository }}, runs only on non-PR pushes after verify passes."
+          },
+          {
+            "where": "references/ci-cd-pattern.md — Dockerfile conventions",
+            "title": "Dockerfile Conventions (TS + Rust)",
+            "classification": "stack-specific",
+            "gist": "Multi-stage builds: Node 25 Alpine for TS services, rust:1.95.0-bookworm builder + debian:bookworm-slim runtime for Rust. Non-root UID 65532:65532, pnpm frozen install, explicit EXPOSE."
+          },
+          {
+            "where": "references/ci-cd-pattern.md — Local services via Docker Compose",
+            "title": "Docker Compose Test Services",
+            "classification": "repo-specific",
+            "gist": "Standard service layout: postgres:17-alpine, rabbitmq:4-management-alpine, minio/minio with host-port offset convention (e.g. 15432 instead of 5432)."
+          },
+          {
+            "where": "references/ci-cd-pattern.md — Infrastructure repo pipeline",
+            "title": "Infrastructure Repo CI/CD (validate + SSH deploy)",
+            "classification": "repo-specific",
+            "gist": "Separate validate+deploy topology for the infrastructure repo: Python manifest validation, SSH-based kubectl apply, GitHub environment protection for staging, SHA pinning enforcement via validate-staging.py."
+          }
+        ],
+        "naming_fit": "Name parses cleanly as solidstats-process-<target>-<purpose>: 'process' signals workflow/process rules, 'project' signals cross-repo/platform scope, 'standards' signals the normative baseline. No semantic mismatch — the skill genuinely covers platform-wide process rather than any single stack.",
+        "overlaps_suspected": [
+          "solidstats-process-ts-standards — both cover TypeScript-repo CI tooling (pnpm, Node version, test commands); the verify-job TS section in ci-cd-pattern.md partially duplicates what solidstats-process-ts-standards likely mandates for the pnpm/test pipeline",
+          "Any future solidstats-stack-rust-* skill — the Rust verify job and Dockerfile conventions in ci-cd-pattern.md (cargo fmt/clippy flags, Rust version, debian-slim base) belong to the Rust stack layer, not the cross-project process layer",
+          "solidstats-process-backend-standards (WIP) — §F security minimums (env-var validation, no-secrets-in-logs) are exactly the kind of rules a backend-standards skill would repeat; risk of duplication if that skill also restates startup-fail-fast and envalid/config-struct patterns"
+        ],
+        "notes": "1. §C mixes two distinct concerns: the Conventional Commits format (repo-specific due to scope examples like '17-03') and git safety rules (no --no-verify, no amend-after-hook-failure) that are universal doctrine and arguably belong in a universal-doctrine layer or even in the global CLAUDE.md. The git safety rules duplicate what the Claude Code harness instructions already say.\n\n2. §I (MCP Usage) is the most load-bearing section for day-to-day agent behavior, but it is also the most likely to drift — the per-repo library table (specific versions, specific packages) is maintenance-heavy and lives in a 'process' skill rather than in per-stack skills where library lists are more naturally maintained.\n\n3. references/ci-cd-pattern.md conflates four distinct stack concerns into one file: TS CI, Rust CI, shared Docker/GHCR push pattern, and infrastructure SSH-deploy pattern. A taxonomy redesign should split this into stack-specific references owned by each stack skill, keeping only the shared job topology (concurrency block, verify→image gate) in this process skill.\n\n4. §D (Cross-App Boundary Map) is the single highest-value section — it is genuinely cross-cutting and belongs here. It would be a mistake to move it to any per-stack skill.\n\n5. §G references §D and .planning/PROJECT.md, creating an implicit hard-require on §D and on the GSD planning-doc convention — but no formal hard_requires are declared, which is fine since both are in this same skill.\n\n6. The skill declares 'over-triggering is acceptable' in its description, which is appropriate given it's the universal baseline, but this means it will be loaded on every SolidStats task — the weight of §I (MCP) and ci-cd-pattern.md adds significant token cost per invocation. Splitting the CI/CD reference into per-stack skills would reduce this cost without losing coverage."
+      },
+      {
+        "name": "solidstats-process-ts-standards",
+        "scope_claim": "Baseline TypeScript / Node.js standards shared by every SolidStats TypeScript project (server-2, replays-fetcher, web). Explicitly excludes replay-parser-2 (Rust).",
+        "hard_requires": [],
+        "sections": [
+          {
+            "where": "SKILL.md §A",
+            "title": "tsconfig Strictness Baseline",
+            "classification": "ts-shared",
+            "gist": "Mandatory tsconfig flags (strict + 10 additional checks) and module/target settings applied identically to all three SolidStats TS repos. Includes Node vs. web frontend target split as inline comments."
+          },
+          {
+            "where": "SKILL.md §B",
+            "title": "TypeScript Code Style",
+            "classification": "ts-shared",
+            "gist": "type over interface, no any, no non-null assertions, no unexplained as casts, import type, import ordering, and Record<Enum,…> pattern for exhaustive lookup tables — all enforced by ESLint and code review."
+          },
+          {
+            "where": "SKILL.md §C",
+            "title": "ESLint Baseline — Node Repos (server-2, replays-fetcher)",
+            "classification": "stack-specific",
+            "gist": "ESLint 10 flat config with typescript-eslint strictTypeChecked, unicorn, and import-x for Node repos only; web frontend uses Oxlint via Vite+ instead. Includes specific rule set and rationale."
+          },
+          {
+            "where": "SKILL.md §D",
+            "title": "Runtime & Toolchain",
+            "classification": "repo-specific",
+            "gist": "Node.js 25, pnpm 11, ESM with NodeNext resolution, tsx for dev execution, Prettier 3.x with default config — pinned to specific versions used across all three SolidStats TS repos."
+          },
+          {
+            "where": "SKILL.md §E",
+            "title": "Test Toolchain & Coverage Gates",
+            "classification": "ts-shared",
+            "gist": "Vitest 4 + @vitest/coverage-v8, 100% coverage thresholds on all metrics (non-advisory), unit/integration test file naming conventions, Testcontainers for real deps, and required npm script names."
+          }
+        ],
+        "naming_fit": "Name parses as solidstats-process-ts-standards. The 'process' segment is unexpected — the skill is a standards/conventions reference, not a workflow process (no steps, gates, or decision flows). The peer skills use 'backend-ts-conventions' and 'frontend-react-conventions' naming; 'process' here appears to be a namespace used for cross-cutting standards docs rather than a framework-specific conventions skill. Mild semantic mismatch: 'process' implies a procedural guide but the content is purely declarative standards.",
+        "overlaps_suspected": [
+          "solidstats-backend-ts-conventions: §B (TypeScript code style) and §C (ESLint baseline) were explicitly extracted from that skill per CHANGELOG — risk of drift if either skill is updated independently.",
+          "solidstats-frontend-react-conventions: §8 per CHANGELOG was the other extraction source — same drift risk for tsconfig and test toolchain sections.",
+          "solidstats-process-project-standards: likely overlaps on Node version, pnpm version, and Prettier — project-level toolchain pins are natural territory for a project-standards skill."
+        ],
+        "notes": "1. §C explicitly splits Node repos from the web frontend mid-section ('web uses Oxlint via Vite+ instead'), making the section boundary misleading — the section title says 'ESLint Baseline' but it silently defers web linting to a different tool. This split belongs in a classification note or a separate §C-web section.\n\n2. §D mixes two distinct concerns: runtime pins (Node 25, pnpm 11, ESM) which are repo-specific SolidStats decisions, and formatting (Prettier 3.x defaults) which is closer to universal-doctrine. Splitting these would sharpen taxonomy.\n\n3. §E's Testcontainers bullet ('Never mock the database or queue at the contract boundary') is substantive integration-test doctrine that could be universal-doctrine; it's currently buried in what reads as a toolchain section.\n\n4. The skill claims to be hard-required by solidstats-backend-ts-conventions and solidstats-frontend-react-conventions, but it declares no hard_requires itself, which is consistent and correct.\n\n5. The 100% coverage gate is stated as 'enforced, not advisory' but the carve-out logic ('what is legitimately excluded is defined by per-stack skills') means the gate is only enforced in combination with those skills — the standalone skill gives an incomplete picture.\n\n6. The tsconfig block in §A embeds both Node and web frontend target variants as inline comments inside the same snippet, which creates ambiguity when reading for a single repo. A taxonomy redesign should split tsconfig content by stack layer."
+      },
+      {
+        "name": "solidstats-process-review-standards",
+        "scope_claim": "Shared review foundation for every SolidStats code-review skill — backend, parser, and frontend alike (server-2, replays-fetcher, replay-parser-2, web). Not a standalone reviewer; consumed by solidstats-backend-ts-code-review, solidstats-parser-rust-code-review, solidstats-frontend-react-code-review.",
+        "hard_requires": [],
+        "sections": [
+          {
+            "where": "SKILL.md §A",
+            "title": "Review philosophy",
+            "classification": "universal-doctrine",
+            "gist": "Seven cross-cutting principles: directness, signal over volume, evidence before opinion, pedantry discipline, risk-first ordering, code-not-author framing, and read-only default. Nothing is stack- or language-specific."
+          },
+          {
+            "where": "SKILL.md §B",
+            "title": "Establishing scope",
+            "classification": "universal-doctrine",
+            "gist": "Defines how to resolve what is in scope (named base > staged > branch diff), the read-full-file rule, the constraint that numbered findings must point at changed/relied-on lines, and the out-of-scope pre-existing note pattern. The git commands given are universal; the TS sample paths are illustrative only."
+          },
+          {
+            "where": "SKILL.md §C",
+            "title": "Severity buckets",
+            "classification": "universal-doctrine",
+            "gist": "Defines the single-axis severity scale (🔴 Blocker / 🟠 High / 🟡 Medium / 🔵 Low), verdict mapping per bucket, calibration rules, and translation from older word/label scales. Fully stack-agnostic."
+          },
+          {
+            "where": "SKILL.md §D",
+            "title": "Output format",
+            "classification": "repo-specific",
+            "gist": "Mandates English-only report language (explicit divergence from the estesis standard which uses Russian) and the exact markdown report template with continuous numbering, topic tags, optional convention references, and section presence rules. The English mandate is a SolidStats-family-specific policy, not a universal doctrine."
+          },
+          {
+            "where": "SKILL.md §E",
+            "title": "Verdict rules",
+            "classification": "universal-doctrine",
+            "gist": "Mechanical derivation of APPROVE / REQUEST CHANGES / BLOCK from the highest-severity finding, including the hard-gate BLOCK override. Fully stack-agnostic."
+          },
+          {
+            "where": "SKILL.md §F",
+            "title": "Test files",
+            "classification": "universal-doctrine",
+            "gist": "Rules for severity of test-quality findings: never standalone BLOCK, poor quality is at most REQUEST CHANGES, test that masks a real bug is 🔴, missing tests for branching logic are 🟡. No stack dependency."
+          },
+          {
+            "where": "SKILL.md §G",
+            "title": "Noise filter — what NOT to report",
+            "classification": "universal-doctrine",
+            "gist": "Seven categories of non-findings to suppress: subjective naming, code matching repo conventions, speculative security, ungrounded performance, missing tests for untouched code, auto-formatter output, linter echo. Fully stack-agnostic."
+          },
+          {
+            "where": "SKILL.md §H",
+            "title": "If asked to fix",
+            "classification": "universal-doctrine",
+            "gist": "Read-only default with four constraints when fixing is explicitly requested: smallest change, follow project conventions, one fix per finding, re-run gates. Stack-agnostic."
+          }
+        ],
+        "naming_fit": "Name parses cleanly as solidstats-process-review-standards: solidstats = family scope, process = meta/cross-cutting layer (not tied to one stack), review-standards = purpose. Accurate — the skill is a process foundation, not a stack convention file.",
+        "overlaps_suspected": [
+          "estesis-process-review-standards: CHANGELOG confirms this skill was directly adapted from estesis-process-review-standards with minimal changes (severity buckets, output format, verdict rules, scope discipline, test-file rule, noise filter all copied verbatim). The two skills share essentially the same body; the only material divergence is the English-vs-Russian report language mandate. If a universal review-foundation skill ever existed, both would become thin wrappers over it."
+        ],
+        "notes": "1. The skill is almost entirely universal doctrine, yet it lives in the solidstats family namespace. Sections A, B, C, E, F, G, H are all stack-agnostic and could be promoted to a cross-family universal skill. Only the English-language mandate in §D is SolidStats-specific (estesis uses Russian). The output format template itself (markdown shape, numbering, topic tags) is also universal-doctrine except for that one language rule.\n\n2. CHANGELOG explicitly states it was adapted from estesis-process-review-standards with near-verbatim copy. This is the strongest signal for a taxonomy redesign: a single universal-process-review-standards skill with a language/locale knob, and thin family wrappers (solidstats, estesis) that override only the language setting and name the concrete reviewer skills.\n\n3. No references/, workflows/, or templates/ subdirectories exist — the skill is entirely self-contained in SKILL.md.\n\n4. The skill correctly sets hard_requires = [] (it is itself the base layer; the reviewers require it, not the other way around).\n\n5. §D's output format template uses `.ts` sample file paths (a minor TS lean in an otherwise universal template) and mentions Clippy as a convention-reference example — the only Rust-specific token, added during the estesis→solidstats adaptation. These are illustrative and do not make the section stack-specific.\n\n6. The description explicitly states this skill should NOT be triggered for an actual review, only for meta questions about the standard. This is load-bearing for triggering hygiene — the child reviewer skills must hard-require it without triggering it as a standalone reviewer."
+      },
+      {
+        "name": "solidstats-process-testing-standards",
+        "scope_claim": "Shared testing foundation for every SolidStats stack — backend (TS/Fastify), parser (Rust), and frontend (React/TanStack) alike. Owns the stack-agnostic testing philosophy. Per-stack skills hard-require this skill and read it first.",
+        "hard_requires": [],
+        "sections": [
+          {
+            "where": "SKILL.md §A",
+            "title": "The RITE standard",
+            "classification": "universal-doctrine",
+            "gist": "Defines the RITE (Readable, Isolated, Thorough, Explicit) quality bar for any test. Stack-agnostic — applies equally to TS, Rust, and any other stack."
+          },
+          {
+            "where": "SKILL.md §B",
+            "title": "Unit vs integration boundary",
+            "classification": "universal-doctrine",
+            "gist": "Draws the unit/integration line on behavioral scope, not call count; mandates real ephemeral dependencies (testcontainers / Docker Compose) over mocks at contract boundaries (DB, queue, S3, HTTP). Language-agnostic principle, though concrete harness names are delegated to per-stack skills."
+          },
+          {
+            "where": "SKILL.md §C",
+            "title": "AAA (Arrange / Act / Assert)",
+            "classification": "universal-doctrine",
+            "gist": "Mandates Arrange/Act/Assert structure in every test and the DRY rule for Arrange/Assert shared values. No language or runner assumptions."
+          },
+          {
+            "where": "SKILL.md §D",
+            "title": "Naming",
+            "classification": "universal-doctrine",
+            "gist": "Test names must describe behavior and expected result; provides formula templates. Casing guidance is tied to natural-language sentence start, not any language convention."
+          },
+          {
+            "where": "SKILL.md §E",
+            "title": "Determinism and flakiness",
+            "classification": "universal-doctrine",
+            "gist": "Defines determinism, enumerates common flakiness causes (timers, shared state, locale leakage, unseeded randomness), and bans reruns as a fix. Fully stack-agnostic."
+          },
+          {
+            "where": "SKILL.md §F",
+            "title": "Test doubles",
+            "classification": "universal-doctrine",
+            "gist": "Establishes the classic Dummy/Stub/Fake/Spy/Mock vocabulary, guidance on when to use each, and the over-mocking anti-pattern. No runner- or language-specific APIs mentioned."
+          },
+          {
+            "where": "SKILL.md §G",
+            "title": "Oracle strength and assertions",
+            "classification": "universal-doctrine",
+            "gist": "Defines a strong oracle and bans trivial assertions, snapshot noise for unstable output, and assertions that mirror implementation steps."
+          },
+          {
+            "where": "SKILL.md §H",
+            "title": "Coverage and mutation mindset",
+            "classification": "universal-doctrine",
+            "gist": "Directs maximizing coverage with justified exceptions; distinguishes structural coverage (floor) from mutation testing (oracle quality); explicitly delegates numeric thresholds and tooling to per-stack skills."
+          },
+          {
+            "where": "SKILL.md §I",
+            "title": "Scope and realism",
+            "classification": "universal-doctrine",
+            "gist": "Requires testing through public API surface only; forbids exports added solely for tests; treats inability to reach behavior through the public API as an architecture signal."
+          },
+          {
+            "where": "SKILL.md §J",
+            "title": "TDD (Red-Green-Refactor)",
+            "classification": "universal-doctrine",
+            "gist": "Recommends TDD as default workflow (Red-Green-Refactor cycle), explicitly not a merge gate. Stack-agnostic discipline."
+          },
+          {
+            "where": "SKILL.md §K",
+            "title": "What the per-stack skills own",
+            "classification": "universal-doctrine",
+            "gist": "Delegation map: runner & invocation, file placement, language idioms, integration harness, coverage tool + threshold, and specialized testing (fuzz) are all owned by per-stack skills. This section is itself stack-agnostic governance."
+          },
+          {
+            "where": "SKILL.md §L",
+            "title": "Review checklist",
+            "classification": "universal-doctrine",
+            "gist": "Eight-point checklist for writing/reviewing tests; references §B for integration boundary rule. Fully language-independent."
+          }
+        ],
+        "naming_fit": "Name parses as solidstats-process-{testing-standards}. The 'process' segment is slightly odd — the skill is closer to universal doctrine than a workflow process — but it mirrors the sibling naming convention (solidstats-process-project-standards, solidstats-process-ts-standards). No semantic mismatch; the name accurately signals it is a standards/doctrine document rather than an action-oriented workflow skill.",
+        "overlaps_suspected": [
+          "solidstats-process-ts-standards — may contain TS-specific test style rules (e.g. Vitest idioms, file co-location) that duplicate or conflict with what §K delegates to the per-stack test skills; exact overlap cannot be confirmed without reading that skill",
+          "estesis-frontend-react-unit-tests (mentioned in CHANGELOG as the origin of RITE/AAA/naming/determinism/doubles/oracle/coverage/TDD content) — if that skill still exists and is loaded, doctrine sections A-J are duplicated there"
+        ],
+        "notes": "1. Every section is genuinely universal-doctrine — there is not a single ts-shared, stack-specific, or repo-specific rule in the file. The skill correctly defers all concrete tooling (runner, file layout, threshold numbers, fuzz harness) to per-stack skills via §K.\n\n2. The skill self-describes as 'not a standalone test-writer' and lists meta-only triggers, which is correct — but this means it will never be triggered directly by a developer writing tests. Its only activation path is being hard-required by the per-stack test skills. The description should confirm those per-stack skill names once they are created (solidstats-backend-ts-tests, solidstats-parser-rust-tests, solidstats-frontend-react-tests are named but may not exist yet).\n\n3. Section B mentions testcontainers and Docker Compose test services as the preferred integration harness — these are implementation examples that technically belong to per-stack skills, but their appearance here is acceptable as illustrative examples supporting the doctrine rather than prescriptive tooling rules.\n\n4. No references/, workflows/, or templates/ subdirectories exist — the entire skill is one SKILL.md file (plus CHANGELOG.md). This is appropriate for a pure-doctrine skill.\n\n5. The CHANGELOG notes it was authored fresh with no estesis analog, which reduces duplication risk within the SolidStats family. The estesis-frontend-react-unit-tests skill (outside this family) is the upstream source and a potential duplicate concern for any cross-family skill reuse."
+      },
+      {
+        "name": "solidstats-process-backend-standards",
+        "scope_claim": "Shared service-side standards for every SolidStats TypeScript service — server-2 (Fastify HTTP backend) and replays-fetcher (ingest CLI). Owns stack-neutral rules both inherit: naming and factory contracts, typed error system (base), enums/constants, config & validated-input discipline, external adapters, async safety, process lifecycle, LSP, SOLID/DRY thresholds, utility libraries, observability (§Z), log diagnosability (§AA), and resource lifecycle (§AB). Explicitly does NOT cover web (React/TanStack) or replay-parser-2 (Rust).",
+        "hard_requires": [
+          "solidstats-process-ts-standards"
+        ],
+        "sections": [
+          {
+            "where": "SKILL.md §A",
+            "title": "Naming",
+            "classification": "ts-shared",
+            "gist": "File kebab-case with role suffix, PascalCase contracts, factory function pattern (create…), camelCase variables, UPPER_SNAKE for constants, no I-prefix on interfaces, domain identifier conventions (steamId64, entityId)."
+          },
+          {
+            "where": "SKILL.md §B",
+            "title": "Typed error system (base)",
+            "classification": "ts-shared",
+            "gist": "Mandatory abstract AppError base class with code/message/details/cause fields; errors defined per module in <feature>.errors.ts; domain vs ExternalServiceError taxonomy; transport mapping delegated to per-stack skills."
+          },
+          {
+            "where": "SKILL.md §C",
+            "title": "Enums & constants",
+            "classification": "ts-shared",
+            "gist": "No TS enum; use as-const object + derived union type; compare against the const object, never raw magic strings; repeated literals live in a per-module const."
+          },
+          {
+            "where": "SKILL.md §D",
+            "title": "Config & validated input discipline",
+            "classification": "ts-shared",
+            "gist": "Validate env/config once at boot and fail fast; no per-environment branching on NODE_ENV; no hardcoded secrets; schema-first types derived from runtime schema (TypeBox or Zod); all externally-sourced fields bounded."
+          },
+          {
+            "where": "references/correctness-and-quality.md → External adapters",
+            "title": "External adapters",
+            "classification": "ts-shared",
+            "gist": "Clients created once and injected; connection failure vs non-2xx upstream mapped to distinct error types; auth headers built by a helper; upstream status/body snippet logged on error; long-lived clients configured with timeouts and connection limits."
+          },
+          {
+            "where": "references/correctness-and-quality.md → Async safety",
+            "title": "Async safety",
+            "classification": "universal-doctrine",
+            "gist": "No blocking sync I/O on async paths; no N+1 per-item awaits inside loops; independent operations run concurrently; no floating promises; external I/O has a timeout and AbortSignal threading."
+          },
+          {
+            "where": "references/correctness-and-quality.md → Process lifecycle & construction",
+            "title": "Process lifecycle & construction",
+            "classification": "ts-shared",
+            "gist": "No module-level state with side effects (client/config/singleton at import time); composition in factory/composition root; graceful shutdown on SIGTERM/SIGINT with forced-exit timeout."
+          },
+          {
+            "where": "references/correctness-and-quality.md → Contract compliance (LSP)",
+            "title": "Contract compliance (LSP)",
+            "classification": "ts-shared",
+            "gist": "Factories implementing a contract must not defeat the type checker via as-cast or ts-expect-error; no widening return types or adding required params callers cannot supply; thrown errors must be a documented subset."
+          },
+          {
+            "where": "references/correctness-and-quality.md → SOLID — function/factory level",
+            "title": "SOLID thresholds",
+            "classification": "universal-doctrine",
+            "gist": "SRP: functions ≤~40 lines, factories ≤~5 non-structural deps; OCP: no if/else-if dispatch over 3+ branches — use a typed map instead."
+          },
+          {
+            "where": "references/correctness-and-quality.md → DRY — rule of three",
+            "title": "DRY — rule of three",
+            "classification": "universal-doctrine",
+            "gist": "Same logic (not merely similar shape) repeated 3+ times within a module must be extracted; similar-looking code across entities is acceptable."
+          },
+          {
+            "where": "references/correctness-and-quality.md → Utility & type libraries",
+            "title": "Utility & type libraries",
+            "classification": "ts-shared",
+            "gist": "Prescribes es-toolkit (runtime utilities), type-fest (type-level), day.js (dates), nanoid (non-DB IDs) over hand-rolled equivalents; source-of-truth types still derive from TypeBox/Zod schemas."
+          },
+          {
+            "where": "references/correctness-and-quality.md §Z",
+            "title": "§Z. Observability — log hygiene",
+            "classification": "ts-shared",
+            "gist": "Structured-only logging with correlation fields (replayId/jobId); log levels carry semantic meaning; state transitions must be logged; no PII/secrets/full rows in logs. Operational metrics surface (prom-client, /health vs run-summary) delegated to per-stack skills."
+          },
+          {
+            "where": "references/correctness-and-quality.md §AA",
+            "title": "§AA. Log diagnosability",
+            "classification": "ts-shared",
+            "gist": "Logs must allow post-hoc reconstruction of flow without a debugger: silent catch swallowing (🟠), traceback preservation, identifying context in errors (🟡), upstream failure detail (🟡), happy-path flow legibility (🔵). Defines boundary-logging contracts for each stack to avoid double-logging noise."
+          },
+          {
+            "where": "references/correctness-and-quality.md §AB",
+            "title": "§AB. Resource lifecycle — unbounded growth",
+            "classification": "universal-doctrine",
+            "gist": "Three-leg test: resource outlives request/run item + unbounded write path + no removal/cap. Covers in-memory accumulation (Map/Set/array on singletons), DB rows without retention/TTL, and files/objects never cleaned. Severity 🟠 default, 🔴 on hot path."
+          },
+          {
+            "where": "references/correctness-and-quality.md → Code-quality bugs",
+            "title": "Code-quality bugs",
+            "classification": "universal-doctrine",
+            "gist": "No silent catch, no identical branches, null checked before access, no console.* in prod, no TODO without tracker, error chaining preserved, no setTimeout-as-sleep, no any/as-dodge, exhaustive switch with never assertion."
+          },
+          {
+            "where": "references/correctness-and-quality.md → Comments & docs",
+            "title": "Comments & docs",
+            "classification": "universal-doctrine",
+            "gist": "English only; comments explain why not what; public contracts have doc comments; no commented-out code or narration comments."
+          },
+          {
+            "where": "references/correctness-and-quality.md → Imports & lint",
+            "title": "Imports & lint",
+            "classification": "ts-shared",
+            "gist": "ESLint all + typescript-eslint strict-type-checked + unicorn + import-x + Prettier; clean lint/typecheck required; index.ts exports only public contract; no wildcard imports of module internals; eslint-disable must carry justification comment."
+          }
+        ],
+        "naming_fit": "Name parses correctly as solidstats-process-[backend]-[standards]. The \"process\" segment is slightly unusual — the other process-* skills (solidstats-process-ts-standards, solidstats-process-project-standards) use it for cross-cutting or meta-level rules, which matches here. However the skill's actual content is closer to \"backend-ts-shared\" than a process/workflow concern; the naming is consistent with the family convention but the \"process\" segment may cause confusion with workflow/CI skills.",
+        "overlaps_suspected": [
+          "solidstats-process-ts-standards — utility library prescriptions (es-toolkit, type-fest, day.js, nanoid) and ESLint/import rules may already be or should be in ts-standards since web repo also benefits; there is acknowledged overlap in §D (schema-first types: TypeBox/Zod) which ts-standards owns the language side of",
+          "solidstats-backend-ts-conventions — SOLID/DRY thresholds, async safety, and code-quality bugs are likely partially restated in the per-stack correctness-and-quality.md referenced from that skill",
+          "solidstats-fetcher-ts-conventions — same overlap risk on process lifecycle, graceful shutdown, and error taxonomy as the backend skill"
+        ],
+        "notes": "1. The skill is work-in-progress: the per-stack skills (solidstats-backend-ts-conventions, solidstats-fetcher-ts-conventions) it claims as consumers may not yet exist or may not yet hard-require it — the taxonomy redesign should verify this link is live before relying on the layering. 2. Several sections classified here as 'universal-doctrine' (async safety, SOLID, DRY, code-quality bugs, comments, resource lifecycle) contain no TS-specific surface — they are genuinely language-agnostic and could in principle apply to the Rust parser too, though the skill's scope explicitly excludes replay-parser-2. A taxonomy redesign could promote these to a true cross-stack universal layer. 3. §D config discipline mixes truly universal discipline (validate at boot, no hardcoded secrets, fail fast) with TS-specific tool references (envalid, TypeBox, Zod) — a split into a universal sub-rule + TS annotation would be cleaner. 4. §Z/§AA log diagnosability rules reference specific correlation field names (replayId, jobId, steamId64) that are repo-specific identifiers embedded in an otherwise ts-shared section — this is load-bearing for code-review skills and should not be silently generalized. 5. The \"factory function, not class\" mandate in §A is idiomatic to this project family and would surprise standard OOP TS codebases — it is correctly classified ts-shared rather than universal. 6. The skill explicitly self-limits its triggers to meta/authoring use only and warns coding-task callers to use per-stack skills instead — this is an unusual and load-bearing design decision for the skill graph."
+      },
+      {
+        "name": "solidstats-backend-ts-conventions",
+        "scope_claim": "Primary subject: server-2 (Fastify 5, TypeBox, Kysely/pg, amqplib, S3, pino, prom-client, envalid). Shared baseline: replays-fetcher (commander CLI; Zod, no Fastify/amqplib). Fastify/TypeBox/HTTP sections tagged [HTTP] and do not bind the CLI. Does not cover replay-parser-2 (Rust) or web (React).",
+        "hard_requires": [
+          "solidstats-process-ts-standards"
+        ],
+        "sections": [
+          {
+            "where": "SKILL.md §A — Architecture, layers & module structure",
+            "title": "4-layer architecture and module layout",
+            "classification": "ts-shared",
+            "gist": "Defines controller→usecase→service→repository layering with downward-only dependencies, optional usecase layer, cross-module sharing only via exported service contracts, and the flat role-file module layout under src/modules/<feature>/. The layer pattern is TS/Node-idiomatic but not Fastify-specific — it could apply to replays-fetcher or another TS backend."
+          },
+          {
+            "where": "SKILL.md §B — Naming",
+            "title": "Naming conventions: files, types, factories, identifiers",
+            "classification": "repo-specific",
+            "gist": "Prescribes kebab-case role-suffix filenames, PascalCase contracts with no I-prefix, camelCase functions, UPPER_SNAKE constants, factory-function pattern (createX returning typed type X), and SolidStats-specific identifiers (steamId64, replayId, jobId). The steamId64/replayId identifiers are repo-specific; the factory and naming rules are ts-shared in spirit but classified repo-specific because they are anchored to SolidStats domain identifiers."
+          },
+          {
+            "where": "references/layers.md — Controllers / routes [HTTP]",
+            "title": "Fastify route/controller layer rules",
+            "classification": "stack-specific",
+            "gist": "Routes are Fastify plugins (FastifyPluginAsyncTypebox); every route requires TypeBox request + response schema; handler calls exactly one usecase/service; path comes from a RoutePath const; routes plugin carries prefix + OpenAPI tag. All rules are Fastify-specific and tagged [HTTP]."
+          },
+          {
+            "where": "references/layers.md — Usecases (optional)",
+            "title": "Usecase layer: orchestration and transaction ownership",
+            "classification": "ts-shared",
+            "gist": "Usecases are justified only when orchestrating multiple services; they own the transaction boundary (db.transaction()); they depend on service contracts not concrete factories; no re-validation of service output; no no-op try/catch. The concept is framework-agnostic and applies equally to a CLI."
+          },
+          {
+            "where": "references/layers.md — Services",
+            "title": "Service layer rules",
+            "classification": "ts-shared",
+            "gist": "Services call repositories, return Value.Parse-validated domain data, raise only typed AppError subclasses, propagate tx handle to repositories. The TypeBox Value.Parse detail is server-2-specific; the Zod equivalent applies to replays-fetcher — the rule is effectively ts-shared."
+          },
+          {
+            "where": "references/layers.md — Repositories",
+            "title": "Repository layer rules",
+            "classification": "stack-specific",
+            "gist": "Repositories use Kysely query builder with no string-interpolated SQL; pagination via shared paginate helper; accept optional tx via tx ?? db pattern; return DB row types not domain schemas. Tied to Kysely/pg — replays-fetcher has no DB layer, so this is stack-specific to server-2."
+          },
+          {
+            "where": "references/layers.md — Dependency injection — Fastify plugins",
+            "title": "DI via Fastify plugins and app.decorate",
+            "classification": "stack-specific",
+            "gist": "Cross-cutting clients provided by src/infra/ fp-wrapped plugins with app.decorate; module layers wired in module plugins; no module-level singletons; long-lived shared clients created once in their plugin. Entirely Fastify-specific ([HTTP] scope)."
+          },
+          {
+            "where": "references/schemas-and-data.md — Error system",
+            "title": "Typed error hierarchy (AppError + ExternalServiceError)",
+            "classification": "ts-shared",
+            "gist": "Abstract AppError with code/httpStatus/details/cause; per-module error files; one central setErrorHandler; consistent response envelope. The httpStatus + central Fastify handler wiring is stack-specific, but the AppError class design and error taxonomy apply to both TS repos — ts-shared is the better classification for the core hierarchy."
+          },
+          {
+            "where": "references/schemas-and-data.md — TypeBox schemas [HTTP]",
+            "title": "TypeBox request/response schema discipline",
+            "classification": "stack-specific",
+            "gist": "Derive types via Static<typeof Schema>; bound every string/array/number on request bodies; additionalProperties:false; naming convention XBase/XFull/XCreate/XUpdate/XRow; response schema mandatory on every route. Tagged [HTTP]; replays-fetcher uses Zod — the principles carry over but the TypeBox API does not."
+          },
+          {
+            "where": "references/schemas-and-data.md — Kysely data access & models",
+            "title": "Kysely database typing, migrations, transactions",
+            "classification": "stack-specific",
+            "gist": "Typed Database interface; consistent createdAt/updatedAt; migration discipline (up+down, backfill for NOT NULL, descriptive names, run via migrate.ts); explicit pg.Pool config; transaction boundary at usecase level. Entirely server-2/Kysely/pg stack — not applicable to replays-fetcher."
+          },
+          {
+            "where": "references/schemas-and-data.md — Enums & constants",
+            "title": "Enum/const pattern: as const object + derived union",
+            "classification": "ts-shared",
+            "gist": "TypeScript has no StrEnum; use const object + derived union type; compare against const values not string literals; per-module RoutePath const. The pattern is a TS language idiom applicable to all SolidStats TS repos."
+          },
+          {
+            "where": "references/schemas-and-data.md — Filters & pagination",
+            "title": "Shared Pagination/Paged types and composable filter helpers",
+            "classification": "stack-specific",
+            "gist": "Shared Pagination type, paginate helper, Paged<T> result; composable $call(applyXFilter(f)) helpers; typed orderBy union. The $call Kysely-specific syntax and the shared helper tie this to server-2's Kysely stack."
+          },
+          {
+            "where": "references/schemas-and-data.md — Config / env",
+            "title": "envalid-based config, no process.env scatter, no NODE_ENV branching",
+            "classification": "ts-shared",
+            "gist": "Validate env once at boot with envalid, expose via config decorator; no process.env reads scattered in code; no per-environment config objects; no hardcoded secrets. The envalid library and app.config decorator are server-2-specific details, but the principle (validate-once, no scatter, no secrets) is ts-shared."
+          },
+          {
+            "where": "references/correctness-and-quality.md — External HTTP adapters",
+            "title": "External HTTP adapter error taxonomy",
+            "classification": "ts-shared",
+            "gist": "Network failure → AppError (502); upstream non-2xx → ExternalServiceError; auth headers via helper not inline; log status + body snippet before raising. The taxonomy distinction is a design principle applicable to any TS backend calling external APIs."
+          },
+          {
+            "where": "references/correctness-and-quality.md — Async safety",
+            "title": "Event-loop safety: no blocking I/O, no N+1, no floating promises, timeouts/AbortSignal",
+            "classification": "ts-shared",
+            "gist": "No sync fs/hashing on async paths; no per-item await in loops (batch queries instead); concurrent ops via Promise.all; no floating promises (ESLint enforced); external I/O has timeout + AbortSignal. These are universal Node.js async rules, ts-shared at minimum."
+          },
+          {
+            "where": "references/correctness-and-quality.md — Security depth",
+            "title": "IDOR ownership check, mass assignment prevention",
+            "classification": "ts-shared",
+            "gist": "Every entity-id endpoint needs a visible ownership/role check; XCreate/XUpdate schemas must not accept server-assigned fields (steamId64, role, isAdmin, status). The IDOR and mass-assignment patterns are universal web API security principles but manifested in SolidStats domain terms (steamId64, isAdmin)."
+          },
+          {
+            "where": "references/correctness-and-quality.md — Security & runtime hardening",
+            "title": "HTTP hardening: rate-limit, helmet/CORS, bodyLimit, graceful shutdown, auth/session/CSRF",
+            "classification": "stack-specific",
+            "gist": "Fastify-specific plugins: @fastify/rate-limit, @fastify/helmet, @fastify/cors allow-list, bodyLimit; SIGTERM/SIGINT + app.close(); @fastify/under-pressure; Steam OAuth state/CSRF; HttpOnly+Secure+SameSite cookies. Entirely Fastify [HTTP] stack and server-2 domain (Steam OAuth, bounty/moderation routes)."
+          },
+          {
+            "where": "references/correctness-and-quality.md — Queue reliability",
+            "title": "amqplib queue consumer discipline: manual ack, prefetch/QoS, DLQ, idempotency",
+            "classification": "repo-specific",
+            "gist": "Manual ack (no auto-ack), prefetch/QoS cap, dead-letter + delivery-count cap, idempotent writes for bounty/moderation mutations. Tied to server-2's amqplib/RabbitMQ parse_jobs queue — repo-specific."
+          },
+          {
+            "where": "references/correctness-and-quality.md — Contract compliance (LSP)",
+            "title": "Factory/contract compliance: no as-cast widening, no surprise error types",
+            "classification": "ts-shared",
+            "gist": "Factory implementations must honor their contract type exactly; no as-cast to force satisfaction; no widening return types; thrown errors are a documented subset. A consequence of the factory-based contract pattern — ts-shared."
+          },
+          {
+            "where": "references/correctness-and-quality.md — SOLID — function/factory level",
+            "title": "SRP (40-line / 5-dep limits) and OCP (typed map over if/else chains)",
+            "classification": "ts-shared",
+            "gist": "Functions ≤40 lines; factories ≤5 non-structural deps; if/else chains >3 branches on a union replaced with typed Record map. These thresholds are SolidStats conventions but the principle is stack-agnostic — classified ts-shared."
+          },
+          {
+            "where": "references/correctness-and-quality.md — DRY — rule of three",
+            "title": "Extract duplicated logic only at 3+ occurrences",
+            "classification": "universal-doctrine",
+            "gist": "Extract the same logic (not similar shape) when repeated 3+ times within a module; similar-looking code across different entities is acceptable. This is a universal software principle."
+          },
+          {
+            "where": "references/correctness-and-quality.md — Utility & type libraries",
+            "title": "Prefer es-toolkit, type-fest, day.js, nanoid over hand-rolled helpers",
+            "classification": "ts-shared",
+            "gist": "Use es-toolkit for runtime collection/function utilities, type-fest for type derivation, day.js for date handling (UTC at boundary), nanoid for application-level ids. Tied to the SolidStats TS repos' approved dependency set — ts-shared across server-2 and replays-fetcher."
+          },
+          {
+            "where": "references/correctness-and-quality.md — Schema quality",
+            "title": "Request schema bounds (maxLength/maxItems/min/max) and no business rules in schemas",
+            "classification": "ts-shared",
+            "gist": "Unbounded strings/arrays on request bodies are DoS vectors; business rules belong in the service as typed errors, not schema keywords. The principle is universal; the TypeBox specifics are stack-specific, but the equivalent applies to Zod in replays-fetcher — ts-shared overall."
+          },
+          {
+            "where": "references/correctness-and-quality.md — §Z. Observability — log hygiene",
+            "title": "Structured pino logging hygiene: levels, state transitions, no PII/secrets, metrics",
+            "classification": "stack-specific",
+            "gist": "Structured logging via pino (log.info({ replayId, jobId }, 'msg')); log level semantics; state transitions logged; no PII/full-row logs; prom-client metrics for queue depth/job results/health endpoint. Pino and prom-client are server-2's specific tooling; the principle of structured logging is ts-shared but the implementation detail (pino, prom-client, /health) is stack-specific."
+          },
+          {
+            "where": "references/correctness-and-quality.md — §AA. Log diagnosability",
+            "title": "Diagnosable logs: no silent catch, traceback preserved, identifying context in errors, upstream failure logging",
+            "classification": "ts-shared",
+            "gist": "Silent catch (no log + no rethrow) is 🟠; log error object not just message; errors carry identifying context (id, steamId64); upstream failures log status+body snippet. The guardrails reference Fastify's req.log and setErrorHandler boundary as already-covered, but the core rules are framework-agnostic operational hygiene."
+          },
+          {
+            "where": "references/correctness-and-quality.md — §AB. Resource lifecycle — unbounded growth",
+            "title": "Detecting in-memory, DB row, and disk resource leaks",
+            "classification": "universal-doctrine",
+            "gist": "Three-leg finding criteria: resource outlives request + unbounded write path + no removal/cap. Covers module-level Map/Set growth, DB rows without retention/TTL, temp files without cleanup. Stack-agnostic reasoning applicable to any long-lived process."
+          },
+          {
+            "where": "references/correctness-and-quality.md — Code-quality bugs",
+            "title": "Code-quality micro-rules: empty catch, null checks, no console.*, error chaining, no any/as",
+            "classification": "ts-shared",
+            "gist": "No empty catch; null checked before access; no console.* in production; preserve error cause chain; no any/no as; exhaustive switch with never assertion. These are TypeScript-specific idioms applicable across all TS repos."
+          },
+          {
+            "where": "references/correctness-and-quality.md — Comments & docs",
+            "title": "Comment discipline: English only, why not what, doc public contracts, no commented-out code",
+            "classification": "universal-doctrine",
+            "gist": "Comments explain why; public contract types carry a short doc comment; no commented-out code or narration comments. Universal clean-code doctrine."
+          },
+          {
+            "where": "references/correctness-and-quality.md — Imports & lint",
+            "title": "ESLint/Prettier/tsc toolchain gate and import discipline",
+            "classification": "ts-shared",
+            "gist": "ESLint all + typescript-eslint strict-type-checked + unicorn + import-x + Prettier; tsc --noEmit required clean; index.ts re-exports only public contract; no wildcard imports; eslint-disable needs justification comment. Specific to the SolidStats TS toolchain setup — ts-shared."
+          }
+        ],
+        "naming_fit": "The name parses cleanly as solidstats-<scope:backend>-<target:ts>-<purpose:conventions>. Semantic fit is accurate: the skill is indeed prescriptive conventions for SolidStats TS backends. Minor tension: the scope says \\\"backend\\\" but two of the four SolidStats repos are TS (server-2 + replays-fetcher) and the skill genuinely covers both — the name does not mislead, though \\\"backend-ts\\\" could be read as implying only the HTTP backend. The [HTTP] tagging inside the skill resolves this adequately.",
+        "overlaps_suspected": [
+          "solidstats-process-ts-standards — explicitly a hard dependency that owns tsconfig strictness flags, code style (type over interface, no any, no as), ESLint 10 setup, Node 25/pnpm 11, Prettier defaults, Vitest 4/V8 gates; the imports-and-lint section in correctness-and-quality.md partially recaps the no-any/no-as/eslint rules already owned by that skill",
+          "solidstats-backend-ts-code-review — this skill is the rule source that the code-review skill enforces; every section here has a direct mirror in the review skill's hunt list; the relationship is intentional (conventions → review) but the two skills together mean any rule change must be kept in sync across both",
+          "solidstats-process-project-standards — if it exists and covers universal project hygiene (DRY rule of three, comment discipline, resource lifecycle three-leg test), those universal-doctrine sections in correctness-and-quality.md may duplicate process-level rules"
+        ],
+        "notes": "1. The skill explicitly absorbs fastify-best-practices, nodejs-backend-patterns, and api-design-principles rather than installing them separately — this is a deliberate design choice noted in the changelog, not an oversight. 2. Several sections have a ts-shared core wrapped in a stack-specific implementation detail (e.g. config/env: validate-once principle is ts-shared but envalid + app.config decorator is server-2-specific; log hygiene principle is ts-shared but pino + prom-client is stack-specific). In a taxonomy redesign, these mixed sections are the primary split candidates. 3. The queue reliability section (§Queue reliability) is the most repo-specific content: it references parse_jobs, amqplib, and server-2's bounty/moderation semantics by name — it would not belong in any shared layer. 4. The security & runtime hardening section is Fastify-centric but also embeds Steam OAuth / bounty-route business context (OWASP references for auth and money-like mutations), making it partially repo-specific within the stack-specific framing. 5. The SolidStats domain identifiers (steamId64, replayId, jobId) appear across multiple sections (naming, error details, log correlation) — they are repo-specific anchors embedded in otherwise-generalizable rules. 6. The CHANGELOG reveals the skill was rebased from estesis-backend-fastapi-vc conventions and translated Python/FastAPI → TypeScript/Fastify; structural parity with that skill is by design. 7. solidstats-backend-ts-tests is referenced as a downstream consumer of this skill's assumptions — a rule change here may silently invalidate the tests skill."
+      },
+      {
+        "name": "solidstats-backend-ts-code-review",
+        "scope_claim": "Pedantic code review for the SolidStats TypeScript/Fastify backend (server-2) and the replays-fetcher CLI (TS baseline). Explicitly excludes replay-parser-2 (Rust) and web (React).",
+        "hard_requires": [
+          "solidstats-process-review-standards",
+          "solidstats-backend-ts-conventions"
+        ],
+        "sections": [
+          {
+            "where": "SKILL.md §Phase 1 — API-contract gate",
+            "title": "API-contract gate (blocking)",
+            "classification": "stack-specific",
+            "gist": "Verifies every public/touched Fastify route declares TypeBox request+response schemas, flags breaking shape changes against the web client (openapi-typescript consumer), and checks the OpenAPI artifact is regenerated. Tied to the server-2 architecture where OpenAPI is generated from route schemas via @fastify/swagger. N/A for replays-fetcher CLI."
+          },
+          {
+            "where": "SKILL.md §Phase 2 — Convention & design/correctness sweep",
+            "title": "Risk-ordered convention sweep (10 topics)",
+            "classification": "stack-specific",
+            "gist": "Enumerates 10 sweep topics in risk order — security, correctness, architecture/layers, error system, schema discipline, data access (Kysely), observability, resource lifecycle, SOLID/DRY, quality/style — each cross-referencing solidstats-backend-ts-conventions sections. The ordering is universal principle, but the citation targets (TypeBox, Kysely, AppError, layers.md) are server-2/TS-stack specific."
+          },
+          {
+            "where": "SKILL.md §Severity reference",
+            "title": "Severity reference table",
+            "classification": "ts-shared",
+            "gist": "Maps finding types to severity buckets (🔴/🟠/🟡/🔵). The bucket scheme is universal (owned by solidstats-process-review-standards); the specific findings listed (IDOR, TypeBox schema bounds, Kysely N+1, AppError taxonomy) are TS/backend-specific but not exclusively server-2."
+          },
+          {
+            "where": "SKILL.md §Output",
+            "title": "Output format delegation",
+            "classification": "universal-doctrine",
+            "gist": "Delegates output format, continuous numbering, severity buckets, and verdict rules entirely to solidstats-process-review-standards §D–§E, with only the addition of an API-contract gate header. No local rules invented."
+          }
+        ],
+        "naming_fit": "Name parses cleanly as solidstats-backend-ts-code-review: solidstats (family), backend-ts (stack = TypeScript backend), code-review (purpose). Accurate — the skill is a reviewer that enforces the conventions skill. No semantic mismatch. The scope covers both server-2 and replays-fetcher but the name doesn't enumerate them, which is appropriate.",
+        "overlaps_suspected": [
+          "solidstats-process-review-standards: severity buckets, noise filter, verdict rules, test-file rule, and scope/scope-resolution protocol — all explicitly delegated but the Phase 2 severity table partially re-expresses rules that solidstats-process-review-standards owns, creating a read-sequence dependency and potential drift",
+          "solidstats-backend-ts-conventions: Phase 2 is purely a citation/enforcement wrapper; any rule change in conventions must be reflected in the risk-order list and severity table here — dual-maintenance surface",
+          "solidstats-backend-ts-tests: test-quality judgement is explicitly deferred here, so the boundary is stated; overlap is low but the split (review-standards §F + this skill + ts-tests) means three places govern test findings"
+        ],
+        "notes": "1. The severity reference table is the main drift risk: it consolidates tags from correctness-and-quality.md, so any update to that conventions file requires a matching update here. The CHANGELOG already documents one fix where the original instruction was unsatisfiable because untagged rules couldn't be mechanically looked up — the current design (inline table here) is a pragmatic workaround but creates a second source of truth. A taxonomy redesign could move the table into solidstats-backend-ts-conventions directly or into solidstats-process-review-standards as a parameterized template.\\n\\n2. Phase 1 (API-contract gate) is entirely server-2-specific — the architecture of 'OpenAPI generated from route schemas, consumed by web via openapi-typescript' is a single-repo design decision. The CLI carve-out ('N/A for replays-fetcher') signals this already. In a layered taxonomy, this gate belongs in a repo-specific layer, not the shared TS-backend layer.\\n\\n3. The skill is purely operational (a review executor), not a doctrine/convention file. It has no rules of its own — only a process (two phases), a gate, and a severity table that maps findings to buckets. This makes it a thin orchestrator that could be further thinned if the severity table migrated to conventions.\\n\\n4. replays-fetcher coverage is implicit: it inherits the TS baseline (Phase 2) but Phase 1 is explicitly N/A. The skill name ('backend-ts') fits server-2 more naturally than a CLI ingest tool. If replays-fetcher grows its own review needs, the name becomes slightly misleading.\\n\\n5. No references/, workflows/, or templates/ subdirectories exist — the skill is a single SKILL.md file plus CHANGELOG.md. All rule content lives in the hard-required convention/process skills."
+      },
+      {
+        "name": "solidstats-backend-ts-tests",
+        "scope_claim": "TypeScript/Fastify backend testing for SolidStats — primarily server-2, with non-Fastify parts also binding replays-fetcher CLI. Fastify-specific items tagged [HTTP]. Explicitly excludes React/frontend. Builds on solidstats-process-testing-standards and assumes solidstats-backend-ts-conventions.",
+        "hard_requires": [
+          "solidstats-process-testing-standards",
+          "solidstats-backend-ts-conventions"
+        ],
+        "sections": [
+          {
+            "where": "SKILL.md §Runner",
+            "title": "Vitest runner config",
+            "classification": "ts-shared",
+            "gist": "Vitest 4 with @vitest/coverage-v8; unit and integration run as separate Vitest projects/configs; no logging (quiet pino) in tests."
+          },
+          {
+            "where": "SKILL.md §Per-layer testing map",
+            "title": "Per-layer testing map (repository/service/usecase/route)",
+            "classification": "stack-specific",
+            "gist": "Maps each backend layer to its default test type: repository→integration (real Postgres), service→unit with fake repo, usecase→unit+integration for tx boundary, route→integration via app.inject. Fastify-specific route strategy tagged [HTTP]."
+          },
+          {
+            "where": "SKILL.md §Per-layer testing map (doubles block)",
+            "title": "Factory-DI unit doubles idiom",
+            "classification": "repo-specific",
+            "gist": "Exploits server-2's createX(deps) functional-factory DI to construct units with fake deps directly, no mocking framework needed — only true boundaries (S3, external HTTP, clock) get mocked."
+          },
+          {
+            "where": "SKILL.md §Integration harness",
+            "title": "Testcontainers integration harness",
+            "classification": "stack-specific",
+            "gist": "Use testcontainers (or Docker Compose test services) for PostgreSQL, RabbitMQ, and S3 (MinIO) — never mock these; each test gets an isolated ephemeral resource; real migrations via src/infra/db/migrate.ts; reset between tests via truncate or rollback transaction."
+          },
+          {
+            "where": "SKILL.md §Integration harness (app.inject block)",
+            "title": "Fastify app.inject for route tests",
+            "classification": "stack-specific",
+            "gist": "Build the real Fastify app and exercise routes via app.inject({method, url, payload}); assert status code and JSON body shape against the route's response schema."
+          },
+          {
+            "where": "SKILL.md §TS idioms",
+            "title": "Typed builders, parameterized tables, @ts-expect-error, fake timers",
+            "classification": "ts-shared",
+            "gist": "createX(overrides?) builders with sensible defaults; test.each for input matrices; @ts-expect-error with a reason for intentional invalid-type guards; vi.useFakeTimers()/vi.setSystemTime(); vi.clearAllMocks() in beforeEach."
+          },
+          {
+            "where": "SKILL.md §File placement",
+            "title": "Test file co-location and integration separation",
+            "classification": "ts-shared",
+            "gist": "Unit tests co-locate with source (*.test.ts); when a suite grows move into <unit>/tests/ with scenario-named files; integration tests marked *.integration.test.ts or under src/test/integration/ so the integration Vitest project picks them up."
+          },
+          {
+            "where": "SKILL.md §Coverage gate",
+            "title": "100% reachable-source coverage gate with /* v8 ignore next -- @preserve */",
+            "classification": "repo-specific",
+            "gist": "Hard gate at 100% reachable-source coverage per server-2 AGENTS; rare justified exceptions marked with the exact comment /* v8 ignore next -- @preserve */ (the @preserve marker prevents esbuild from stripping the hint); coverage is a floor not proof."
+          }
+        ],
+        "naming_fit": "Name parses as solidstats-backend-ts-tests: solidstats=family, backend=server-2+replays-fetcher, ts=TypeScript, tests=purpose. Fit is accurate — though the skill also covers the replays-fetcher CLI (not strictly a backend in the HTTP sense), the name is a reasonable shorthand. No semantic mismatch.",
+        "overlaps_suspected": [
+          "solidstats-process-testing-standards — owns RITE/AAA philosophy, unit-vs-integration boundary, determinism, doubles taxonomy, naming, coverage mindset (§B, §H); this skill deliberately delegates to it but some phrasing around 'mock only true boundaries' and 'coverage is a floor not proof' partially echoes it",
+          "solidstats-backend-ts-conventions — owns the functional-factory DI shape that the doubles section here relies on; the createX(deps) pattern is defined there and referenced here, so the doubles-in-practice code example is load-bearing only when that skill is also read"
+        ],
+        "notes": "1. The skill is tightly layered and disciplined: it explicitly defers philosophy to solidstats-process-testing-standards and architecture shape to solidstats-backend-ts-conventions, keeping itself to TS/Fastify HOW. This is good separation.\n2. The 100% coverage gate and the /* v8 ignore next -- @preserve */ exact comment are repo-specific (sourced from server-2 AGENTS), making that section fragile if the gate ever changes — it would need updating here too.\n3. The factory-DI doubles section is effectively repo-specific to server-2's createX pattern; a replays-fetcher unit test may or may not follow the same DI shape, but the skill claims it does cover replays-fetcher for non-Fastify parts.\n4. The testcontainers harness names three specific infrastructure services (PostgreSQL, RabbitMQ, S3/MinIO) — this is repo-specific knowledge, not just a general testcontainers idiom.\n5. Migration path (src/infra/db/migrate.ts) is a hard-coded repo-specific path.\n6. No references/ or workflows/ subdirectories exist; all content is in SKILL.md, which is appropriate given the skill's deliberately thin scope.\n7. The CHANGELOG reveals the TS idioms section was harvested from the estesis unit-tests skill with React specifics removed — the lineage is transparent."
+      },
+      {
+        "name": "solidstats-parser-rust-conventions",
+        "scope_claim": "Prescriptive conventions for the SolidStats Rust OCAP parser (replay-parser-2 repo only). Governs crate architecture, determinism, versioned parser-contract, error handling, domain typing, malformed-input totality, tokio worker, and build/supply-chain gates. Explicitly the rule source for solidstats-parser-rust-code-review and solidstats-parser-rust-tests.",
+        "hard_requires": [],
+        "sections": [
+          {
+            "where": "SKILL.md §A",
+            "title": "Crate architecture",
+            "classification": "repo-specific",
+            "gist": "Five-crate workspace layout (parser-contract, parser-core, parser-cli, parser-worker, parser-quality) with explicit dependency direction rules and the mandate to keep binaries thin/pure."
+          },
+          {
+            "where": "SKILL.md §B",
+            "title": "The lint floor",
+            "classification": "stack-specific",
+            "gist": "Describes the existing workspace deny-list (unsafe, unwrap, panic, clippy pedantic/nursery, float_cmp, etc.) and requires #[expect] over #[allow] for any suppression — builds on Rust idiom but the exact deny set is repo-enforced."
+          },
+          {
+            "where": "references/determinism-and-contract.md §C",
+            "title": "Determinism — the headline rule",
+            "classification": "repo-specific",
+            "gist": "Byte-identical artifact output required on every run/machine: BTreeMap/sorted Vec only, no SystemTime/rand/env in derived data, float epsilon, serde_json float_roundtrip for parse-side canonicalization, overflow-checks=true in release, RFC 8785 JCS note for hashing, total stable sort key."
+          },
+          {
+            "where": "references/determinism-and-contract.md §G",
+            "title": "The parser-contract — versioned and stable",
+            "classification": "repo-specific",
+            "gist": "parser-contract crate is the published interface (ParseArtifact/ParseStatus/JSON Schema); any artifact shape change requires a semver bump, regenerated schema, golden manifest update, and coordination with server-2 consumer; cargo-semver-checks and CI schema diff gate PRs."
+          },
+          {
+            "where": "references/parsing-types-errors.md §D",
+            "title": "Error handling",
+            "classification": "stack-specific",
+            "gist": "thiserror everywhere (no anyhow), one typed error enum per crate/module, propagate with ?, C-GOOD-ERR bounds (Error + Send + Sync + 'static, lowercase Display), #[from]/#[source] for cause chains."
+          },
+          {
+            "where": "references/parsing-types-errors.md §E",
+            "title": "Types and domain modeling",
+            "classification": "stack-specific",
+            "gist": "Newtypes over primitive obsession, exhaustive enum matches (no _ wildcard), make-invalid-states-unrepresentable, prefer borrows/Cow, conversions via From/TryFrom not hand-written Into (C-CONV)."
+          },
+          {
+            "where": "references/parsing-types-errors.md §F",
+            "title": "Parsing and malformed-input totality",
+            "classification": "repo-specific",
+            "gist": "Parser must be total over untrusted OCAP JSON bytes: serde derives + zero-copy on hot paths, input size cap (Read::take), respect serde_json recursion limit (never disable it on untrusted input), reject non-finite floats, default deny_unknown_fields, fuzzing required because totality cannot be proven by example tests alone."
+          },
+          {
+            "where": "references/worker-build-perf.md §H",
+            "title": "Async and worker",
+            "classification": "repo-specific",
+            "gist": "tokio discipline for parser-worker: no sleep on async path, no lock across await, bound concurrency; durability via durable parse_jobs state, idempotent processing, CancellationToken graceful shutdown, poison-message DLQ via nack requeue=false, basic_qos prefetch bound, JoinSet drain on shutdown, consumer-cancel recovery, S3 operation timeouts, tracing correlation by replayId/jobId."
+          },
+          {
+            "where": "references/worker-build-perf.md §I",
+            "title": "Docs, API hygiene and performance",
+            "classification": "stack-specific",
+            "gist": "missing_docs denied so every public item has ///, #[must_use] and #[non_exhaustive] on appropriate items, static dispatch default/dyn only for heterogeneous, profile before optimizing, avoid needless collect/clone, box large enum variants."
+          },
+          {
+            "where": "references/worker-build-perf.md §J",
+            "title": "Build, supply-chain and CI gates",
+            "classification": "repo-specific",
+            "gist": "cargo-deny (advisories/licenses/bans/sources), cargo-audit on nightly schedule, MSRV declared and CI-enforced, overflow-checks=true in release profile, reproducible binary via --locked + remap-path-prefix, criterion benchmark budgets with regression gate."
+          }
+        ],
+        "naming_fit": "Name parses cleanly as solidstats-{parser}-{rust}-{conventions}: scope=parser (replay-parser-2 repo), stack=rust, purpose=conventions. No semantic mismatch — the skill is entirely about Rust conventions for that one parser repo.",
+        "overlaps_suspected": [
+          "solidstats-process-testing-standards — §F mentions fuzzing is required and the decode path must be written to be fuzzable; the actual test conventions are explicitly delegated to solidstats-parser-rust-tests, but the fuzzability mandate in §F partially overlaps with whatever testing-standards says about test structure.",
+          "solidstats-process-backend-standards (work in progress) — §D error handling (thiserror, typed errors, no anyhow) and §E domain modeling (newtypes, exhaustive matches, From/TryFrom) express Rust-idiomatic patterns that a cross-repo process standard for backend might also want to encode, creating potential duplication if that skill ever covers Rust.",
+          "solidstats-parser-rust-tests — §F closes with the fuzz requirement and the statement that the decode path is 'written to be fuzzable'; this could partially duplicate the test skill's coverage requirements."
+        ],
+        "notes": "1. The skill is well-scoped and internally consistent: the spine (SKILL.md) is deliberately thin — it owns architecture (§A) and the lint floor summary (§B), then delegates to three reference files by work area. This modular shape makes targeted loading practical.\n\n2. Two sections that look universal-doctrine on the surface are actually repo-specific in practice: §C Determinism is only meaningful because replay-parser-2 must produce byte-identical artifacts for downstream consumers; and §G (parser-contract) is tightly coupled to the server-2 consumer relationship and the ParseArtifact schema. Neither belongs in a shared Rust layer.\n\n3. §D (thiserror) and §E (newtypes/exhaustive matches/From/TryFrom) are the most portable sections — they express idiomatic Rust API Guidelines (C-GOOD-ERR, C-CONV, C-NEWTYPE-HIDE) that would apply to any Rust crate in this org. If a second Rust repo ever appears, these two sections are prime candidates for extraction into a stack-specific rust-shared layer.\n\n4. §J (cargo-deny/audit/MSRV/reproducible builds) is repo-specific as written because it references the parser-quality crate and the exact CI gate shape, but the underlying practices (cargo-deny, MSRV, --locked builds) are broadly applicable Rust supply-chain hygiene. Worth noting for any future rust-shared conventions layer.\n\n5. The CHANGELOG records that the skill was authored fresh (no prior estesis Rust doctrine existed) and is grounded in deep-research plus the repo's actual stack — this means it is authoritative but not yet battle-tested against real code review runs; watch for drift once solidstats-parser-rust-code-review is in active use.\n\n6. No `workflows/` or `templates/` directories exist — the skill is reference-only (no procedural scripts or file templates). This is consistent with its conventions role."
+      },
+      {
+        "name": "solidstats-parser-rust-code-review",
+        "scope_claim": "Pedantic code review for the SolidStats Rust OCAP parser (replay-parser-2). Enforces solidstats-parser-rust-conventions and builds on solidstats-process-review-standards.",
+        "hard_requires": [
+          "solidstats-process-review-standards",
+          "solidstats-parser-rust-conventions"
+        ],
+        "sections": [
+          {
+            "where": "SKILL.md §Phase 1 — Contract & determinism gate",
+            "title": "Contract & determinism gate (blocking)",
+            "classification": "repo-specific",
+            "gist": "Gates on deterministic_output test, ordered artifact output (BTreeMap/float_roundtrip/no HashMap), versioned artifact-shape changes (semver bump, JSON Schema regen, golden manifest, schema_drift_status green), cargo-semver-checks pass, PR-time JSON Schema diff review, cargo-deny/cargo-audit clean. Any unflagged breaking change or nondeterminism is a BLOCK. CLI/worker-only changes: contract N/A, gate on determinism + lints."
+          },
+          {
+            "where": "SKILL.md §Phase 2 — Convention & correctness sweep",
+            "title": "Convention & correctness sweep (risk-ordered)",
+            "classification": "repo-specific",
+            "gist": "Nine-step risk-ordered sweep citing solidstats-parser-rust-conventions §A–§J: determinism, untrusted-input safety/totality, error handling, contract discipline, types/domain modeling, architecture (parser-core purity), async/worker (tokio discipline, durable jobs, graceful shutdown, tracing), build/supply-chain, docs/perf/quality."
+          },
+          {
+            "where": "SKILL.md §Severity reference",
+            "title": "Parser-specific severity table",
+            "classification": "repo-specific",
+            "gist": "Maps parser-specific finding types (nondeterminism, panic on input path, unflagged contract break, missing size cap, poison-message/no-DLX, overflow-checks off, logic in parser-core, deny_unknown_fields off, cargo-deny advisory, non-exhaustive match, docs) to 🔴/🟠/🟡/🔵 buckets."
+          },
+          {
+            "where": "SKILL.md §Output",
+            "title": "Output format delegation",
+            "classification": "repo-specific",
+            "gist": "Delegates output format, continuous numbering, severity buckets, and verdict rules entirely to solidstats-process-review-standards §D–§E. Specifies opening with the contract & determinism gate result. Test-quality judgement deferred to solidstats-parser-rust-tests + review-standards §F."
+          }
+        ],
+        "naming_fit": "Name parses cleanly as solidstats-{parser}-{rust}-{code-review}: scope=parser (replay-parser-2 repo), target=rust, purpose=code-review. No semantic mismatch — the skill does exactly what the name claims.",
+        "overlaps_suspected": [
+          "solidstats-parser-rust-conventions: the Phase 2 sweep categories (§A–§J) mirror that skill's rule library exactly — this skill delegates to it rather than duplicating, but a reader unfamiliar with the split might confuse the two",
+          "solidstats-process-review-standards: the output format, severity buckets, verdict rules, scope resolution, noise filter, and test-file rule all live there; this skill has no independent output logic",
+          "solidstats-parser-rust-tests: test-quality judgement is explicitly deferred here, so there is a functional boundary overlap on test review — both skills can be triggered by the same parser PR review workflow"
+        ],
+        "notes": "This skill is a pure orchestrator: it adds only the parser-specific Phase 1 gate logic and the severity table on top of two dependency skills. It contains zero rules of its own — every rule lives in solidstats-parser-rust-conventions and every format/verdict rule lives in solidstats-process-review-standards. The severity table is the one original artifact here; it is entirely repo-specific (references parser-core purity, OCAP artifact versioning, RabbitMQ DLX, S3 reads — all replay-parser-2 specifics). The hard_requires list in the SKILL.md front-matter is absent (only stated in prose), which could cause issues if the skill-loading harness expects a machine-readable requires field. The skill references solidstats-parser-rust-tests as a soft dependency for test quality but does not hard-require it. For taxonomy redesign: the severity table is the only thing worth keeping in this layer; everything else is structural glue pointing at the two hard-required skills."
+      },
+      {
+        "name": "solidstats-parser-rust-tests",
+        "scope_claim": "Rust testing for the SolidStats OCAP parser (replay-parser-2) — the per-stack layer on top of solidstats-process-testing-standards. Covers cargo test runner, manifest-driven golden/parity harness, determinism tests, proptest, insta snapshots, cargo-fuzz, and coverage gate.",
+        "hard_requires": [
+          "solidstats-process-testing-standards",
+          "solidstats-parser-rust-conventions"
+        ],
+        "sections": [
+          {
+            "where": "SKILL.md §Runner & layout",
+            "title": "Runner & layout",
+            "classification": "stack-specific",
+            "gist": "Uses cargo test / cargo nextest, co-located #[cfg(test)] mod tests for units, integration tests in crates/<crate>/tests/, and the golden/parity harness in crates/parser-core/tests/. Tests return Result and use ? over unwrap; assert error variants with matches!."
+          },
+          {
+            "where": "SKILL.md §Determinism test",
+            "title": "Determinism test (first-class)",
+            "classification": "repo-specific",
+            "gist": "The deterministic_output test asserts byte-identical artifact output across runs and threads, guarding the determinism convention (§C of solidstats-parser-rust-conventions). Every new derived field must be added to it."
+          },
+          {
+            "where": "SKILL.md §Golden / parity harness",
+            "title": "Golden / parity harness",
+            "classification": "repo-specific",
+            "gist": "Manifest-driven harness at crates/parser-core/tests/ maps fixtures to requirement/decision IDs and expected status/features. Every new parsing behavior or decision gets a fixture and manifest entry; schema_drift_status and fault_injection_regressions are always kept green."
+          },
+          {
+            "where": "SKILL.md §Property testing (proptest, required)",
+            "title": "Property testing with proptest",
+            "classification": "stack-specific",
+            "gist": "Mandates proptest for roundtrip (parse(serialize(a))==a), invariants (determinism, ordering stability, status monotonicity), and the 'malformed input never panics' property. Requires committing proptest-regressions/ to source control. Model-based proptest for worker orchestration is a medium-priority recommendation."
+          },
+          {
+            "where": "SKILL.md §Snapshot testing (insta)",
+            "title": "Snapshot testing with insta",
+            "classification": "stack-specific",
+            "gist": "Uses insta (assert_json_snapshot!) on representative fixtures with minimal redactions. Enforces CI=true auto-fail on drift and --unreferenced=auto; local workflow is cargo insta review."
+          },
+          {
+            "where": "SKILL.md §Fuzzing (cargo-fuzz, required)",
+            "title": "Fuzzing with cargo-fuzz",
+            "classification": "stack-specific",
+            "gist": "Requires two fuzz targets: raw &[u8] decode and structure-aware via #[derive(Arbitrary)] on the IR. Seed corpus committed from golden fixtures, minimized with cargo fuzz cmin; CI smoke run with -max_total_time=300 (libFuzzer flag, must follow --); cargo fuzz coverage to close the loop."
+          },
+          {
+            "where": "SKILL.md §Contract tests",
+            "title": "Contract tests",
+            "classification": "repo-specific",
+            "gist": "parser-contract types validated against the published JSON Schema via the jsonschema crate; schema drift is a CI failure. A C-DEBUG-NONEMPTY test asserts every public contract type's Debug output is non-empty."
+          },
+          {
+            "where": "SKILL.md §Coverage gate",
+            "title": "Coverage gate",
+            "classification": "repo-specific",
+            "gist": "cargo-llvm-cov through parser-quality + scripts/coverage-gate.sh; aims toward 100% reachable in parser-core. Coverage is treated as a floor, not proof — paired with property and fuzz layers."
+          }
+        ],
+        "naming_fit": "solidstats-parser-rust-tests parses cleanly as solidstats (family) - parser (scope: replay-parser-2) - rust (stack) - tests (purpose). No semantic mismatch; the name precisely matches the content.",
+        "overlaps_suspected": [
+          "solidstats-process-testing-standards: owns testing philosophy (RITE, AAA, unit-vs-integration boundary, determinism doctrine, doubles, oracle strength, coverage mindset, TDD) — this skill explicitly delegates to it; the boundary is clear but a reviewer must read both to get the full picture",
+          "solidstats-parser-rust-conventions §C (determinism) and §F (totality) and §G (contract) — those sections define the invariants that the tests here verify; the conceptual rules live there, the test enforcement lives here; split is intentional but cross-referencing is required"
+        ],
+        "notes": "1. Only two files exist (SKILL.md + CHANGELOG.md) — no references/, workflows/, or templates/ subdirectories. The skill is self-contained and fairly thin by design (it explicitly delegates philosophy to solidstats-process-testing-standards and conventions to solidstats-parser-rust-conventions).\n\n2. The 'malformed input never panics' property test rule (proptest section) is arguably universal-doctrine for any parser handling untrusted input, not Rust-specific. It's classified stack-specific here only because it's expressed as a proptest pattern and tied to Rust's Result/panic model.\n\n3. The two-fuzz-target strategy (raw bytes + structure-aware via Arbitrary) is a strong, well-motivated pattern that could be extracted into a generic 'parser fuzzing doctrine' if a second Rust parser ever joins the family.\n\n4. The CHANGELOG references .planning/RESEARCH-parser-cluster.md and .planning/SKILLS-ANALYSIS.md as upstream rationale sources — those files are not in this skill directory and would need to be found in the broader repo if audit depth requires it.\n\n5. The coverage-gate section references an external 'coverage-analysis' skill and the cargo-fuzz section references an external 'cargo-fuzz' tool skill — both are named but not present in this skills repo (may be separate tool-skill packages or stubs)."
+      },
+      {
+        "name": "solidstats-frontend-react-conventions",
+        "scope_claim": "Exclusively the SolidStats `web` repo (TanStack Start / React / TSX). SKILL.md explicitly says \"before writing any TS/TSX in `web`\" and lists a locked stack. Claims no rules over server-2, replays-fetcher, or replay-parser-2.",
+        "hard_requires": [
+          "solidstats-process-ts-standards"
+        ],
+        "sections": [
+          {
+            "where": "SKILL.md §1–2 + references/patterns/architecture.md",
+            "title": "FSD Architecture: root layers, UI layers, slices/entrypoints",
+            "classification": "stack-specific",
+            "gist": "Three root layers (routes / pages / shared), eight UI sub-layers (pages/widgets/composites/actions/displays/layouts/wrappers/lib), PascalCase slice folders with index.ts public surfaces, layer-suffix naming, uikit-vs-feature boundary. Explicitly derived from estesis FSD but retargeted to TanStack Start; not applicable to other SolidStats repos."
+          },
+          {
+            "where": "SKILL.md §3 + references/patterns/component-shape.md",
+            "title": "Component shape: named functions, props order, server/client boundary, icons",
+            "classification": "stack-specific",
+            "gist": "Named-function components with typed Props, system-props-first ordering, useCallback for handlers, explicit JSX ternaries, server-vs-client boundary per TanStack Start, Lucide-only icons, type='button' default. The server/client boundary split is TanStack Start-specific; naming and props-order rules are broadly React but the file encodes them as web-repo rules."
+          },
+          {
+            "where": "SKILL.md §4 + references/patterns/data-flow.md",
+            "title": "Data flow: TanStack Query + Router loader-prefetch, openapi-fetch typed client, queryOptions factories",
+            "classification": "stack-specific",
+            "gist": "Loaders prefetch into the Query cache via ensureQueryData; components read with useQuery on the same key. All server access through openapi-fetch + openapi-react-query typed by generated paths from server-2's OpenAPI schema. No raw fetch, no hand-written DTOs, per-domain queryOptions factories, explicit staleTime/gcTime per family, list→detail→back contract."
+          },
+          {
+            "where": "SKILL.md §5 + references/patterns/state.md",
+            "title": "State boundaries: URL / Query / Nano Stores / ephemeral",
+            "classification": "stack-specific",
+            "gist": "Each state type has exactly one home: shareable state in typed Router search params (single source of truth), server data in TanStack Query cache only, client-only persistent state in Nano Stores, transient in component/Router. Violations are the primary cause of the back-nav and CLS bugs the brief forbids."
+          },
+          {
+            "where": "SKILL.md §6 + references/patterns/routing.md",
+            "title": "Routing: typed TanStack Router, search params, scroll restoration, auth gates, /ru /en routes",
+            "classification": "stack-specific",
+            "gist": "File-based routes in src/routes, thin route files, validateSearch via zod/v4-mini, scroll + virtualization restoration, auth/role gates in beforeLoad before data loads, localized /ru /en prefixes with canonical + hreflang. All TanStack Router-specific."
+          },
+          {
+            "where": "SKILL.md §7 + references/patterns/localization.md",
+            "title": "Localization: typed ICU i18n, const ln aliasing, /ru /en, hydration safety",
+            "classification": "repo-specific",
+            "gist": "Typed ICU-capable i18n, RU+EN from the start with /ru /en route prefixes, structured domain/layer keys, const ln aliasing convention (adapted from estesis), hydration-safe date/number serialization. RU+EN requirement and the specific aliasing convention are web-repo specific."
+          },
+          {
+            "where": "SKILL.md §8 + references/patterns/typescript.md",
+            "title": "TypeScript: generated OpenAPI types as source of truth, backend-enum Record safety, zod/v4-mini, type-fest/es-toolkit/dayjs/nanoid",
+            "classification": "ts-shared",
+            "gist": "type over interface, no any/!/unexplained as, noUncheckedIndexedAccess, generated OpenAPI paths as the single DTO source, Model→Data boundary, Record<Enum,…> for backend-driven maps, runtime validation via zod/v4-mini, type-fest for type-level utilities, es-toolkit for collection helpers, dayjs for dates, nanoid for client-side IDs. The strictness flags and no-any/no-interface rules are owned by solidstats-process-ts-standards; this file adds the web-specific generated-types and utility rules. Substantial overlap with ts-standards baseline."
+          },
+          {
+            "where": "SKILL.md §8 + references/patterns/typescript.md §Lint",
+            "title": "Toolchain: Vite+ (Oxlint + Oxfmt + tsgo) lint/format/type-check gate",
+            "classification": "repo-specific",
+            "gist": "vp check (Vite+ CLI) runs Oxlint + Oxfmt + tsgo configured in vite.config.ts; warnings are CI errors; suppressions need a comment. This toolchain choice is specific to the web repo (server-2 and replays-fetcher likely use different tooling)."
+          },
+          {
+            "where": "SKILL.md §9 + references/patterns/styling.md",
+            "title": "Styling: vanilla-extract file naming, token/theme contract, design direction rules",
+            "classification": "stack-specific",
+            "gist": "Colocated <ComponentName>Style.css.ts files, token-driven theme contract (dark default + light), semantic tokens only (no raw hex), clsx composition, no transition: all, stable dimensions for CLS, Lucide-only icons, design direction (no nested cards/ornamental gradients). vanilla-extract is a stack choice shared with estesis; the token schema and design direction are web-repo specific."
+          },
+          {
+            "where": "SKILL.md §10 + references/patterns/a11y.md",
+            "title": "Accessibility: WCAG 2.2 AA, keyboard/focus, Ark UI primitives, live regions, touch targets",
+            "classification": "stack-specific",
+            "gist": "WCAG 2.2 AA minimum, full keyboard support via Ark UI headless primitives, visible focus, skip links + landmarks, one H1, 4.5:1/3:1 contrast, 44×44 touch targets, live regions for SSE without focus theft, focus management on route change. Ark UI is a web-stack choice; WCAG principles are universal but rules here are encoded specifically for the React/Ark stack."
+          },
+          {
+            "where": "SKILL.md §11 + references/patterns/performance.md",
+            "title": "Performance & CWV: LCP/INP/CLS budgets, bundle splits, virtualization, render stability",
+            "classification": "stack-specific",
+            "gist": "LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.02 budgets; route-level code splitting; reserved dimensions for async content; LCP in initial SSR HTML; virtualization for 10k–100k rows; render-stable props; transform/opacity animations with prefers-reduced-motion; bundle budgets in CI. CWV targets are universal doctrine; the implementation rules are React/TanStack-specific."
+          },
+          {
+            "where": "SKILL.md §12 + references/patterns/seo.md",
+            "title": "Rendering & SEO: SSR for indexable pages, titles/meta/canonical, sitemaps, structured data, crawl-trap avoidance",
+            "classification": "repo-specific",
+            "gist": "SEO-critical public pages SSR-rendered before JS; unique title/meta/canonical; /ru /en hreflang; VideoGame/BreadcrumbList/ItemList structured data; segmented sitemap index for replay pages; curated indexable filter URLs + noindex for volatile states. The specific surface list (players/squads/rotations/commander/bounty/replays), the RU/EN pair, and structured data types are repo-specific."
+          },
+          {
+            "where": "SKILL.md §13 + references/patterns/realtime.md",
+            "title": "Realtime: SSE-first, per-page merge discipline, connection/stale states",
+            "classification": "repo-specific",
+            "gist": "SSE by default (WebSocket only for client→server live), no-surprise updates (no viewport reorder/CLS), per-page auto-merge vs explicit-confirm policy, visible reconnect/offline/timeout/stale states. The per-page merge discipline and stale-label convention are repo-specific product decisions."
+          },
+          {
+            "where": "SKILL.md §14 + references/patterns/errors.md",
+            "title": "Errors: stable error codes, recovery copy taxonomy, request/form states, route error boundaries",
+            "classification": "stack-specific",
+            "gist": "Stable unique error codes from server-2 API, UI maps codes to localized copy (never raw string), user-action errors vs app/server errors with contact path + request id, all server-2 request states handled (validation/duplicate/cooldown/rate-limit/rejection), route error boundaries with recovery action. Stable codes are a universal doctrine; the server-2-specific state list is repo-specific."
+          },
+          {
+            "where": "SKILL.md §15 + references/patterns/tests.md",
+            "title": "Tests: Playwright for components/journeys, Vitest for hooks/logic, CI gate",
+            "classification": "stack-specific",
+            "gist": "Playwright covers components and critical journeys (list→detail→back, SSE, a11y via axe); Vitest covers hooks and pure logic; no RTL tests. CI gates: full browser/viewport matrix, axe a11y, console errors, scroll/cache/CLS regressions, Lighthouse/budget, vp check. The Playwright-for-components (not RTL) mandate and the specific CI gate set are web-repo specific."
+          },
+          {
+            "where": "SKILL.md §16 + references/patterns/domain-rules.md",
+            "title": "Domain rules: players/squads/rotations/bounty/replays, slug model, provenance, request flows, moderation, RBAC",
+            "classification": "repo-specific",
+            "gist": "Slug-only current-owner player/squad routes, replay routes by ID, server-driven pagination for 10k-100k row tables, SteamID masked to last 4, bounty formula breakdown, guided request steppers (identity/kills/teamkills/remove-from-replay/commander-dispute), server-2 draft resources with 7-day TTL, immutable audit timeline, RBAC by roles + explicit capabilities. Entirely web-repo and SolidStats product-specific."
+          },
+          {
+            "where": "SKILL.md §16.1 + references/patterns/security.md",
+            "title": "Security: SSR server CSP/headers, env/secrets discipline, file upload validation",
+            "classification": "stack-specific",
+            "gist": "Node SSR server sets CSP (nonce-based preferred) + HSTS + XCTO + frame-ancestors via TanStack Start middleware; secrets server-only, never at module scope in client-reachable code; env validated at startup with zod/v4-mini; uploads validated by magic bytes not MIME, EXIF stripped, SVG disallowed; external links with noopener noreferrer. Some rules (no secrets in client bundles) are universal; the TanStack Start middleware integration is stack-specific."
+          },
+          {
+            "where": "SKILL.md §15 + references/patterns/forms.md",
+            "title": "Forms: TanStack Form for request steppers, live-after-submit validation, draft autosave",
+            "classification": "stack-specific",
+            "gist": "TanStack Form for all multi-field inputs, one form instance per stepper, zod/v4-mini schema validator, live-after-submit revalidation (not on-keystroke before first submit), narrow field subscription, drafts autosaved to server-2 resource via debounced mutation. TanStack Form is a stack choice; the draft lifecycle is repo-specific."
+          },
+          {
+            "where": "references/project-patterns.md",
+            "title": "Project patterns index: src/ path → reference file mapping, common rg search commands",
+            "classification": "repo-specific",
+            "gist": "An index table mapping src/ paths and change types to the relevant reference pattern files, plus four common ripgrep commands for code smell detection. Entirely specific to this skill's file layout and the web repo's src/ structure."
+          }
+        ],
+        "naming_fit": "Name parses as solidstats-{frontend-react}-{conventions}. Scope token \"frontend-react\" is precise — this binds only the `web` React repo, not other SolidStats repos. \"conventions\" is accurate: it is the rule/convention source that the sibling code-review skill enforces. No semantic mismatch. The name is consistent with the sibling skills (solidstats-frontend-react-code-review, solidstats-frontend-react-tests).",
+        "overlaps_suspected": [
+          "solidstats-process-ts-standards: TypeScript strictness flags (no any, no interface, noUncheckedIndexedAccess) are declared as 'owned by ts-standards' in SKILL.md line 24, yet typescript.md re-states several of them. The Vite+ toolchain (Oxlint/Oxfmt/tsgo) and utility library mandates (type-fest, es-toolkit, dayjs, nanoid) were added to solidstats-process-ts-standards per recent commits (db37f07) — they now appear verbatim in both skills.",
+          "solidstats-process-ts-standards: zod/v4-mini as the runtime validation tool appears in both typescript.md here and in ts-standards (it was added to ts-standards in the same recent commit db37f07). The routing.md note about zod/v4-mini is a cross-reference, but typescript.md re-documents the rule independently.",
+          "estesis-backend-fastapi-vc-conventions / estesis FSD: architecture.md and styling.md both explicitly state they are 'adapted from estesis FSD / estesis frontend'. If an estesis-frontend-react-conventions skill exists or gets created, the FSD layer model, slice/entrypoint conventions, and vanilla-extract styling rules would be near-duplicates."
+        ],
+        "notes": "1. The skill correctly delegates TS baseline to solidstats-process-ts-standards, but typescript.md still re-states several baseline rules (no any, no interface, noUncheckedIndexedAccess, type aliases). In a taxonomy redesign, typescript.md should be pruned to only the web-specific additions (generated OpenAPI types, Model→Data boundary, Record<Enum,…>, zod/v4-mini route schemas, web-specific utility choices) — or those utility choices should live solely in ts-standards.\n\n2. The utility library mandates (type-fest, es-toolkit, dayjs, nanoid) were recently added to ts-standards (db37f07) AND appear here. One of the two locations is redundant; ts-standards is the better home for stack-agnostic TS utilities, with this file only cross-referencing them.\n\n3. The Vite+ toolchain section in typescript.md is repo-specific (not all SolidStats TS repos use Vite+) and arguably belongs in a web-repo-level config or a process skill rather than a conventions skill.\n\n4. domain-rules.md is the most repo-specific file in the set — it has zero transferable content to other repos. If the taxonomy separates universal/shared from repo-specific rules, this file is a clean cut candidate for a standalone solidstats-frontend-web-domain skill or a sub-skill.\n\n5. The security.md upload-validation rules (magic bytes, EXIF strip, SVG disallow) overlap with any general upload-security standard; the server-2-specific draft resource lifecycle in forms.md and domain-rules.md is a hard repo dependency that should be noted when reusing.\n\n6. The SKILL.md section numbering has two §16 entries (§16 domain-rules and §16.1 security) — a minor inconsistency.\n\n7. The skill's \"quick checklist\" (§19) is a useful final-gate summary but does not add rules beyond the body — not a separate classification concern.\n\n8. realtime.md's per-page merge discipline is described as an explicit product decision (brief), making it repo-specific. The general SSE-first-vs-WebSocket principle could be ts-shared/stack-specific but the merge policy details are repo-specific."
+      },
+      {
+        "name": "solidstats-frontend-react-code-review",
+        "scope_claim": "Pedantic code review for the SolidStats `web` frontend (TanStack Start / React). Explicitly scoped to the `web` repo only.",
+        "hard_requires": [
+          "solidstats-process-review-standards",
+          "solidstats-frontend-react-conventions"
+        ],
+        "sections": [
+          {
+            "where": "SKILL.md §Phase 1 — Quality gate",
+            "title": "Quality gate (blocking)",
+            "classification": "stack-specific",
+            "gist": "Pre-review blocking checks: axe a11y, Core Web Vitals (CLS/LCP/INP), bundle budgets, console errors, openapi-typescript types freshness, list→detail→back contract, SSR for SEO, security headers/CSP. All tied to TanStack Start / React / openapi-typescript / Vite+ (`vp check`) toolchain."
+          },
+          {
+            "where": "SKILL.md §Phase 2 — Convention & correctness sweep",
+            "title": "Convention & correctness sweep (14-point risk-ordered checklist)",
+            "classification": "repo-specific",
+            "gist": "Ordered sweep referencing repo-specific concepts: Nano stores, openapi-fetch/openapi-react-query typed client, SSE realtime merge discipline, FSD slice/uikit boundaries, ICU localization with /ru /en hreflang, slug/owner domain model, masked SteamID, request/moderation flows — all unique to the SolidStats web repo."
+          },
+          {
+            "where": "SKILL.md §Severity reference",
+            "title": "Frontend-specific severity table",
+            "classification": "repo-specific",
+            "gist": "Mechanical severity mapping for findings; rows like 'broken list→detail→back', 'Nano/component state instead of URL', 'SSE focus-steal', 'openapi typed client bypass', and SteamID/moderation items are specific to this repo's product and architecture."
+          },
+          {
+            "where": "SKILL.md §Output",
+            "title": "Output format delegation",
+            "classification": "universal-doctrine",
+            "gist": "Delegates output format, continuous numbering, severity buckets, verdict rules, and test-file handling entirely to solidstats-process-review-standards — adds only the Quality gate block above the standard buckets."
+          }
+        ],
+        "naming_fit": "Name parses cleanly as solidstats-frontend-react-code-review: solidstats = org family, frontend = domain, react = stack, code-review = purpose. Accurate — the skill is purely a review orchestrator for the React/web repo, not a conventions carrier.",
+        "overlaps_suspected": [
+          "solidstats-frontend-react-conventions — the sweep in Phase 2 names every convention category (a11y, data-flow, styling, TypeScript, localization, etc.) by citation tag; the actual rules live in that skill's references/ files, but the risk-ordered checklist here partially restates scope/content of those convention sections rather than purely citing them.",
+          "solidstats-process-review-standards — the output section re-describes the severity bucket system and verdict rule briefly before delegating; minor duplication of framing already owned by review-standards."
+        ],
+        "notes": "1. The skill is a thin orchestrator: it owns the quality gate definition and the severity table, and delegates both rule content and output format to two other skills. This is architecturally clean.\n\n2. The list→detail→back contract, Nano store state boundaries, SSE merge discipline, and SteamID/slug/moderation domain rules are deep repo-specific concerns — they would not belong in any shared frontend layer.\n\n3. The quality-gate items (axe, CWV, bundle budgets, generated-types freshness via openapi-typescript) are partially stack-specific (TanStack Start + Vite+ toolchain) but the underlying principles (a11y, performance, type safety) are universal. The `vp check` command and `openapi-typescript` references make them solidstats-specific in practice.\n\n4. The Phase 2 sweep is ordered by product risk (UX continuity first), which is repo-specific prioritization — another repo would order differently.\n\n5. No references/ or workflows/ subdirectories exist; the skill is a single SKILL.md + CHANGELOG.md. All rule detail is externalized to solidstats-frontend-react-conventions.\n\n6. The CHANGELOG shows the skill was bootstrapped and immediately iterated (2026-06-06 initial + two same-day follow-ups), suggesting it is relatively young and may still be settling."
+      },
+      {
+        "name": "solidstats-frontend-react-tests",
+        "scope_claim": "Testing for the SolidStats `web` frontend (TanStack Start / React) — the per-stack layer on top of solidstats-process-testing-standards. Binds to the `web` repo only.",
+        "hard_requires": [
+          "solidstats-process-testing-standards",
+          "solidstats-frontend-react-conventions"
+        ],
+        "sections": [
+          {
+            "where": "SKILL.md §Runner split",
+            "title": "Runner split: Vitest vs Playwright",
+            "classification": "stack-specific",
+            "gist": "Vitest owns hooks and pure logic (mappers, query-key factories, zod schemas, Nano store, reducers); Playwright owns component behavior and critical journeys. Explicitly bans RTL DOM tests and localization-object tests. Maps the unit-vs-integration boundary from testing-standards to these two runners."
+          },
+          {
+            "where": "SKILL.md §Critical journeys (Playwright)",
+            "title": "Critical journey coverage list",
+            "classification": "repo-specific",
+            "gist": "Enumerates the specific launch-blocking Playwright journeys for the web repo: list→filter→scroll→detail→Back with cache/scroll/CLS restoration, SSE update behavior, loading/error/offline/reconnecting/stale states, keyboard navigation, responsive smoke flows."
+          },
+          {
+            "where": "SKILL.md §Accessibility in tests",
+            "title": "Accessibility test requirements",
+            "classification": "stack-specific",
+            "gist": "Mandates axe (or equivalent) in Playwright on key screens; serious/critical violations block. Asserts focus management on route change and announced table sort/filter state."
+          },
+          {
+            "where": "SKILL.md §CI matrix (the gate)",
+            "title": "CI browser and budget gate",
+            "classification": "repo-specific",
+            "gist": "Defines the merge-blocking CI matrix: full Playwright browser matrix (Chromium, Firefox, WebKit, mobile viewports, reduced-motion, forced-colors), axe, console-error block on critical journeys, scroll/cache/CLS regression block, Lighthouse/bundle budgets, smoke screenshot regression, and `vp check` (Vite+ Oxlint+Oxfmt+tsgo)."
+          },
+          {
+            "where": "SKILL.md §E2E data & doubles",
+            "title": "E2E data strategy: seeded server-2 backend",
+            "classification": "repo-specific",
+            "gist": "E2E runs against a deterministic seeded server-2 backend; local frontend dev requires a live server-2 API, not mocks as primary mode. Vitest unit tests stub dependencies directly without network."
+          },
+          {
+            "where": "SKILL.md §Determinism",
+            "title": "Determinism rules",
+            "classification": "ts-shared",
+            "gist": "Seeded backend data, deterministic time, no real sleep/wall-clock waiting. Reset mocks/timers/state between tests; no shared mutable fixtures. Delegates detail to solidstats-process-testing-standards §E."
+          },
+          {
+            "where": "SKILL.md §Not owned here",
+            "title": "Delegation boundary",
+            "classification": "universal-doctrine",
+            "gist": "Explicitly demarcates that test philosophy lives in solidstats-process-testing-standards and review severity in solidstats-process-review-standards §F. Test quality is never a standalone BLOCK unless a test actively masks a real bug."
+          }
+        ],
+        "naming_fit": "Name parses cleanly as solidstats-frontend-react-tests. Scope (solidstats family), layer (frontend), stack (react), and purpose (tests) are all accurate. No semantic mismatch — the skill is exactly what the name says.",
+        "overlaps_suspected": [
+          "solidstats-process-testing-standards — determinism rules (§Determinism here) and the unit-vs-integration boundary are partially re-stated rather than purely delegated; the delegation note says 'testing-standards §E' owns it but a brief restatement still exists here",
+          "solidstats-frontend-react-conventions — runner split and what counts as 'pure logic' overlaps with conventions around query-key factories, zod schemas, and Nano stores; the boundary between 'how you structure code' and 'what you put in Vitest' is thin"
+        ],
+        "notes": "1. The skill is intentionally thin (spine pattern) — it explicitly defers philosophy to solidstats-process-testing-standards and code conventions to solidstats-frontend-react-conventions. This is by design and appropriate.\n\n2. The RTL ban ('no RTL component DOM tests') is attributed to 'the estesis rule, kept' — this is a cross-family import that could cause confusion if the taxonomy is cleaned up. It should either be promoted to solidstats-process-testing-standards or noted as an explicit frontend-react doctrine.\n\n3. The CI matrix section (§CI matrix) is the most repo-specific content: `vp check`, `server-2` reference, and the specific browser matrix all tie to the web repo's Vite+ setup and backend. If a second TanStack/React repo were added to the family, these would need forking.\n\n4. The seeded-server-2 E2E policy (§E2E data) is entirely repo-specific — it names `server-2` by repo-name and makes it the canonical E2E backend. This is the strongest repo lock-in in the skill.\n\n5. No references/, workflows/, or templates/ subdirectories exist — the skill is SKILL.md-only, which is consistent with being a thin spine skill."
+      }
+    ],
+    "repoReports": [
+      {
+        "repo": "replays-fetcher",
+        "stack": "Node.js 25, TypeScript 6, ESLint 10 (unicorn + import-x + typescript-eslint), Prettier, Vitest 4 + V8 coverage, pino, zod 4, pg, @aws-sdk/client-s3, p-limit, commander; pnpm 11 monorepo workspace; ESM-only; no framework (CLI/scheduled-job, not an HTTP server)",
+        "skills_in_lock": [
+          "solidstats-backend-ts-code-review",
+          "solidstats-backend-ts-conventions",
+          "solidstats-backend-ts-tests",
+          "solidstats-process-project-standards",
+          "solidstats-process-review-standards",
+          "solidstats-process-testing-standards",
+          "solidstats-process-ts-standards"
+        ],
+        "skills_in_agents_table": [
+          "solidstats-backend-ts-conventions",
+          "solidstats-backend-ts-code-review",
+          "solidstats-backend-ts-tests",
+          "solidstats-process-review-standards",
+          "solidstats-process-testing-standards"
+        ],
+        "src_top_level": [
+          "check",
+          "checkpoint",
+          "cli.test.ts",
+          "cli.ts",
+          "config.test.ts",
+          "config.ts",
+          "contract-check",
+          "discovery",
+          "errors",
+          "evidence",
+          "index.ts",
+          "logging",
+          "run",
+          "source",
+          "staging",
+          "storage"
+        ],
+        "notes": "Mismatch: skills-lock.json lists 7 skills but the AGENTS.md GSD:skills table only lists 5 — `solidstats-process-project-standards` and `solidstats-process-ts-standards` are in the lock and installed in both .agents/skills/ and .claude/skills/ but absent from the AGENTS table. Both installed dirs are in sync with the lock (all 7 present). The table should be updated to include the two missing entries.\n\nRepo shape notes relevant to skill selection: this is a pure CLI/worker service (no HTTP framework — no Fastify, no Express). The `solidstats-backend-ts-conventions` skill is named for Fastify backend but the service uses plain Node with commander; the skill may have Fastify-specific guidance that does not fully apply, though TypeScript/Node architectural conventions will still be relevant. The stack matches the skill set well otherwise: strict TS 6, ESLint 10 all-rules, Vitest 4, pino logging, zod 4, pg, S3 — all covered by the installed skills. No frontend, no Rust, no Python present."
+      },
+      {
+        "repo": "/home/afgan0r/Projects/SolidGames/server-2",
+        "stack": "Node.js 25 + TypeScript 6, Fastify 5, PostgreSQL, RabbitMQ, S3-compatible storage, Steam OAuth, OpenAPI 3.x, Vitest 4, ESLint 10, Prettier, pnpm workspaces",
+        "skills_in_lock": [
+          "openapi-to-typescript",
+          "solidstats-backend-ts-code-review",
+          "solidstats-backend-ts-conventions",
+          "solidstats-backend-ts-tests",
+          "solidstats-process-project-standards",
+          "solidstats-process-review-standards",
+          "solidstats-process-testing-standards",
+          "solidstats-process-ts-standards"
+        ],
+        "skills_in_agents_table": [
+          "solidstats-backend-ts-conventions",
+          "solidstats-backend-ts-code-review",
+          "solidstats-backend-ts-tests",
+          "solidstats-process-review-standards",
+          "solidstats-process-testing-standards",
+          "openapi-to-typescript"
+        ],
+        "src_top_level": [
+          "app.ts",
+          "server.ts",
+          "config/",
+          "infra/",
+          "modules/",
+          "openapi/",
+          "operations/",
+          "test/"
+        ],
+        "notes": "Three mismatches between lock and AGENTS table:\n\n1. solidstats-process-project-standards — present in lock and installed in both .agents/skills/ and .claude/skills/, but NOT listed in the AGENTS.md GSD:skills table.\n2. solidstats-process-ts-standards — same: in lock and installed, but absent from the AGENTS table.\n3. The AGENTS table lists 6 skills; the lock has 8. The two extras (process-project-standards, process-ts-standards) were added to the lock (likely via the recent commits in the skills repo: 93ba29c) but the AGENTS.md table was never updated to include them.\n\nInstalled dirs (.agents/skills/ and .claude/skills/) are perfectly in sync with each other and with the lock — all 8 skills present in both locations.\n\nRepo shape notes relevant to skill selection:\n- Pure TypeScript/Fastify backend (no Rust, no Python); solidstats-backend-ts-conventions and solidstats-process-ts-standards are the primary convention gates.\n- modules/ layout suggests domain-driven slice structure — conventions skill is critical for route/plugin/hook/schema work.\n- openapi/ dir confirms OpenAPI generation is active; openapi-to-typescript skill is correctly present.\n- test/ at src root alongside Vitest config — solidstats-backend-ts-tests and solidstats-process-testing-standards are correctly installed.\n- solidstats-process-project-standards and solidstats-process-ts-standards should be added to the AGENTS.md table to close the documentation gap."
+      },
+      {
+        "repo": "replay-parser-2",
+        "stack": "Rust 2024 Cargo workspace — serde/serde_json, schemars, semver, clap, tokio, lapin, aws-sdk-s3, tracing, thiserror, assert_cmd",
+        "skills_in_lock": [
+          "cargo-fuzz",
+          "coverage-analysis",
+          "solidstats-parser-rust-code-review",
+          "solidstats-parser-rust-conventions",
+          "solidstats-parser-rust-tests",
+          "solidstats-process-project-standards",
+          "solidstats-process-review-standards",
+          "solidstats-process-testing-standards"
+        ],
+        "skills_in_agents_table": [
+          "solidstats-parser-rust-conventions",
+          "solidstats-parser-rust-code-review",
+          "solidstats-parser-rust-tests",
+          "solidstats-process-review-standards",
+          "solidstats-process-testing-standards",
+          "cargo-fuzz",
+          "coverage-analysis"
+        ],
+        "src_top_level": [
+          "crates/parser-cli",
+          "crates/parser-contract",
+          "crates/parser-core",
+          "crates/parser-quality",
+          "crates/parser-worker"
+        ],
+        "notes": "Mismatch: skills-lock.json contains `solidstats-process-project-standards` but it is absent from the AGENTS.md GSD skills table. All 8 skills in the lock are installed and identical in both .agents/skills/ and .claude/skills/. The 7 skills listed in AGENTS.md are all present in the lock — no skill is in the table but missing from the lock. Regarding conventions coverage: the repo is a pure Rust OCAP parser workspace with 5 crates (cli, contract, core, quality, worker). There is no TypeScript, no frontend, no Python. The existing skill set (rust-conventions, rust-code-review, rust-tests, process-review-standards, process-testing-standards, cargo-fuzz, coverage-analysis) matches the stack well. The only gap worth noting: solidstats-process-project-standards is locked and installed but not surfaced in AGENTS.md — it should either be added to the table or removed from the lock if it is intentionally not exposed to agents working in this repo."
+      },
+      {
+        "repo": "SolidGames/web",
+        "stack": "TypeScript / React / TanStack Start (SSR) — pre-code planning stub; no src/ or package.json yet",
+        "skills_in_lock": [
+          "openapi-to-typescript",
+          "solidstats-frontend-react-code-review",
+          "solidstats-frontend-react-conventions",
+          "solidstats-frontend-react-tests",
+          "solidstats-process-project-standards",
+          "solidstats-process-review-standards",
+          "solidstats-process-testing-standards",
+          "solidstats-process-ts-standards",
+          "tanstack-start"
+        ],
+        "skills_in_agents_table": [
+          "solidstats-frontend-react-conventions",
+          "solidstats-frontend-react-code-review",
+          "solidstats-frontend-react-tests",
+          "solidstats-process-review-standards",
+          "solidstats-process-testing-standards",
+          "tanstack-start",
+          "openapi-to-typescript"
+        ],
+        "src_top_level": [],
+        "notes": "Two skills are in skills-lock.json and fully installed (both .agents/skills/ and .claude/skills/) but are absent from the AGENTS.md GSD:skills table: `solidstats-process-project-standards` and `solidstats-process-ts-standards`. They should be added to the table so agents know when to invoke them.\n\nBoth .agents/skills/ and .claude/skills/ contain identical copies (not symlinks) of all 9 skills — full parity, no drift between the two install dirs.\n\nThe repo is a pre-code planning stub: only AGENTS.md, CLAUDE.md, skills-lock.json, gsd-briefs/README.md, and LICENSE exist. No src/, no package.json, no app code yet. The declared stack (TanStack Start, React, FSD architecture, Vitest + Playwright, OpenAPI codegen from server-2) is described in AGENTS.md and gsd-briefs/ but not yet scaffolded. All 9 installed skills are appropriate for the intended stack once scaffolding begins."
+      }
+    ],
+    "estesis": "SKILLS\n\nestesis-backend-fastapi-vc-conventions\nLayer: per-stack conventions reference\nGist: Authoritative §A–§S ruleset for writing VocalClub Python/FastAPI code — layers, naming, DI, errors, schemas, models, migrations, tests; stable section letters cited by the reviewer.\n\nestesis-backend-fastapi-vc-code-review\nLayer: per-stack reviewer\nGist: Pedantic 3-phase reviewer for VocalClub Python/FastAPI PRs; reads the conventions skill and the shared review-standards first, then adds a requirements gate (spec vs. tracker), a conventions pass (cites [conv: §X]), and design-quality checks in §T–§AB.\n\nestesis-process-review-standards\nLayer: shared review foundation\nGist: Single source of truth for how every Estesis reviewer behaves — severity buckets (one axis: 🔴🟠🟡🔵), continuous-numbered output format, verdict rules (APPROVE / REQUEST CHANGES / BLOCK), scope discipline, read-only default, noise filter; never triggered for actual reviews.\n\nestesis-process-review-feedback\nLayer: process / learning loop\nGist: Closes the feedback cycle for any reviewer skill — captures human edits/MR remarks into a normalized corrections journal, then promotes repeated patterns (rule of three) into SKILL.md patches for the target reviewer.\n\nestesis-process-deep-brainstorm\nLayer: process / pre-execution gate\nGist: Multi-wave Socratic analysis harness aligned to GSD stages; runs closed-choice decision gates, rich trade-off analysis, and produces a decision pack before implementation begins.\n\nestesis-process-deep-research\nLayer: process / research harness\nGist: Accuracy-first research workflow that fans out cheap sub-agents for search/fetch, adds quote-provenance and cross-source corroboration layers absent from the native deep-research, and reserves a strong model only for final adjudication and synthesis.\n\n---\n\nLAYERING PATTERN\n\nThe family uses a strict three-tier naming convention encoded directly in the skill slug: `{project}-{domain}-{stack}-{role}`. The first segment (`estesis`) is the project/org namespace. The second segment (`backend`, `process`) is the domain — whether the skill is tied to a runtime stack or to a cross-cutting workflow. The third segment, when present (`fastapi`, `csharp`, `react`, `swagger-spec`), identifies the specific technology stack, keeping stack knowledge out of the shared layers. The final segment names the role: `conventions` for the authoritative ruleset, `code-review` for the reviewer that enforces it, and `review-standards` for the foundation both depend on.\n\nThe shared-standards skill (`estesis-process-review-standards`) knows nothing about any stack; it owns only the review contract — severity scale, output format, verdict rules, and scope discipline. Every per-stack reviewer hard-requires it and reads it first, meaning the output format is always identical regardless of language or review type. The per-stack conventions skill (`estesis-backend-fastapi-vc-conventions`) is a pure reference — it has no procedural logic; it just owns stable-lettered rules. The per-stack reviewer then sits above both, reading conventions + standards and adding only what is stack-specific: the spec/tracker requirements gate and the design-quality checks (§T–§AB) reserved in the conventions skill's letter namespace. This makes the reviewer thin — most of its content is delegation.\n\nThe feedback skill (`estesis-process-review-feedback`) is a second-order process tool: it does not review code at all; it improves the reviewers by routing corrections back to exactly the right skill (or to the shared standards if the signal is general). The rule-of-three threshold and the two-stage capture/promote split prevent single-data-point noise from polluting the ruleset prematurely.\n\nThe SolidStats family (`solidstats-process-project-standards`, `solidstats-process-ts-standards`) borrowed the `{project}-{domain}-{role}` naming structure directly — using `solidstats` as the namespace and `process` as the domain for cross-cutting standards. It also adopted the pattern of separating a shared baseline (project-standards) from a stack-specific layer (ts-standards), mirroring how `estesis-process-review-standards` underpins the stack-specific reviewers. What SolidStats does not yet have (compared to the mature estesis family) is the reviewer tier itself, the feedback/learning loop, and the explicit §-lettered citation contract between conventions and reviewer skills."
+  }
+}
