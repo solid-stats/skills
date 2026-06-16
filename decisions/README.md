@@ -20,6 +20,7 @@ each ADR's Sources section.
 | [0004](0004-server-2-boundary-and-testing.md) | server-2 boundary & testing decisions (no-pass-through, `getDecorator`, depcruise, mocking-by-layer) | server trio |
 | [0005](0005-lint-and-coverage-suppression-policy.md) | Lint & coverage suppression policy (never silence a structural gate; config-once; narrow exceptions) | `shared-ts`/`-testing`, `parser-rust`, all `-tests` |
 | [0006](0006-replay-parser-2-convention-deltas.md) | replay-parser-2 convention deltas (observability §K–§M, determinism, worker) | parser trio |
+| [0007](0007-bmad-borrowed-improvements.md) | Borrowed GSD process improvements: plan provenance (new `shared-planning-standards`), adversarial review lenses + GSD-sync discovery, graphify-in-workflow (C6) via the agent-skills lever, and the update-safe lens fan-out (new `process-review-lenses` skill + bundled Workflow) | `shared-planning-standards`, `process-review-lenses`, `shared-review-standards`, all four reviewers |
 
 ## Code-side follow-ups
 
@@ -34,3 +35,8 @@ non-blocking briefs in the planning repo, not here:
   risk: 14 expired coverage-allowlist entries + coverage not wired into CI.
 - `plans/product/SKILLS-REVIEW-FEEDBACK-TIER.md` — proposed `solidstats-process-review-feedback`
   learning tier for the reviewer family (backlog, size M).
+- ADR 0007 wiring (per-repo `.planning/config.json` + gsd-core, not in this repo): inject
+  `solidstats-shared-planning-standards` into `agent_skills` for the planning agents and add the
+  plan-checker spot-verify checklist item; fan the review lenses out as parallel subagents in
+  `gsd-code-review` / `gsd-verifier` at deep depth (BMAD plan P1/P3). The C6 graph-consult/refresh
+  hooks likewise live in each repo's config / `gsd-graphify` runs, not here.

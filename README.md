@@ -55,8 +55,9 @@ the working tree, pending review) · `Done` (built and reviewed).
 | Project Standards | `solidstats-shared-project-standards` | Done | Universal baseline for all five SolidStats repos (server-2, replays-fetcher, replay-parser-2, web, infrastructure). GSD workflow obligations, session hygiene, git conventions, cross-app boundary map, cross-app compatibility protocol, security minimums, risk management, and documentation language. Auto-triggers on every task; all per-stack skills assume it. Includes CI/CD pipeline reference. |
 | TypeScript Standards | `solidstats-shared-ts-standards` | Done | Baseline TypeScript/Node.js standard shared by server-2, replays-fetcher, and web. tsconfig strictness flags, code style (type/no-any/no-as), ESLint 10 baseline, Node 25 + pnpm 11, Prettier, Vitest 4 / V8 coverage gates, utility libraries (es-toolkit, type-fest, day.js, nanoid), TS test idioms. Hard-required by the TS conventions skills; not used standalone. |
 | Backend TS Standards | `solidstats-shared-backend-ts-standards` | Draft | Shared standard for TypeScript *backend* repos — audience defined intensionally, currently server-2 and replays-fetcher. Naming/factories, typed-error base, enums, config discipline, external adapters, async safety, process lifecycle, LSP/SOLID/DRY, and the observability doctrine (§Z/§AA/§AB, parity-linked to the parser's Rust mirror). Hard-required by the server and fetcher conventions skills; not used standalone. |
-| Review Standards | `solidstats-shared-review-standards` | Done | Shared foundation for every SolidStats code-review skill: severity buckets, report output format, verdict rules, scope discipline, the test-file rule, and the noise filter. Hard-required by all code-review skills; not used standalone. |
+| Review Standards | `solidstats-shared-review-standards` | Done | Shared foundation for every SolidStats code-review skill: severity buckets, report output format, verdict rules, scope discipline, the test-file rule, the noise filter, the GSD-sync discovery step (locate the plan, map the change onto `.planning/codebase/` + the knowledge graph), and the named adversarial review lenses. Hard-required by all code-review skills; not used standalone. |
 | Testing Standards | `solidstats-shared-testing-standards` | Done | Shared testing philosophy for every SolidStats stack: AAA structure, isolation, determinism, test doubles, and file placement. Hard-required by the per-stack test skills; not used standalone. |
+| Planning Standards | `solidstats-shared-planning-standards` | Draft | Shared planning foundation read by the GSD planning agents (gsd-planner, gsd-plan-checker, gsd-executor, discuss): plan provenance (`[src:]` source anchors, the premises ledger with a `verify` command per claim, carried-forward learnings) and the knowledge-graph consultation step (GSD-IMPROVEMENTS C6 — query the graph at discuss/plan, fold the blast radius into the plan). Injected via `agent_skills`; not used standalone. |
 
 ### Server — TypeScript / Fastify (`server-2`)
 
@@ -89,6 +90,12 @@ the working tree, pending review) · `Done` (built and reviewed).
 | Conventions | `solidstats-frontend-react-conventions` | Done | Prescriptive conventions for the `web` frontend. As `web` is greenfield, this doubles as its architecture contract (state, data, routing, styling). References the external `tanstack-start` skill. |
 | Code Review | `solidstats-frontend-react-code-review` | Done | Pedantic code review for the React/TanStack frontend. Delegates to `solidstats-frontend-react-conventions` and `solidstats-shared-review-standards`. |
 | Tests | `solidstats-frontend-react-tests` | Done | Frontend test guidance (unit + integration) on top of `solidstats-shared-testing-standards`. |
+
+### Process (cross-cutting)
+
+| Skill | Install name | Status | Description |
+|-------|-------------|--------|-------------|
+| Review Lenses | `solidstats-process-review-lenses` | Draft | Trigger wrapper that runs a deep code review as the three `solidstats-shared-review-standards` §J lenses (Contract Adversary / Edge / Failure Hunter / Acceptance Auditor) in parallel and merges them into one report. Bundles the fan-out Workflow (`workflows/review-lenses.workflow.js`) — the update-safe, invocation-layer implementation of BMAD plan P3. Run by the top-level session; not meta. |
 
 ## Relationship to external skills
 

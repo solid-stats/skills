@@ -1,5 +1,14 @@
 # Changelog — solidstats-frontend-react-code-review
 
+## 2026-06-16 — Review-lens mapping (BMAD Improvement 2)
+- Added a **Review lenses** section mapping the three generic adversarial lenses from
+  `solidstats-shared-review-standards` §J onto this reviewer's two phases: **Contract Adversary** →
+  Phase 1 quality gate (generated-types freshness, list→detail→back) + the §I.2 blast radius across
+  shared loaders/routes; **Edge / Failure Hunter** → Phase 2 data-correctness/CWV/realtime topics;
+  **Acceptance Auditor** → §F + the discovered PLAN `must_haves.truths` (§I.3), with UI truths routed
+  to Validation Gaps for the browser pass. Notes the no-forced-finding rule and the depth-tied fan-out.
+- Provenance: ADR `decisions/0007-bmad-borrowed-improvements.md`.
+
 ## 2026-06-06 — Follow-up (user directives)
 - Phase-1 gate now includes `vp check` (Vite+ lint/format/type-check).
 

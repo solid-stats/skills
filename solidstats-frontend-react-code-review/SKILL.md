@@ -129,6 +129,29 @@ Each finding lands in one severity bucket, carries a `[topic]` tag, and cites `[
 
 ---
 
+## Review lenses
+
+For a deep phase/milestone review, run the change through the three adversarial lenses from
+`solidstats-shared-review-standards` §J — many lenses, one report (all findings share the §C buckets,
+§D numbering, one §E verdict). First run §I discovery: locate the plan and **map the change onto the
+codebase** (`.planning/codebase/` for slice/layer placement; the knowledge graph for the blast radius
+— which routes, loaders, and shared uikit consumers the change ripples into). The lenses map onto this
+reviewer's two phases as:
+
+| Lens | Frontend mandate |
+|------|------------------|
+| **Contract Adversary** | Assume the change breaks the typed generated client (stale `openapi-typescript` vs the `server-2` schema) or the list→detail→back contract. Drive **Phase 1** — generated-types freshness, the back-nav state/scroll/cache restore, SSR HTML for indexable content — and trace the §I.2 blast radius across routes that share the touched loader/query. |
+| **Edge / Failure Hunter** | The happy render works. Hunt the broken state path: loading-vs-empty-vs-error ordering (loader must win before "empty"), an optimistic update on a moderation action, a raw `fetch` / hand-written DTO, avoidable CLS, an SSE update that shifts viewport or steals focus — Phase 2 topics 3, 4, and 6. |
+| **Acceptance Auditor** | The task is marked done. Prove the tests prove the plan's `must_haves.truths` (§I.3). UI truths (a visual state, a real-browser behavior) are usually **not** confirmable by static read — record them under **Validation Gaps** as needing the verify/browser pass, never imply they were verified; §F + the discovered PLAN contract. |
+
+Each lens records what it attacked and ruled out under **Non-Findings Checked** (§D); a lens that
+finds nothing real reports nothing — no forced findings. The parallel-subagent fan-out (one per lens)
+is driven from the invocation layer by the `solidstats-process-review-lenses` skill/Workflow — never by
+editing the vendored `gsd-code-review`/`gsd-verifier` (see `solidstats-shared-review-standards` §J); a
+`/gsd-quick` review collapses the lenses into the single Phase-1→Phase-2 pass.
+
+---
+
 ## Output
 
 Follow the output format, continuous numbering, severity buckets, and verdict rules from
