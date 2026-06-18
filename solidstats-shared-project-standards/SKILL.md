@@ -40,6 +40,19 @@ development is outside the process.
   during a session, update the relevant planning file before the session ends.
 - **Skills-first.** Before acting on any task, scan available skills. Use a skill even when
   there's only a small chance it helps — the cost is low, the benefit is standardized work.
+- **The skill is the source of truth.** For its stack, the installed `solidstats-*` skill
+  (conventions or review) **outranks the existing code** — surrounding or legacy code is not a
+  style reference, and matching it does not make a change correct. When code and skill disagree,
+  never silently follow the code; exactly one of two things is true:
+  1. **The code is wrong** → bring the code into line with the skill.
+  2. **The skill doesn't yet account for something the code legitimately needs** → the code may
+     be right and the skill incomplete → stop, work out how to capture that case, and fix the
+     skill itself. Skill edits go in the `solid-stats/skills` repo, then re-sync — never the
+     vendored `.agents/skills/**` copy (overwritten on the next sync) — and are recorded in that
+     skill's `CHANGELOG.md`.
+  Either way, surface the conflict and route the fix to one side — never quietly follow the code
+  and move on. This is the working-time face of the authoring rule that conventions are
+  *prescriptive*: code is brought into line with the skill, not the reverse.
 
 ---
 

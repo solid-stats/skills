@@ -1,5 +1,13 @@
 # Changelog — solidstats-shared-project-standards
 
+## 2026-06-18 — v1.2 — Skill is the source of truth
+
+- Added §A bullet "The skill is the source of truth": the installed `solidstats-*` skill
+  outranks existing code; on a code↔skill conflict either the code is wrong (fix the code) or
+  the skill is incomplete (fix the skill in `solid-stats/skills`, re-sync, update its CHANGELOG)
+  — never silently follow the code. Surfaces the authoring rule (conventions are prescriptive)
+  at working time and adds the explicit conflict-resolution + skill-feedback loop.
+
 ## 2026-06-07 — v1.1 — MCP usage guidelines
 
 - Added §I MCP Usage: Context7 as primary library docs MCP, per-repo library lookup table,
