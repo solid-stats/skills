@@ -1,0 +1,23 @@
+[
+  { "query": "прогони весь replays-fetcher по нашим конвенциям и собери все отклонения в один список — готовлю рефакторинг-milestone", "should_trigger": true },
+  { "query": "we're about to do a big cleanup pass on server-2 — inventory every place the code breaks our conventions AND architecture so I can turn it into tasks", "should_trigger": true },
+  { "query": "вскрой все нарушения архитектуры в replay-parser-2, нужно привести крейты в соответствие со скиллами", "should_trigger": true },
+  { "query": "find every layering violation across the whole fetcher repo, not just my branch — upward imports, wrong band, fence breaks, all of it", "should_trigger": true },
+  { "query": "audit the entire server-2 codebase against solidstats-server-ts-conventions and give me JSON I can feed to a fix agent", "should_trigger": true },
+  { "query": "хочу полный аудит соответствия конвенциям по всему репозиторию парсера, без ограничения по числу файлов", "should_trigger": true },
+  { "query": "go through all of replays-fetcher and list everywhere we diverge from the prescribed standard so we can make it all shine before the release", "should_trigger": true },
+  { "query": "compliance sweep of the whole server-2 repo — naming, typed errors, zod, layering, the works, every occurrence", "should_trigger": true },
+  { "query": "приведи кодбазу server-2 в соответствие со скиллами: сначала нужен инвентарь всех нарушений по всему проекту", "should_trigger": true },
+  { "query": "scan the full parser repo (all 5 crates) for convention + architecture deviations and bucket them by severity", "should_trigger": true },
+
+  { "query": "review my PR on server-2 before I merge — I touched the ingest module", "should_trigger": false },
+  { "query": "посмотри мой диф в replays-fetcher перед мержем, всё ли по конвенциям", "should_trigger": false },
+  { "query": "do a deep adversarial review of my current branch with the lenses", "should_trigger": false },
+  { "query": "is the /admin/stats endpoint actually authorized on every code path in server-2?", "should_trigger": false },
+  { "query": "напиши новую стадию инжеста в фетчере по конвенциям", "should_trigger": false },
+  { "query": "where should I put the new S3 evidence adapter in the fetcher, which band does it go in?", "should_trigger": false },
+  { "query": "run the test suite and typecheck for server-2 and tell me what's failing", "should_trigger": false },
+  { "query": "audit our pnpm dependencies in server-2 for known CVEs and security advisories", "should_trigger": false },
+  { "query": "build a codebase map for replay-parser-2 so a new dev can onboard to the crates", "should_trigger": false },
+  { "query": "the graphify graph for server-2 looks stale, can you regenerate it", "should_trigger": false }
+]

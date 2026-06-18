@@ -1,0 +1,538 @@
+{
+  "maps": [
+    {
+      "repo": "replays-fetcher",
+      "stack": "TypeScript / Vitest / Node.js ingest CLI",
+      "testSkillsInstalled": [
+        "solidstats-fetcher-ts-tests",
+        "solidstats-shared-testing-standards"
+      ],
+      "testFilePatterns": [
+        {
+          "pattern": "src/**/*.test.ts (co-located unit, excluding *.integration.test.ts)",
+          "count": 37,
+          "kind": "unit"
+        },
+        {
+          "pattern": "src/**/*.integration.test.ts",
+          "count": 6,
+          "kind": "integration"
+        },
+        {
+          "pattern": "src/**/*.fixtures.ts",
+          "count": 3,
+          "kind": "fixture"
+        },
+        {
+          "pattern": "src/run/golden-fixtures.ts",
+          "count": 1,
+          "kind": "fixture"
+        },
+        {
+          "pattern": "scripts/capture-golden-fixtures.ts",
+          "count": 1,
+          "kind": "helper"
+        },
+        {
+          "pattern": "vitest.config.ts",
+          "count": 1,
+          "kind": "helper"
+        }
+      ],
+      "counts": {
+        "sourceFiles": 50,
+        "testFiles": 43,
+        "inlineCfgTestFiles": 0
+      },
+      "layout": "All tests are co-located next to production files under src/: `foo.ts` → `foo.test.ts` for units, `foo.integration.test.ts` for integration. No decomposed `<unit>/tests/` subdirectory pattern is used anywhere yet (the skill mentions it as a growth path when a file exceeds the lint line budget, but no suite has split there). Fixture/helper files live next to their test: `s3-checkpoint-store.fixtures.ts`, `s3-evidence-store.fixtures.ts`, `staging-schema.fixtures.ts`. The golden-fixtures loader (`src/run/golden-fixtures.ts`) and the human-run capture script (`scripts/capture-golden-fixtures.ts`) sit at the `run/` level and `scripts/` respectively. No `tests/` or `__tests__/` top-level directory exists. `src/commands/` has 6 production files with no paired `.test.ts`; they are exercised indirectly through `cli.test.ts` via `buildCli`.",
+      "pairingRule": "Strip the `.test.ts` or `.integration.test.ts` suffix and resolve the same path with `.ts` to find the primary production module. Example: `src/source/backoff.test.ts` → `src/source/backoff.ts`. For `src/cli.test.ts` the paired production module is `src/cli.ts` plus all `src/commands/*.ts` (exercised transitively via `buildCli`). Fixture files (`*.fixtures.ts`) pair with the same-prefix production module and its unit test: `s3-checkpoint-store.fixtures.ts` is shared by both `s3-checkpoint-store.test.ts` and `s3-checkpoint-store.integration.test.ts`. The `src/run/no-leak.test.ts` is a cross-surface test; it imports from `src/run/run-once.ts`, `src/run/summary.ts`, `src/logging/create-logger.ts`, and `src/evidence/s3-evidence-store.fixtures.ts` — pairing is many-to-one via imports, not filename. Confirm pairings by inspecting the top-level import block when filename alone is ambiguous.",
+      "harnesses": [
+        "@testcontainers/minio (MinioContainer) — checkpoint, evidence, raw storage integration tests",
+        "@testcontainers/postgresql (PostgreSqlContainer) — staging repository and golden E2E integration tests",
+        "Typed factory fakes (hand-built fake objects satisfying TypeScript interfaces) — used throughout orchestration (run-once) and staging unit tests; no mock framework needed due to createX(deps) DI",
+        "Scripted-clock injection (createClock returning date values from a pre-defined array) — all run-once and timing-sensitive tests",
+        "sleep spy / noop sleep injection (vi.fn wrapping a no-op async) — all retry/backoff/pacing tests use injected sleep rather than real timers",
+        "vi.fn() for boundary mocks (byteClient, stagingRepository, sourceClient) in orchestration unit tests",
+        "Recorded golden fixtures (captured HTML + bytes via scripts/capture-golden-fixtures.ts, replayed in golden-e2e and golden-watch integration tests)",
+        "Custom inspectable limiter and spy pacer/throttle stubs in run-once.test.ts — hand-built concurrent-execution stubs with concurrency tracking",
+        "test.each: not observed in any sampled file; simple flat test() calls are used throughout",
+        "Vitest fake timers (vi.useFakeTimers): not observed; all timer-sensitive code uses injected now/sleep dependencies instead"
+      ],
+      "coverageConfig": {
+        "tool": "@vitest/coverage-v8 (provider: v8)",
+        "gate": "100% statements, branches, functions, lines — inherited from @solid-stats/ts-toolchain vitest base preset; the fetcher vitest.config.ts overlays only the include/exclude globs",
+        "excludeLocation": "vitest.config.ts test.coverage.exclude array: ['dist/**', 'src/**/*.test.ts', 'src/**/*.fixtures.ts', 'src/run/golden-fixtures.ts', 'src/cli.ts', 'vitest.config.ts']. The 100% threshold itself lives in node_modules/@solid-stats/ts-toolchain/vitest/base.js.",
+        "suppressionMarker": "/* v8 ignore next [N] -- <reason> */ or /* v8 ignore start */ ... /* v8 ignore stop */ — 23 occurrences across 12 production files; the per-stack skill specifies /* v8 ignore next -- @preserve */ (with @preserve) but most existing markers omit @preserve, meaning esbuild could strip them during transpile."
+      },
+      "testRuleSources": [
+        "solidstats-shared-testing-standards SKILL.md §A (RITE standard)",
+        "solidstats-shared-testing-standards SKILL.md §B (unit-vs-integration boundary)",
+        "solidstats-shared-testing-standards SKILL.md §C (AAA)",
+        "solidstats-shared-testing-standards SKILL.md §D (naming)",
+        "solidstats-shared-testing-standards SKILL.md §E (determinism and flakiness)",
+        "solidstats-shared-testing-standards SKILL.md §F (test doubles and over-mocking)",
+        "solidstats-shared-testing-standards SKILL.md §G (oracle strength)",
+        "solidstats-shared-testing-standards SKILL.md §H (coverage and mutation mindset, suppression policy)",
+        "solidstats-shared-testing-standards SKILL.md §I (scope/realism, no test-only exports)",
+        "solidstats-shared-review-standards SKILL.md §F (test severity: never standalone BLOCK unless test masks real bug)",
+        "solidstats-fetcher-ts-tests SKILL.md — runner (Vitest 4 + coverage-v8), per-area boundary map, integration harness (testcontainers), file placement rules, coverage gate (100% reachable-source), suppression policy (v8 ignore next -- @preserve, CLI entry exclusion only)"
+      ],
+      "testQualityRules": [
+        "RITE-A (Readability): test name must describe behavior + expected result, start with capital or preserve public API casing; anti-patterns: 'test1', 'works', 'returns correct value'",
+        "RITE-B (Isolation): no shared mutable state between tests; each integration test provisions and tears down its own container/schema/bucket; no leaked timers, globals, or env changes",
+        "RITE-C (Thoroughness): every branch, boundary, and error path must be exercised; apply §H rule: if you can break production behavior without breaking a test, the tests are not thorough enough; flag untested branches statically by pairing production module with its test and enumerating if/catch/switch arms",
+        "RITE-D (Explicitness): one test verifies one behavior; inputs and expected outputs are unambiguous; no hidden fixture assumptions",
+        "AAA-structure: Arrange/Act/Assert visually obvious; Act executes exactly one behavior; no extra assertions in Arrange; DRY rule — if Arrange and Assert use the same value, bind it to a variable",
+        "Determinism: no real wall-clock sleep, no real Date.now in test bodies, no setTimeout in test-controlled logic; all timing-sensitive units must accept injected now/sleep; pacing/backoff/retry tests must use noop sleep stubs, never vi.useFakeTimers with real timers",
+        "Over-mocking: do not assert long internal call chains; mock only real boundaries (network, disk, time, process); at contract boundaries (PostgreSQL, MinIO S3) use testcontainers, not mocks",
+        "Oracle strength: no trivial assertions (expect(true), expect(x).toBeDefined() alone); snapshots only for stable deterministic output; assertions must fail on a realistic regression",
+        "No test-only exports: never add an export solely to make internals reachable in a test; if a behavior cannot be reached through the public API, question the seam",
+        "Coverage suppression — @preserve required: every inline ignore must be /* v8 ignore next [N] -- @preserve <reason> */ not bare /* v8 ignore next */; the @preserve legal-comment marker prevents esbuild from stripping the hint during TS transpile",
+        "Coverage suppression — narrow and justified: suppression allowed only for structurally unreachable branches (type-system-guaranteed, not merely un-exercised defaults); must carry a reason after --; never suppress a reachable branch to hit the coverage number",
+        "Coverage suppression — cluster rule: 3+ inline ignores in one file is a code-quality finding and triggers a refactor suggestion, not more ignores",
+        "File-level exclusion scope: only CLI entry/bootstrap files go in coverage.exclude; ordinary application logic files must never be blanket-excluded",
+        "Integration harness — testcontainers only: PostgreSQL via @testcontainers/postgresql, S3 via @testcontainers/minio; no mocked pg client or mocked S3 sender at contract boundary tests",
+        "Integration isolation: each integration test provisions a fresh isolated resource; no shared schema, no shared bucket, no test-order dependency; reset via teardown (afterEach container.stop())",
+        "Pacing/backoff/retry: tests for these modules must use injected sleep (noop or spy); a test that uses real setTimeout/wall-clock wait for backoff logic is a defect",
+        "No RabbitMQ container: fetcher does not publish to the queue; a RabbitMQ testcontainer in this repo is a v1 boundary violation, not thoroughness",
+        "Commands coverage: src/commands/*.ts has no direct paired test files; coverage depends entirely on cli.test.ts via buildCli smoke tests — flag as thoroughness gap if a command's error path or branching logic is untested through that surface",
+        "File naming: unit tests co-locate as <module>.test.ts; integration tests as <module>.integration.test.ts; decomposed suites use <unit>/tests/<scenario>.test.ts (not split-prefix names); helpers in decomposed suites use role-named files not test-prefixed names"
+      ],
+      "sampledIssues": [
+        {
+          "kind": "real-setTimeout in test body",
+          "file": "src/run/run-once.test.ts:1424",
+          "note": "The 'processPage tallies evidence in candidate-index order despite out-of-order completion' test uses a real setTimeout(resolve, 10) inside a storeRawReplay stub to simulate out-of-order async completion. A second occurrence at line 1521 does the same to test concurrency serialization. Both use real wall-clock timers (10ms and 1ms) — technically a determinism risk flagged by testing-standards §E, though the tiny delays make it unlikely to flake. The correct pattern here is a Promise that resolves on the next microtask tick via a manually-controlled deferred, not a real timer."
+        },
+        {
+          "kind": "v8 ignore suppression missing @preserve",
+          "file": "src/source/pacing.ts:26,29",
+          "note": "Two v8 ignore markers suppress the defaultNow and defaultSleep production fallback functions. The comments say 'exercised through injected stubs' but defaultNow IS called by the pacing.test.ts line-99 fallback test (pacer created without now= injection). The suppress is both mislabeled and missing the required @preserve marker — all 23 v8 ignore occurrences across the codebase omit @preserve, violating the fetcher-ts-tests skill's stated requirement."
+        },
+        {
+          "kind": "v8 ignore suppression missing @preserve (systemic)",
+          "file": "src/run/summary.ts, src/storage/replay-byte-client.ts, src/discovery/source-client.ts, src/commands/shared.ts, etc.",
+          "note": "All 23 v8 ignore markers across the codebase use /* v8 ignore next -- reason */ without the @preserve suffix. The solidstats-fetcher-ts-tests skill explicitly requires /* v8 ignore next -- @preserve */ so esbuild does not strip the ignore hint during TS transpile. This is a systemic gap across every suppressed line."
+        },
+        {
+          "kind": "commands/ gap — no paired test files",
+          "file": "src/commands/check.ts, src/commands/contract-check.ts, src/commands/discover.ts, src/commands/run-once.ts, src/commands/shared.ts, src/commands/watch.ts",
+          "note": "None of the 6 src/commands/*.ts files have a paired .test.ts. They are exercised only through cli.test.ts via buildCli smoke tests. Error paths in shared.ts (config loader failures, two v8 ignored branches) and command-specific branching (discover.ts conditional staging, watch.ts staging branch) are either suppressed or implicitly untested beyond the happy path."
+        }
+      ],
+      "edgeCaseFeasibility": "Feasible with moderate precision using a static pairing + branch enumeration approach. The factory-DI architecture (createX(deps)) means almost every production branch is in pure-logic functions reachable from a test file — making static gap detection tractable. Concrete approach: (1) for each production module, resolve its paired test file(s) via the filename rule; (2) parse the production module statically for branch-bearing constructs: if/else, ternary, switch cases, catch blocks, optional chaining with fallbacks (??), early returns; (3) cross-reference against test file identifiers — test names, stub result variants, and fixture data used in Arrange blocks — to find production branches that no test fixture exercises (e.g. catch arm for non-Error shapes, boundary at maxPages, empty-array early return, out-of-order status classifications); (4) flag any production branch that is neither covered by an explicit test nor suppressed with a valid /* v8 ignore */ with reason. The largest static gap is the src/commands/*.ts cluster: those 6 files have no paired test files so every branch in them can only be cross-referenced against cli.test.ts, where the indirect coupling makes static gap detection harder — resort to tracing which command enum values, error strings, and exit codes appear in cli.test.ts assertions vs. what branches exist in commands/. Limit: non-linear control flow through DI factories (where the dep substitution changes reachability) requires understanding which stubs are injected per test; purely textual analysis will miss some transitive coverage but will reliably catch top-level if/catch arms with no corresponding test fixture variant.",
+      "enumerateRouting": "Classification rules to route each src/**/*.ts file: (1) TEST (unit): filename matches **/*.test.ts and does NOT match **/*.integration.test.ts → route to unit-test catalog, judge against test quality rules. (2) TEST (integration): filename matches **/*.integration.test.ts → route to integration-test catalog, apply same quality rules plus integration-harness rules (testcontainers required, per-test isolation). (3) FIXTURE/HELPER (excluded from production coverage, also excluded from test quality judgment unless they export production-like logic): filename matches **/*.fixtures.ts OR src/run/golden-fixtures.ts → catalog separately, check only that they contain no production logic that belongs in the main module. (4) HELPER (script): scripts/capture-golden-fixtures.ts → human-only capture tool, not in test or production catalog; note as out-of-band. (5) PRODUCTION: all remaining src/**/*.ts files (no .test., no .integration.test., no .fixtures., not golden-fixtures.ts, not vitest.config.ts) → route to production catalog, judge by convention skills only. Special cases: src/run/no-leak.ts exports one type alias (`NoLeakSurface`) and is a production companion module — classify PRODUCTION even though it is named alongside a test file. src/cli.ts is production but blanket-excluded from coverage; flag any non-bootstrap logic found in it as a convention violation. There are no Rust #[cfg(test)] blocks (TypeScript repo only). vitest.config.ts → infrastructure, route to neither catalog; flag if it contains coverage exclusions beyond the defined legitimate set.",
+      "perStackNuances": [
+        "Coverage gate is 100% all-axes (statements/branches/functions/lines), inherited from the shared @solid-stats/ts-toolchain preset — the fetcher vitest.config.ts does not redeclare thresholds, so changing the gate requires a toolchain change, not a local config change.",
+        "The integration run is gated behind VITEST_INTEGRATION=true env var or an explicit glob argument; the default unit run excludes *.integration.test.ts — audit lane must know which mode it is running in to avoid false 'missing coverage' reports.",
+        "src/commands/*.ts (6 files) are included in coverage.include ('src/**/*.ts') but have no direct paired .test.ts — their coverage is accumulated only through cli.test.ts smoke invocations via buildCli. A 100% gate passing here implies the smoke tests happen to exercise all branches in commands/, but any new conditional in commands/ risks silently breaking the gate.",
+        "The fetcher skill explicitly bans RabbitMQ testcontainers — a lane must not flag the absence of a rabbit container as a thoroughness gap; it is an intentional boundary.",
+        "pacing.ts and retry.ts use injected sleep/now stubs — the real defaultNow/defaultSleep production functions are suppressed with v8 ignore. The fallback behavior (when no injection is provided) is only partially tested: defaultNow is called in the spacingMs=0 fallback test but defaultSleep is never actually invoked. This is a real coverage gap hidden by the ignore.",
+        "All 23 existing v8 ignore markers are missing the @preserve suffix required by the skill. An esbuild-aware build would strip these hints, meaning coverage would fail after a production build. The test lane must flag each missing @preserve as a defect.",
+        "No test.each / parameterized table pattern is used in any sampled file despite being called out in solidstats-shared-ts-standards §G. The many similar test cases in run-once.test.ts (checkpoint status variations, page count variations) are written as independent flat test() calls — a thoroughness improvement opportunity.",
+        "The golden-e2e and golden-watch integration tests depend on external fixture files captured by scripts/capture-golden-fixtures.ts which is run by a human against a live source. If fixtures are absent (goldenFixturesPresent() returns false), these tests silently skip — a lane should flag any integration test that conditionally skips without a visible CI signal as a flakiness/coverage risk."
+      ],
+      "risks": [
+        {
+          "risk": "Mis-routing src/commands/*.ts as fully-covered production files",
+          "impact": "A naive lane that reads coverage output at face value will see 100% and skip commands/ — but the branch coverage there depends entirely on the breadth of cli.test.ts smoke scenarios. New branches in commands/ may lower the gate without any test-lane finding.",
+          "fix": "Pair commands/ explicitly with cli.test.ts for edge-case analysis; enumerate each command's conditional branches and verify each appears in a cli.test.ts scenario."
+        },
+        {
+          "risk": "Treating *.fixtures.ts as test files and applying test-quality rules to them",
+          "impact": "Fixture helpers (s3-checkpoint-store.fixtures.ts, staging-schema.fixtures.ts) export production-level builder functions used by both unit and integration tests. Applying test-quality rules (e.g. AAA, naming) to them incorrectly categorizes them.",
+          "fix": "Route *.fixtures.ts to a separate 'fixture/helper' catalog; apply only the rule that they must not export production logic that belongs in the main module."
+        },
+        {
+          "risk": "Flagging the pacing/retry/backoff injected-sleep pattern as 'real timer usage'",
+          "impact": "The sleep stubs in retry.test.ts and pacing.test.ts are hand-written no-op async functions or vi.fn() wrappers — not real timers. A lane that pattern-matches on 'async (ms)' or 'Promise.resolve()' in test stubs would incorrectly flag these as determinism violations.",
+          "fix": "Restrict real-timer detection to test bodies that call uninjected setTimeout/setInterval/Date.now. The two real setTimeout calls in run-once.test.ts (lines 1424 and 1521) are the genuine instances."
+        },
+        {
+          "risk": "Ignoring the missing @preserve suffix on v8 ignore markers as a style nit",
+          "impact": "Without @preserve, esbuild strips the ignore comment during production TS transpile, breaking the coverage gate on the built artifact. This is a build-correctness defect, not a style issue.",
+          "fix": "Flag each of the 23 v8 ignore markers missing @preserve as a Medium finding minimum; document it as a concrete check: grep 'v8 ignore' src/**/*.ts | grep -v '@preserve'."
+        },
+        {
+          "risk": "Counting src/run/no-leak.ts as a test file",
+          "impact": "The file name suggests it is a test companion but it is a production module (exports NoLeakSurface type, documents contract surfaces). A lane that routes it to the test catalog would apply test-quality rules incorrectly and miss that it has no paired unit test.",
+          "fix": "Classify by content and exports: no-leak.ts has a production JSDoc, exports a type, and contains no test() calls — route to production catalog."
+        },
+        {
+          "risk": "Treating the golden integration tests as always-running and asserting coverage from them",
+          "impact": "golden-e2e.integration.test.ts and golden-watch.integration.test.ts silently skip when goldenFixturesPresent() returns false. In CI without pre-captured fixtures, the entire E2E path is uncovered with no failure signal.",
+          "fix": "Flag any test that calls a guard function (goldenFixturesPresent, skip, test.skip) without a corresponding CI gate or fixture-presence check as a thoroughness risk."
+        }
+      ]
+    },
+    {
+      "repo": "SolidGames/server-2",
+      "stack": "TypeScript / Fastify / Vitest (Node, PostgreSQL, RabbitMQ, S3/MinIO)",
+      "testSkillsInstalled": [
+        "solidstats-server-ts-tests",
+        "solidstats-shared-testing-standards",
+        "solidstats-shared-review-standards"
+      ],
+      "testFilePatterns": [
+        {
+          "pattern": "src/**/*.test.ts (co-located beside source, no /tests/ dir, no src/test/)",
+          "count": 36,
+          "kind": "unit"
+        },
+        {
+          "pattern": "src/**/tests/*.test.ts (decomposed suite, outgrown modules — includes postgres.test.ts integration)",
+          "count": 48,
+          "kind": "integration"
+        },
+        {
+          "pattern": "src/test/integration/*.test.ts",
+          "count": 4,
+          "kind": "integration"
+        },
+        {
+          "pattern": "src/test/golden/*.golden.test.ts",
+          "count": 3,
+          "kind": "integration"
+        },
+        {
+          "pattern": "src/test/app.test.ts",
+          "count": 1,
+          "kind": "integration"
+        },
+        {
+          "pattern": "src/test/golden/fixtures/normalize.test.ts",
+          "count": 1,
+          "kind": "unit"
+        },
+        {
+          "pattern": "src/**/tests/*.ts (non-test — fixtures.ts, utilities.ts, references.ts, steam.ts, storage.ts, insert-assertions.ts)",
+          "count": 13,
+          "kind": "helper"
+        },
+        {
+          "pattern": "src/test/golden/fixtures/harness.ts, loader.ts, normalize.ts",
+          "count": 3,
+          "kind": "fixture"
+        },
+        {
+          "pattern": "src/test/golden/__snapshots__/*.snap.json (400+ golden JSON snapshots)",
+          "count": 408,
+          "kind": "fixture"
+        }
+      ],
+      "counts": {
+        "sourceFiles": 90,
+        "testFiles": 93,
+        "inlineCfgTestFiles": 0
+      },
+      "layout": "Dual layout: (1) co-location — unit tests sit beside source (`service.ts` → `service.test.ts`); (2) decomposed `<unit>/tests/` — when a suite outgrows one file, it moves into a `tests/` subdirectory with scenario-named test files (`index.test.ts`, `rotations.test.ts`) and role-named helpers (`utilities.ts`, `fixtures.ts`). Integration tests are separated by convention but NOT by filename suffix: Postgres-backed module tests are `*/tests/postgres.test.ts`, cross-cutting integration tests live in `src/test/integration/`, and full-chain golden/characterization tests live in `src/test/golden/`. A top-level `src/test/app.test.ts` covers the Fastify app bootstrap. The vitest config includes all `src/**/*.test.ts` and the `src/test/**` dir is blanket-excluded from coverage.",
+      "pairingRule": "Primary: strip `.test.ts` suffix from the test file name — the remainder is the production file in the same directory (e.g., `src/modules/ingest/service.test.ts` → `src/modules/ingest/service.ts`). For decomposed suites: the `tests/` directory is a child of the module directory, so every file under `src/modules/X/routes/tests/` covers `src/modules/X/routes/` (the parent dir). For `*/tests/postgres.test.ts`, the parent module directory is the target (e.g., `src/modules/auth/tests/postgres.test.ts` → `src/modules/auth/`). For `src/test/integration/*.test.ts` and `src/test/golden/*.golden.test.ts`, imports in the file body are the authoritative mapping — these tests are multi-module and require import-graph traversal to determine coverage targets.",
+      "harnesses": [
+        "Vitest 4 (vi.useFakeTimers / vi.advanceTimersByTimeAsync for time-dependent unit tests — interval-task.test.ts, memory.test.ts, ingest/runtime.test.ts, storage/client.test.ts)",
+        "vi.waitFor for async consumer-side assertions in rabbitmq.test.ts (single usage, justified: live amqplib mock requires polling)",
+        "vi.mock + vi.hoisted for true external boundaries only: amqplib (rabbitmq.test.ts), @aws-sdk/client-s3 and @aws-sdk/s3-request-presigner (storage/client.test.ts), operations entrypoints (operations/*.test.ts)",
+        "Hand-rolled Fake class implementing contract interfaces (no mocking framework) — FakePromotionRepository, FakePromotionRepository, InMemorySessionStore, InMemoryAuthUserRepository, InMemoryPlayerRequestRepository, etc.",
+        "ScriptedClient (statistics/repository/tests/utilities.ts) — scripted pg pool fake that routes SQL prefixes to canned row sets and records query/parameter history",
+        "app.inject() via buildApp() / buildAuthApp() / buildRequestsApp() / buildAdminApp() for HTTP route integration — no real server port",
+        "Docker Compose services (real Postgres/RabbitMQ/MinIO) for integration and golden suites — NOT testcontainers; connection strings via process.env with hardcoded localhost defaults",
+        "pollUntil() bounded real-time poll in golden/fixtures/harness.ts — justified by live RabbitMQ broker (comment cites testing-standards §E)",
+        "it.each / test.each for rejection matrix in cursor.test.ts, parity-sql.test.ts, steamid-leak-guard.test.ts",
+        "Golden JSON snapshots (400+ .snap.json files) in src/test/golden/__snapshots__ for pipeline output characterization",
+        "Real migrations (runMigrations) in beforeAll for postgres and golden integration suites"
+      ],
+      "coverageConfig": {
+        "tool": "@vitest/coverage-v8",
+        "gate": "100% branches, functions, lines, statements (thresholds all set to 100 in vitest.config.ts)",
+        "excludeLocation": "vitest.config.ts `test.coverage.exclude` array: dist/**, src/infra/db/migrate.ts, src/instrument.ts, src/openapi/export-openapi.ts, src/openapi/schema.ts, src/openapi/verify-openapi.ts, src/operations/check-backup-runbook.ts, src/server.ts, src/test/**, vitest.config.ts",
+        "suppressionMarker": "/* v8 ignore next [N] -- <reason> */ with optional @preserve; the @preserve suffix is specified in the skill but is inconsistently applied — only 1 of 28 non-test production-file ignores carries @preserve (src/modules/ingest/reconciler.ts); the remainder are bare `/* v8 ignore next N -- reason */` or `/* v8 ignore next N */` (no reason at all)"
+      },
+      "testRuleSources": [
+        "solidstats-shared-testing-standards SKILL.md §A (RITE: Readable, Isolated, Thorough, Explicit)",
+        "solidstats-shared-testing-standards SKILL.md §B (unit-vs-integration boundary; mock at contract boundary hides failures)",
+        "solidstats-shared-testing-standards SKILL.md §C (AAA structure; Arrange/Assert DRY rule)",
+        "solidstats-shared-testing-standards SKILL.md §D (naming: behavior + expected result; capital first word; API-name casing preserved)",
+        "solidstats-shared-testing-standards SKILL.md §E (determinism: no real sleep/wall-clock; fake timers; no shared mutable state)",
+        "solidstats-shared-testing-standards SKILL.md §F (doubles: stub/fake for state; mock/spy for interaction; no over-mocking internals)",
+        "solidstats-shared-testing-standards SKILL.md §G (oracle strength: no trivial assertions; exact checks for deterministic values)",
+        "solidstats-shared-testing-standards SKILL.md §H (coverage: every branch/boundary/error path; suppression policy; never ignore reachable branch for number)",
+        "solidstats-shared-testing-standards SKILL.md §I (scope/realism: test through public surface; no test-only exports)",
+        "solidstats-shared-testing-standards SKILL.md §L (review checklist, 8 items)",
+        "solidstats-server-ts-tests SKILL.md per-layer map (repo→integration, service→unit+fake, usecase→unit+integration for tx, route→integration via app.inject)",
+        "solidstats-server-ts-tests SKILL.md substitution mechanisms (unit: factory injection; route: setDecorator)",
+        "solidstats-server-ts-tests SKILL.md file placement (co-locate; outgrown → tests/; integration → *.integration.test.ts or tests/postgres.test.ts)",
+        "solidstats-server-ts-tests SKILL.md coverage suppression: @preserve marker required; blanket exclude in vitest.config.ts for entry/bootstrap; inline for single structurally-unreachable branch only",
+        "solidstats-shared-review-standards SKILL.md §F (test quality severity: never standalone BLOCK unless test masks real bug; missing tests for branching logic are 🟡)"
+      ],
+      "testQualityRules": [
+        "RITE-Readable: Test name must describe behavior and expected result, start with capital letter (or preserve API identifier casing), not contain 'works', 'test1', 'correct value', or implementation detail mirroring",
+        "RITE-Isolated: No shared mutable module-level state mutated between tests; vi.useFakeTimers() must be paired with vi.useRealTimers() in finally block (or afterEach restore); no leaked timers, env, or globals across tests",
+        "RITE-Thorough: Every meaningful branch, boundary (null, empty, max, off-by-one), and error path of the production unit must have at least one test; 'if you can break production behavior without breaking a test, the tests are not thorough enough' (§A)",
+        "RITE-Explicit: One behavior per it(); inputs and expected outputs unambiguous; no hidden test-order dependency (particularly in integration suites sharing Docker Compose DB state)",
+        "AAA-Structure: Arrange / Act / Assert visually distinct; identical values in Arrange and Assert bound to a variable; assert exactly what the contract states, not internal intermediate state",
+        "Oracle-Strength: No trivial assertions (expect(true), expect(result).toBeDefined() with nothing else); prefer toEqual for full shape, toMatchObject for partial shape; no assertions that merely mirror implementation steps",
+        "No-test-only-exports: Production source must not export symbols whose only consumer is a test file; if a path can't be reached through public API, question the architecture before exposing internals (testing-standards §I)",
+        "Double-boundary: vi.mock is legal ONLY at true external boundaries (amqplib, aws-sdk, pg at the pool-wrapper level); mocking a layer the repo owns (service, usecase, repository) in a unit test that could use the hand-rolled fake is over-mocking",
+        "No-real-wall-clock: Real sleep/setTimeout (without fake timers) is forbidden in unit tests; allowed only in integration tests against a live broker where deterministic clock control is impossible, and must be documented with the §E exception rationale",
+        "Coverage-suppression: Every `/* v8 ignore */` in production source must (a) carry a reason comment explaining the unreachability invariant, (b) carry the `@preserve` suffix to survive esbuild transpile, (c) be narrow (one line or one branch), and (d) NOT suppress a reachable branch to hit 100% — a cluster of ignores in one file is a red flag requiring a test gap fix, not more ignores",
+        "Coverage-exclude-scope: Blanket `coverage.exclude` entries must be restricted to genuinely non-testable entry/bootstrap code (server.ts, migrate.ts, operations main-guards); ordinary application logic must NOT appear in the exclude list; existing operations/*.ts files that have both a test file AND a `/* v8 ignore next 6 */` main-guard inline are a gray area — the skill says exclude the file, not inline-ignore the guard",
+        "Integration-real-deps: Postgres, RabbitMQ, S3 contract boundaries must be tested with real services (Docker Compose or testcontainers); a mock pg pool, mock amqplib, or mock S3 client at these boundaries is a §B violation",
+        "Route-test-method: Route tests must use buildApp() + app.inject() (real Fastify instance); assert both statusCode AND body shape conforming to the route's response schema",
+        "Deterministic-fixtures: Integration tests must isolate via truncate-cascade or per-test transaction rollback; no shared mutable DB state between tests; golden suite uses TRUNCATE_ALL in beforeEach",
+        "Naming-helpers: Helper files in tests/ directories must be role-named (utilities.ts, fixtures.ts) not prefix-split-named (service.index.test.ts); test files in outgrown suites must be scenario-named (index.test.ts, invalid-input.test.ts)"
+      ],
+      "sampledIssues": [
+        {
+          "kind": "coverage-suppression-missing-preserve",
+          "file": "src/modules/public-stats/repository.ts",
+          "note": "10 inline `/* v8 ignore next */` comments, none carry the `@preserve` marker the skill mandates (only one file in the codebase has it: reconciler.ts). Some reasons mention 'tests always pass page.limit > 0' — indicating reachable branches suppressed for convenience rather than structural unreachability."
+        },
+        {
+          "kind": "coverage-suppression-missing-reason",
+          "file": "src/modules/requests/routes/workflows/workflows.ts:89 and src/modules/requests/routes/moderation/moderation.ts:148",
+          "note": "`/* v8 ignore next 3 */` with no reason tag — the skill requires every inline ignore to name the invariant that makes the branch unreachable in a passing run."
+        },
+        {
+          "kind": "coverage-suppression-missing-preserve",
+          "file": "src/modules/public-stats/replay-mapper.ts:140,269,307",
+          "note": "Four ignores without @preserve; one reason says 'not exercised in tests' (winnerSide.state !== 'present' path) — this is a reachable semantic branch suppressed because the golden fixture set doesn't include that input, not because it's structurally unreachable. The skill says to write the fixture-driven test instead."
+        },
+        {
+          "kind": "vi.waitFor-real-wall-clock",
+          "file": "src/infra/queue/rabbitmq.test.ts:181",
+          "note": "`await vi.waitFor()` used in a unit test that mocks amqplib via `vi.mock`. The amqplib connection is fully mocked so there is no live broker; the `vi.waitFor` polls a synchronously-settable state. This could be replaced with `await vi.advanceTimersByTimeAsync` or a direct promise chain, keeping the test deterministic without real-time polling. (Minor: the harness comment in golden/ correctly justifies real polling for live-broker integration, but this is not that case.)"
+        },
+        {
+          "kind": "test-only-re-export",
+          "file": "src/modules/public-stats/replay-mapper.ts:359",
+          "note": "Comment reads 'Re-export the FieldPresence alias to avoid direct import in tests' — an export added solely for test ergonomics, violating testing-standards §I (do not add exports that exist only for tests)."
+        }
+      ],
+      "edgeCaseFeasibility": "Feasible with moderate confidence using static import pairing plus branch enumeration. The approach: (1) For each test file, resolve the paired production module(s) via the pairingRule (name match for co-located, parent-dir for tests/, import graph for src/test/). (2) Parse the production module's AST to enumerate all conditional branches (if/else, ternary, switch cases, optional chaining, early returns, throw sites, null guards, catch clauses). (3) Parse the test file(s) AST and collect all literal inputs, mock configurations (FakeX public fields, ScriptedClient options), and test case names. (4) For each production branch, check whether any test fixture or named scenario exercises the discriminating input — e.g., `ScriptedClient({ failOn: 'X' })` → rollback branch exercised; `FakePromotionRepository.checksumReplay = null` → duplicate-by-checksum branch NOT exercised. This works well for service/usecase units (fake repos with explicit option flags, clear test.each matrices). It works partially for repository code behind ScriptedClient (SQL-prefix routing maps to real branches). It works poorly for Postgres-backed integration tests (real DB — branch exercise depends on data seeded in beforeAll, not statically visible). The 28 existing `/* v8 ignore */` comments are a pre-enumerated gap list: each suppressed path is a static signal of an untested branch; the audit can check whether the ignore is justified (structural invariant stated) or a coverage workaround. The `/* v8 ignore next 3 -- winnerSide.state !== 'present' path not exercised in tests */` in replay-mapper.ts is a confirmed static gap — the golden fixture archive does not cover that branch.",
+      "enumerateRouting": "Classification algorithm for each file path from `git ls-files`: STEP 1 — EXCLUDE non-TS: skip JSON, md, sh, tar.gz, snap.json. STEP 2 — GOLDEN FIXTURE: path matches `src/test/golden/__snapshots__/**` or `src/test/golden/fixtures/**` (non-test .ts) → fixture. STEP 3 — TEST file detection: path matches `**/*.test.ts` → proceed to sub-classify. STEP 3a — GOLDEN integration test: matches `src/test/golden/*.golden.test.ts` → integration (full-chain, multi-module). STEP 3b — SUITE-LEVEL integration: matches `src/test/integration/*.test.ts` OR `src/test/app.test.ts` → integration. STEP 3c — POSTGRES integration: matches `**/tests/postgres.test.ts` → integration (real Postgres). STEP 3d — DECOMPOSED SUITE unit: matches `**/tests/*.test.ts` (not postgres.test.ts) → unit. STEP 3e — CO-LOCATED unit: remaining `*.test.ts` → unit. STEP 4 — HELPER/FIXTURE: path matches `**/tests/*.ts` (no .test.ts suffix) → helper (role-named test support, covered by coverage gate via `src/test/**` exclude note: these files ARE in module tests/ dirs, NOT under src/test/, so they ARE included in coverage and need their own ignores). STEP 5 — PRODUCTION: all remaining `.ts` files under `src/` not caught above, and not in `.d.ts`, `src/test/**` → production. NOTE: There are no Rust files; the `#[cfg(test)]` dual-routing path does not apply. NOTE: `src/test/**` is blanket-excluded from coverage per vitest.config.ts, but `**/tests/*.ts` helper files (utilities.ts, fixtures.ts, etc.) are NOT under `src/test/` and ARE included in coverage — they accumulate `/* v8 ignore next 3 */` markers for defensive throw-guards in test helper functions.",
+      "perStackNuances": [
+        "The vitest.config.ts only has a single project definition — there is no separate unit vs integration vitest project. The split is enforced purely by pnpm script conventions: `pnpm test` excludes `src/test/integration/**` and `*/tests/postgres.test.ts` via test runner exclusion in package.json scripts, not via vitest projects config. The lane must not assume separate configs.",
+        "Operations entrypoints (src/operations/*.ts) have a mixed coverage strategy: check-backup-runbook.ts is blanket-excluded in vitest.config.ts, but the other four (check-app-boundary-guards.ts, export-legacy-public-stats.ts, recalculate-statistics.ts, statistics-readiness.ts) each have a test file AND use `/* v8 ignore next 6 */` inline on the main guard. The skill says exclude the file, not inline-ignore the guard — this is a live discrepancy the test lane should flag.",
+        "The integration harness uses Docker Compose (docker-compose.yml, localhost hardcoded ports) not testcontainers. The skill prescribes testcontainers. This is documented as a known divergence in .planning/codebase/TESTING.md. The lane should note it as a gap (skill says testcontainers for isolation; Docker Compose integration tests share the same DB/queue/bucket across tests within a run and rely on TRUNCATE_ALL / truncate-cascade between tests — order-dependency risk exists).",
+        "vi.waitFor (Vitest's poll utility) is used once in rabbitmq.test.ts where the amqplib is fully mocked via vi.mock. This is distinct from the live-broker polling in golden/fixtures/harness.ts (justified). The unit-test usage is a determinism smell: the consumer callback is called synchronously in the test, yet vi.waitFor polls with real time. Should be replaced with direct async sequencing.",
+        "The `src/test/**` blanket coverage exclude means golden tests, integration tests, and src/test/app.test.ts are NOT counted toward the 100% gate — only production source in `src/**` (minus the explicit excludes) must hit 100%. Test helper files in `**/tests/utilities.ts` ARE in the coverage scope and must suppress their defensive-guard branches.",
+        "Contract/frozen tests (src/openapi/contract.test.ts, frozen-contract.test.ts) are a unique third kind: they assert the exported OpenAPI artifact (a generated JSON file) rather than source behavior. They run as unit tests (no real DB) but test cross-cutting artifact invariants (no offset pagination fields, no Steam64 leakage). The test lane should classify these as 'contract' rather than unit or integration.",
+        "The golden pipeline test (src/test/golden/pipeline.golden.test.ts) uses real PostgreSQL + RabbitMQ + S3 AND reads floor archive artifacts (src/test/golden/fixtures/artifacts.tar.gz). It also asserts GET /stats/* responses via app.inject against a fully seeded DB. This is effectively an E2E characterization oracle — its 400+ snapshot JSON files mean snapshot drift is a real risk if the production pipeline output changes but snapshots aren't updated."
+      ],
+      "risks": [
+        {
+          "risk": "Misclassifying decomposed-suite helpers (utilities.ts, fixtures.ts) as production code",
+          "impact": "Test-only support files audited against production layer/naming conventions, generating false positives on every helper",
+          "fix": "Route path: if file is under **/tests/*.ts and NOT *.test.ts → classify as test helper, audit against test standards (role naming, no side effects, no exported symbols that pollute the production API surface)"
+        },
+        {
+          "risk": "Applying unit-test rules to integration/postgres test files",
+          "impact": "Flagging the absence of fake repositories in postgres.test.ts as a §B violation, when real Postgres is the correct choice for that layer",
+          "fix": "Check per-layer map from solidstats-server-ts-tests before judging doubles — repository layer defaults to integration (real PG); only flag vi.mock for the DB if it's used in a service-layer test"
+        },
+        {
+          "risk": "Flagging the Docker Compose integration harness as a blanket violation of 'testcontainers required'",
+          "impact": "Every integration test flagged, overwhelming signal with a single structural issue",
+          "fix": "Report the Docker Compose vs testcontainers divergence once as a known gap (📄 .planning/codebase/TESTING.md documents it); don't repeat per test file. Severity: 🟡 (isolation is still per-suite via TRUNCATE_ALL)"
+        },
+        {
+          "risk": "Treating `/* v8 ignore next N */` in test helper files (tests/utilities.ts) as production suppression abuse",
+          "impact": "False finding: these ignores suppress defensive throw guards in test-support code not reachable by the tests themselves",
+          "fix": "When the v8 ignore appears in a file classified as test helper, audit it against the test-helper standard (is the guarded branch a test-invariant assertion?), not the production suppression policy"
+        },
+        {
+          "risk": "Missing the operations/*.ts mixed-strategy issue (some blanket-excluded, others inline-ignoring the main guard)",
+          "impact": "Inconsistent treatment: check-backup-runbook.ts excluded, the other four inline-ignored — a lane that only checks vitest.config.ts exclude list will miss the inline-ignore approach used in four files",
+          "fix": "Cross-reference vitest.config.ts exclude list against actual operations files; flag operations files not in the blanket exclude that use v8 ignore on their main guard as candidates for blanket exclusion per skill guidance"
+        },
+        {
+          "risk": "The vi.waitFor usage in rabbitmq.test.ts silently accepted as correct (confused with live-broker justification)",
+          "impact": "A flakiness-prone real-time poll passes test-lane review; if the rabbitmq mock behavior changes timing, the test can flake",
+          "fix": "Detect vi.waitFor calls where vi.mock(module) is also present in the file — fully-mocked dependencies don't need real-time polling; flag as determinism §E concern"
+        },
+        {
+          "risk": "Golden snapshot files (400+ .snap.json) not distinguishable from fixture data",
+          "impact": "Lane may try to parse them as test or production TypeScript, fail, or skip them without noting the snapshot-drift risk",
+          "fix": "Classify `src/test/golden/__snapshots__/**/*.snap.json` explicitly as fixture (not test, not source); note that snapshot staleness (production pipeline changed but snapshots not updated) is a known golden-test maintenance risk to flag"
+        }
+      ]
+    },
+    {
+      "repo": "replay-parser-2",
+      "stack": "Rust / cargo test / cargo-llvm-cov",
+      "testSkillsInstalled": [
+        "solidstats-parser-rust-tests",
+        "solidstats-shared-testing-standards",
+        "solidstats-shared-review-standards"
+      ],
+      "testFilePatterns": [
+        {
+          "pattern": "crates/*/tests/*.rs (not fixtures/ or common/)",
+          "count": 40,
+          "kind": "integration"
+        },
+        {
+          "pattern": "crates/*/tests/common/mod.rs",
+          "count": 2,
+          "kind": "helper"
+        },
+        {
+          "pattern": "crates/*/tests/fixtures/*.ocap.json",
+          "count": 13,
+          "kind": "fixture"
+        },
+        {
+          "pattern": "crates/*/tests/fixtures/golden/real/*.ocap.gz",
+          "count": 4,
+          "kind": "fixture"
+        },
+        {
+          "pattern": "crates/*/tests/fixtures/golden/expected/*.expected.json",
+          "count": 5,
+          "kind": "fixture"
+        },
+        {
+          "pattern": "crates/*/tests/fixtures/golden/manifest.json",
+          "count": 1,
+          "kind": "fixture"
+        },
+        {
+          "pattern": "crates/*/src/*.rs containing #[cfg(test)] mod tests { }",
+          "count": 15,
+          "kind": "inline-cfg-test"
+        },
+        {
+          "pattern": "crates/*/examples/*.rs",
+          "count": 2,
+          "kind": "example"
+        }
+      ],
+      "counts": {
+        "sourceFiles": 47,
+        "testFiles": 42,
+        "inlineCfgTestFiles": 15
+      },
+      "layout": "Decomposed `crates/*/tests/` layout — all integration tests live in per-crate `tests/` directories, not co-located with production modules (with the exception of 15 production source files that also carry an inline `#[cfg(test)] mod tests` block for fast unit tests). Fixtures are under `crates/parser-core/tests/fixtures/` and shared across crates by relative path (`include_bytes!(\"../../parser-core/tests/fixtures/...\")`). Test helpers shared by multiple tests within a crate live in `crates/*/tests/common/mod.rs` and are imported with `mod common;`. The golden/parity harness (`golden_fixture_manifest`, `golden_fixture_behavior`, `golden_artifact_bytes`) and the real-corpus golden baselines (`golden/real/*.ocap.gz`, `golden/expected/*.expected.json`, `golden/manifest.json`) all live under `crates/parser-core/tests/`. The container e2e test (`golden_container_e2e.rs`) is in `crates/parser-worker/tests/` and is `#[ignore]`-gated requiring Docker.",
+      "pairingRule": "For a `crates/<crate>/tests/<test_name>.rs` file: (1) the crate identity (`<crate>`) names the production crate it exercises — every import at the top of the test file references `<crate>::*` or `parser_contract::*`; (2) the test file name encodes the production module or behavior surface it covers (e.g. `aggregate_projection.rs` → `crates/parser-core/src/aggregates.rs`, `metadata_normalization.rs` → `crates/parser-core/src/metadata.rs`, `schema_contract.rs` → `crates/parser-contract/src/schema.rs`); (3) for cross-crate integration tests (e.g. `processor.rs` in parser-worker tests imports both `parser_core` and `parser_worker::processor`) the use statements enumerate all covered modules. For inline `#[cfg(test)] mod tests` blocks: the production module is the file itself — same path, same file, dual-routed.",
+      "harnesses": [
+        "cargo test (#[test], #[tokio::test]) — standard test harness, no nextest",
+        "testcontainers-modules (RabbitMq + MinIO) — real ephemeral broker + object-store for the container e2e (#[ignore])",
+        "Handwritten trait-seam Fakes (FakeObjectStore, FakePublisher) implementing ObjectStore / ResultPublisher traits — no mockall/mockito, state-recording fake not mock",
+        "include_bytes! / include_str! for embedded fixture bytes — no filesystem I/O at test time for parser-core unit tests",
+        "std::fs::read + golden manifest.json for manifest-driven golden harness",
+        "Builder-style helper functions (parser_info(), replay_source(), parser_input(), parse_fixture()) to construct test inputs without a typed builder library",
+        "assert_cmd::Command — spawns real replay-parser-2 binary to test CLI commands end-to-end",
+        "flate2::GzDecoder — decompresses real-corpus golden fixtures (.ocap.gz) at test runtime",
+        "CancellationToken + tokio::spawn — drives real worker run_until_cancelled under test control for shutdown/drain tests",
+        "tokio::time::timeout — bounds how long the container e2e polls for a result queue message"
+      ],
+      "coverageConfig": {
+        "tool": "cargo-llvm-cov (scripts/coverage-gate.sh --strict via parser-quality/src/bin/coverage-check.rs)",
+        "gate": "100% reachable production-source lines; uncovered lines not in coverage/allowlist.toml cause gate failure. parser-quality coverage-check post-processor classifies every llvm-cov segment: production source (crates/*/src/) vs test/example files (skipped), #[cfg(test)] mod blocks (skipped by the parser), then checks each uncovered segment against allowlist.toml exact-line entries.",
+        "excludeLocation": "coverage/allowlist.toml — 14 entries as of 2026-06-18, each with path, pattern, exact lines[], reason, reviewer, and expires fields. Inline production-file marker '// coverage-exclusion: <reason>' co-located within a few lines of the excluded code is also required and validated by coverage-check.",
+        "suppressionMarker": "// coverage-exclusion: <reason> (inline in production .rs files; must appear within ~5 lines of the excluded source line; validated by coverage-check binary)"
+      },
+      "testRuleSources": [
+        "solidstats-parser-rust-tests/SKILL.md — sections: Runner & layout, Determinism test (first-class), Golden / parity harness, Property testing (proptest, required), Snapshot testing (insta), Fuzzing (cargo-fuzz, required), Contract tests, Coverage gate",
+        "solidstats-shared-testing-standards/SKILL.md — §A RITE standard, §B Unit vs integration boundary, §C AAA, §D Naming, §E Determinism and flakiness, §F Test doubles, §G Oracle strength and assertions, §H Coverage and mutation mindset, §I Scope and realism, §J TDD, §L Review checklist",
+        "solidstats-shared-review-standards/SKILL.md — §F Test files (severity rule: test quality is never standalone BLOCK unless a test masks a real bug; weak assertions are at most REQUEST CHANGES)"
+      ],
+      "testQualityRules": [
+        "RITE/ISOLATED: no test may leave side effects observable by another — each test constructs its own FakeObjectStore/FakePublisher/ParserInput; no shared mutable global state.",
+        "RITE/THOROUGH: for every production branch/boundary/error path, at least one test exercises it; check that removing a production branch would break at least one test (edge-case lane check).",
+        "RITE/READABLE: test name must start with the module/behavior prefix, describe behavior and expected result (pattern: `{module}_{behavior}_should_{expected}_when_{condition}`); names like 'test1', 'works', 'returns_correct' are rejected.",
+        "AAA: Arrange/Act/Assert must be visually obvious; each test executes exactly one unit of behavior in Act; assertions in Assert only.",
+        "DETERMINISM: no real wall-clock waits (std::thread::sleep / tokio::time::sleep) in logic that can use fake time or deterministic control; the test in log_taxonomy.rs uses real sleep for a timing utility — flag as weak and note it cannot be driven deterministically.",
+        "NO OVER-MOCK: assert observable behavior (artifact bytes, DeliveryAction, error codes, message fields), not internal call chains or call counts except where call count IS the contract (e.g., put_call_count == 0 proving no artifact write).",
+        "ORACLE STRENGTH: assert specific error codes, stages, retryability, and field presence variants (FieldPresence::Unknown { reason: UnknownReason::SchemaDrift }), not just that a field is Some/is_some().",
+        "COVERAGE SUPPRESSION: every allowlist.toml entry must have non-empty reason, non-empty lines[], reviewer, a future expires date, and a co-located // coverage-exclusion: marker in the source file within ~5 lines; stale expires (past today's date) are a finding.",
+        "NO TEST-ONLY EXPORTS: do not add pub(crate) or pub items to production modules solely to reach internal state in tests; use the public API or add a seam.",
+        "PROPTEST REQUIRED: every new parsing behavior or invariant (roundtrip, determinism, malformed-input never panics) must have a proptest; absence of proptest crate in Cargo.toml is a gap finding.",
+        "INSTA REQUIRED: representative golden fixtures must have snapshot assertions via insta (assert_json_snapshot!); snapshots must be stable (minimal redactions); absence of insta crate is a gap finding.",
+        "CARGO-FUZZ REQUIRED: two fuzz targets must exist (raw &[u8] decode path + structure-aware via #[derive(Arbitrary)]); seed corpus committed under fuzz/corpus/; absence is a gap finding.",
+        "PROPTEST-REGRESSIONS COMMITTED: proptest-regressions/ directory must be tracked in git, never gitignored.",
+        "GOLDEN HARNESS COMPLETENESS: every new parsing behavior or decision must add a fixture AND a manifest entry; golden_fixture_manifest and golden_fixture_behavior must stay green.",
+        "REGRESSION FIXTURE FOR EVERY BUG: a real malformed/edge input that once broke the parser must result in a committed fixture in the fault_injection_regressions suite.",
+        "REVIEW SEVERITY: test quality problems are at most 🟡 REQUEST CHANGES; only a test that actively asserts demonstrably wrong behavior (masks a real bug) is 🔴 BLOCK."
+      ],
+      "sampledIssues": [
+        {
+          "kind": "real_sleep",
+          "file": "crates/parser-worker/tests/log_taxonomy.rs:47",
+          "note": "std::thread::sleep(Duration::from_millis(2)) used in duration_ms_should_return_elapsed_milliseconds to verify a timing utility returns >= 2 ms. This is non-deterministic on a loaded CI runner and can spuriously fail. The function under test (duration_ms) measures elapsed time with Instant::now(); there is no fake-time seam, making the test inherently wall-clock dependent. Flags §E (determinism) — low-severity since it is a 2 ms guard, but it is the pattern the skill prohibits."
+        },
+        {
+          "kind": "missing_required_harness",
+          "file": "Cargo.toml (workspace)",
+          "note": "proptest, insta, and cargo-fuzz are mandated by solidstats-parser-rust-tests as non-optional required tooling for an untrusted-input parser. None of them appear in any Cargo.toml dev-dependencies. No proptest-regressions/ directory, no fuzz/ directory, no insta snapshots. This is a thoroughness gap: arbitrary-bytes malformed-input never-panics property, roundtrip property, and snapshot stability are all missing. The skill says these are 'not optional niceties' — the absence is a 🟡 finding in review."
+        },
+        {
+          "kind": "weak_oracle_potential",
+          "file": "crates/parser-quality/tests/coverage_gate.rs:26",
+          "note": "coverage_gate_empty_allowlist_should_validate_without_exclusions asserts assert!(result.is_ok()) with no further check on what the report contains (production_files count, uncovered_locations, etc.). This is a thin oracle — it proves the function does not error but not that it evaluated correctly. Stronger: also assert report.production_files == 0 and report.is_passing()."
+        },
+        {
+          "kind": "shared_fixture_cross_crate_path_coupling",
+          "file": "crates/parser-worker/tests/golden_container_e2e.rs:46-50",
+          "note": "Uses include!() to embed crates/parser-core/tests/common/golden_identity.rs and include_bytes! to reach parser-core/tests/fixtures/. Any rename or move of those files silently breaks the worker e2e at compile time, but the dependency is invisible to Cargo's crate-level dependency graph. Not a test quality bug per se, but a maintainability risk the lane should flag."
+        },
+        {
+          "kind": "stale_coverage_allowlist_expiry",
+          "file": "coverage/allowlist.toml",
+          "note": "All 14 allowlist entries have expires = '2026-05-28'. Today is 2026-06-18 — every single entry is 21 days past its expiry. Per solidstats-parser-rust-tests coverage gate rules, a stale expiry is a finding: 'treat it the same as a missing test'. This is the most concrete real issue the sampling found."
+        }
+      ],
+      "edgeCaseFeasibility": "Feasible with moderate confidence via a static pairing approach. Concrete method: (1) For each production `.rs` file in `crates/*/src/`, enumerate every `match` arm, `if`/`else` branch, `?` early-return, `.ok_or`/`.map_err` call, and `Result`/`Option` variant — these are the candidate branch/error-path targets. (2) Pair each production file with its primary test file (see pairingRule) and with all inline `#[cfg(test)]` blocks. (3) For each candidate path, grep the test files for the error code strings (e.g., `\"json.decode\"`, `\"checksum.mismatch\"`), type variant names (`ParseStatus::Failed`, `ParseStage::JsonDecode`), or fixture names that would exercise that path. (4) If no test file references the type/variant/error code that a branch emits, it is a candidate gap. Limitations: (a) branches exercised only through the container e2e (#[ignore]) will appear uncovered in static analysis — must cross-reference with coverage/allowlist.toml to distinguish intentional vs unguarded gaps; (b) parser-core's inline `#[cfg(test)]` units test private helpers not reachable from public-API tests, so the pairing must dual-route those files; (c) proptest/fuzz absence means whole classes of arbitrary-input paths have zero test coverage detectable statically; (d) the golden manifest.json cross-references requirement IDs and expected features, making it useful as a static oracle for behavioral completeness (each `expected_features` entry should map to at least one assertion in golden_fixture_behavior.rs). Overall: static edge-case detection works well for named error paths (error codes are string constants greppable across test files) and less well for numeric boundary conditions (e.g., exact frame-count thresholds in aggregation) which require execution or proptest to detect. The absence of proptest is the biggest feasibility limiter for the lane.",
+      "enumerateRouting": "Route each file from `git ls-files` output as follows:\n\nPRODUCTION:\n- Path matches `crates/*/src/**/*.rs` AND does NOT match `crates/*/src/bin/*.rs` for binary entry points → route as PRODUCTION SOURCE. Also count inline `#[cfg(test)]` blocks within these files as INLINE-CFG-TEST (dual-route: production body goes to production rules lane; the `#[cfg(test)] mod tests { }` block goes to test rules lane).\n- `crates/*/src/bin/*.rs` (e.g., coverage-check.rs, fault-report-check.rs) → PRODUCTION BINARY ENTRY (coverage gate excludes entry-point lines by convention, but the logic bodies within them are still production).\n\nTEST - INTEGRATION:\n- Path matches `crates/*/tests/*.rs` AND does NOT match `/fixtures/` AND does NOT match `/common/` → INTEGRATION TEST. Sub-classification: if the file contains `#[ignore]` → E2E/CONTAINER INTEGRATION TEST (requires Docker; excluded from normal `cargo test --workspace`); else → STANDARD INTEGRATION TEST.\n\nTEST - HELPER:\n- Path matches `crates/*/tests/common/*.rs` (e.g., `tests/common/mod.rs`) → TEST HELPER. Not a test file itself; provides shared setup functions (`prepare_broker`, `spawn_worker`, `s3_client`, etc.) for integration tests in the same crate's `tests/` directory.\n\nTEST - INLINE CFG-TEST (dual-route):\n- Any `crates/*/src/*.rs` file containing a `#[cfg(test)]` block → DUAL-ROUTE: the entire file is PRODUCTION for the production lane; the `#[cfg(test)] mod tests { ... }` body is also classified as INLINE-CFG-TEST for the test lane. The coverage-check binary already strips `#[cfg(test)]` mod regions from uncovered-line accounting (confirmed by coverage_gate_report_should_ignore_source_unit_test_module_lines test).\n\nFIXTURE / DATA:\n- Path matches `crates/*/tests/fixtures/**` → FIXTURE (not a test, not production; input data for tests). Sub-types: `*.ocap.json` = raw OCAP fixture; `*.ocap.gz` = gzip-compressed real-corpus fixture; `*.expected.json` = committed golden baseline bytes; `manifest.json` = manifest-driven harness descriptor.\n\nEXAMPLE:\n- Path matches `crates/*/examples/*.rs` → EXAMPLE (compiled by `cargo llvm-cov --examples` for coverage; not a test file; not judged by test rules OR production rules — judge by example conventions only).\n\nSKILL/PLANNING/CONFIG (neither production nor test):\n- `.agents/`, `.claude/`, `.planning/`, `.cargo/`, `.github/` → META, skip both lanes.\n- `coverage/allowlist.toml` → COVERAGE CONFIG, audited by the coverage-gate lane, not production or test lanes.",
+      "perStackNuances": [
+        "Rust #[cfg(test)] dual-routing: a production .rs file with an inline #[cfg(test)] mod tests block must be routed to BOTH lanes — the production body is judged by production rules, the test block is judged by test rules. The coverage-check binary already knows to exclude cfg(test) lines from uncovered-line accounting.",
+        "cargo-llvm-cov --no-cfg-coverage flag: the coverage-gate.sh scripts pass --no-cfg-coverage, which means the inline #[cfg(test)] modules ARE compiled (and executed) during the coverage run — they contribute to coverage of the surrounding production code. The parser-quality coverage-check post-processor then strips those test-module lines from the 'uncovered production lines' report using a line-scan heuristic (finds '#[cfg(test)]' followed by 'mod tests' and skips lines until the closing brace).",
+        "#[ignore] e2e tests: golden_container_e2e.rs contains #[ignore = 'requires Docker'] — these tests do NOT run in plain `cargo test --workspace` and are excluded from the coverage gate (which never passes --ignored). They run only in the master-only pre-deploy CI job. The test lane must not flag Docker-gated behavior as 'untested' — cross-reference the allowlist.toml live-boundary exclusions instead.",
+        "All allowlist entries are currently stale (expires = 2026-05-28, today = 2026-06-18): the test lane MUST flag stale expiry as a finding per solidstats-parser-rust-tests coverage gate §: 'A stale expiry means nobody is watching that exclusion — treat it the same as a missing test'.",
+        "proptest + insta + cargo-fuzz are absent from all Cargo.toml files — the skill declares these as 'Required tooling (ratified)' and 'not optional niceties'. This is the most significant test thoroughness gap in the repo. The test lane should flag their absence as a structural 🟡 gap (not 🔴 since tests exist and pass; but the property/fuzz layer that the skill says earns trust for an untrusted-input parser is missing entirely).",
+        "Real sleep in log_taxonomy.rs:47 (std::thread::sleep 2ms) is the only wall-clock wait found; it tests the duration_ms utility, which has no fake-time seam. Flag as §E violation but low-impact given the 2ms guard.",
+        "coverage/allowlist.toml inline marker requirement: every allowlist entry must have a matching `// coverage-exclusion: <reason>` comment within ~5 lines of the excluded source line. The coverage-check binary validates this at strict gate time. The test lane should audit that markers are present and match the allowlist pattern field.",
+        "Cross-crate fixture sharing via relative include_bytes! paths (worker tests reach into parser-core/tests/fixtures/): this is valid Cargo behavior but creates an invisible coupling — a file move in parser-core silently breaks parser-worker tests at compile time with no Cargo dependency error. Flag as a maintainability risk if the test lane audits fixture organization.",
+        "No proptest-regressions/ directory in the repo: per skill policy, 'commit proptest-regressions/ to source control — a once-failing case becomes a permanent replayed fixture; never gitignore it'. Since proptest is absent, there are no regressions to commit, but adding proptest without also setting up the regressions/ tracking would be incomplete.",
+        "The coverage gate classifies files as production only if path matches crates/*/src/ (not crates/*/tests/ or crates/*/examples/). The test lane must use the same filter to avoid flagging uncovered lines in test helpers or examples as production gaps."
+      ],
+      "risks": [
+        {
+          "risk": "Naively judging integration test files by production conventions",
+          "impact": "Integration tests carry #![allow(clippy::expect_used, reason = ...)] at file top — a naive production-rules pass would flag this as a suppression violation. All 40 integration test files carry this allow; it is intentional per the testing standard.",
+          "fix": "Route files under crates/*/tests/ exclusively to the test lane, never to the production-conventions lane."
+        },
+        {
+          "risk": "Treating #[cfg(test)] blocks in production files as production code violations",
+          "impact": "Inline test modules use expect(), local helper structs, and assertion macros that are forbidden in production code. A production-rules pass over the full file would generate many false findings.",
+          "fix": "Dual-route: strip the #[cfg(test)] mod tests { } body before applying production rules; apply test rules to the stripped body separately."
+        },
+        {
+          "risk": "Flagging #[ignore] container e2e behaviors as 'untested edge paths'",
+          "impact": "golden_container_e2e.rs covers checksum-mismatch, artifact-conflict, duplicate redelivery, and real-corpus byte parity — these behaviors ARE tested, just not in the default cargo test run. A static edge-case scan that ignores #[ignore] tests would call them gaps.",
+          "fix": "Include #[ignore] test bodies in the static pairing scan; annotate found paths as 'covered by Docker e2e (not in default run)' rather than 'uncovered'."
+        },
+        {
+          "risk": "Calling all allowlist expiry dates a production bug",
+          "impact": "All 14 entries expire 2026-05-28. Today is 2026-06-18. Per the skill they are stale and should be flagged — but as a test-lane finding (coverage gate discipline), not a production-code BLOCK.",
+          "fix": "Report stale allowlist entries as a test-lane 🟡 finding; do not route to the production-code review lane."
+        },
+        {
+          "risk": "Missing proptest/insta/fuzz treated as a 🔴 BLOCK",
+          "impact": "The skill calls them 'required' but the review-standards §F says test quality is never a standalone BLOCK. Escalating to BLOCK would violate the severity rule.",
+          "fix": "Report missing proptest/insta/fuzz as 🟡 (medium) — a real, bounded gap — with a clear 'add this tooling' recommendation, not a BLOCK verdict."
+        },
+        {
+          "risk": "Counting examples/ files as test files or production files",
+          "impact": "crates/parser-contract/examples/export_schema.rs and export_worker_schemas.rs are compiled by cargo llvm-cov --examples but are neither unit tests nor production-API code. Including them in test counts inflates test coverage metrics; excluding them from production counts is correct.",
+          "fix": "Route examples/ to the EXAMPLE category; do not judge by test rules or production rules."
+        },
+        {
+          "risk": "Double-counting inline cfg-test lines in coverage analysis",
+          "impact": "The coverage-check binary already strips #[cfg(test)] mod lines from the production uncovered-line report. If the test lane also reports these as uncovered production lines, it creates false positives.",
+          "fix": "The test lane's edge-case feasibility scan must apply the same #[cfg(test)] stripping heuristic as coverage-check when determining which production lines lack test coverage."
+        }
+      ]
+    }
+  ],
+  "brief": "# Design Brief: Test Lane for Repo-Convention-Audit Workflow\n\n---\n\n## 1. Routing\n\n### Enumerate Phase: File Split Rules\n\nRun `git ls-files` as now, then apply these ordered rules. First match wins.\n\n**META / SKIP (neither lane):**\n- `.agents/**`, `.claude/**`, `.planning/**`, `.cargo/**`, `.github/**`, `coverage/allowlist.toml` (routed to coverage-gate lane, not production or test)\n- Non-TS/RS: `*.json` (except routing check below), `*.md`, `*.sh`, `*.toml`, `*.yml`, `*.tar.gz`\n- Exception: `src/test/golden/__snapshots__/**/*.snap.json` → FIXTURE (see below)\n\n**FIXTURE:**\n- `src/test/golden/__snapshots__/**/*.snap.json`\n- `crates/*/tests/fixtures/**` (all sub-types: `.ocap.json`, `.ocap.gz`, `.expected.json`, `manifest.json`)\n- `src/test/golden/fixtures/harness.ts`, `loader.ts`, `normalize.ts`\n- `src/**/*.fixtures.ts` and `src/run/golden-fixtures.ts`\n\n**HELPER (test support, not test, not production):**\n- `crates/*/tests/common/*.rs` (e.g., `mod.rs`)\n- `src/**/tests/*.ts` where filename does NOT end in `.test.ts` (e.g., `utilities.ts`, `fixtures.ts`, `references.ts`, `steam.ts`, `storage.ts`, `insert-assertions.ts`)\n- `scripts/capture-golden-fixtures.ts`\n\n**TEST — INTEGRATION:**\n- `crates/*/tests/*.rs` NOT matching `fixtures/` or `common/` AND file contains `#[ignore]` → E2E/CONTAINER INTEGRATION (Docker-gated, not in default run; note separately)\n- `crates/*/tests/*.rs` NOT matching `fixtures/` or `common/` AND no `#[ignore]` → STANDARD INTEGRATION (Rust)\n- `src/**/*.integration.test.ts` → INTEGRATION (TS)\n- `src/**/tests/postgres.test.ts` → INTEGRATION (TS, Postgres-backed)\n- `src/test/integration/*.test.ts` → INTEGRATION (TS, cross-cutting)\n- `src/test/golden/*.golden.test.ts` → INTEGRATION (TS, full-chain golden/characterization)\n- `src/test/app.test.ts` → INTEGRATION (TS, Fastify bootstrap)\n\n**TEST — UNIT:**\n- `src/**/*.test.ts` NOT matching `*.integration.test.ts` AND NOT matching `src/test/golden/*.golden.test.ts` AND NOT matching `src/test/integration/` AND NOT matching `*/tests/postgres.test.ts` AND NOT `src/test/app.test.ts` → UNIT (TS)\n- `crates/*/src/**/*.rs` containing `#[cfg(test)] mod tests` block → DUAL-ROUTE (see below)\n\n**TEST — CONTRACT (TS server-2 only):**\n- `src/openapi/contract.test.ts`, `src/openapi/frozen-contract.test.ts` → CONTRACT (artifact invariant, not unit/integration)\n\n**EXAMPLE (Rust only):**\n- `crates/*/examples/*.rs` → EXAMPLE; skip both lanes\n\n**PRODUCTION:**\n- All remaining `src/**/*.ts` not caught above\n- All remaining `crates/*/src/**/*.rs` not caught above\n- `crates/*/src/bin/*.rs` → PRODUCTION BINARY ENTRY\n\n### Rust Dual-Route: `#[cfg(test)]` Inline Blocks\n\nFor each `crates/*/src/**/*.rs` file containing `#[cfg(test)] mod tests`:\n1. Parse the file into two spans: PRODUCTION body (everything outside the `#[cfg(test)] mod tests { }` block) and CFG-TEST body (the block contents).\n2. Route the PRODUCTION span → production lane rules.\n3. Route the CFG-TEST span → test lane rules (UNIT sub-type).\n4. Never apply production rules to the CFG-TEST span or vice versa.\n\nThe coverage-check binary already strips CFG-TEST lines from uncovered-line accounting; the test lane must apply the same stripping heuristic to avoid double-counting.\n\n---\n\n## 2. Test Catalog\n\n### Skill Sources (extract into TEST rule catalog)\n\n| Skill | Sections | Both stacks unless noted |\n|---|---|---|\n| `solidstats-shared-testing-standards` | §A (RITE), §B (unit-vs-integration boundary), §C (AAA), §D (naming), §E (determinism), §F (doubles), §G (oracle strength), §H (coverage mindset + suppression policy), §I (scope/realism, no test-only exports), §L (review checklist) | All |\n| `solidstats-shared-review-standards` | §F (test severity: ≤ REQUEST CHANGES; BLOCK only if test masks real bug) | All |\n| `solidstats-fetcher-ts-tests` | Per-area boundary map, integration harness (testcontainers), file placement, coverage gate, suppression policy (`@preserve` requirement) | replays-fetcher |\n| `solidstats-server-ts-tests` | Per-layer map, substitution mechanisms (factory injection / setDecorator), file placement (co-locate → tests/), coverage suppression policy, blanket-exclude scope | server-2 |\n| `solidstats-parser-rust-tests` | Runner & layout, determinism, golden/parity harness, proptest (required), insta (required), cargo-fuzz (required), contract tests, coverage gate + allowlist policy | replay-parser-2 |\n\n### Concrete Test-Quality Rule Set (Grouped)\n\n**Group T1 — Naming** (mechanical-safe)\n- Name starts with capital or preserves API identifier casing\n- Name describes behavior + expected result\n- Reject: `test1`, `works`, `returns correct value`, `returns_correct`\n- Detection: regex on test name strings; mechanical\n\n**Group T2 — AAA Structure** (judgment)\n- Arrange / Act / Assert visually distinct blocks\n- Act executes exactly one behavior\n- Identical values in Arrange and Assert bound to a variable (DRY rule)\n- Detection: structural heuristic (blank line grouping, multiple `expect`/`assert` calls before Act) — needs Haiku judgment\n\n**Group T3 — Isolation** (mechanical-safe for obvious cases, judgment for subtleties)\n- No shared mutable module-level state mutated across tests\n- `vi.useFakeTimers()` paired with `vi.useRealTimers()` in finally/afterEach — mechanical (grep)\n- No leaked timers, env, or globals — judgment\n- Per Rust test: each test constructs its own fake, no static mutable shared state\n\n**Group T4 — Determinism** (mechanical for obvious patterns, judgment for injected stubs)\n- TS: no `setTimeout`/`setInterval`/`Date.now()` called directly in test bodies without fake timer setup — mechanical (grep for `setTimeout` in `*.test.ts` outside fake timer context)\n- TS: flag real `setTimeout(resolve, N)` stubs inside test bodies where fake timers or deferred promises could substitute — replays-fetcher lines 1424, 1521 are known instances\n- Rust: no `std::thread::sleep` or `tokio::time::sleep` in test bodies where fake time is feasible — mechanical (grep)\n- Exception: integration tests with live broker (rabbitmq, docker) may use bounded real polls; must carry a `§E` rationale comment — judgment to verify rationale is present\n- `vi.waitFor` in a test file that also contains `vi.mock(module)` → determinism smell (mechanical: grep both in same file)\n\n**Group T5 — Oracle Strength** (judgment)\n- No lone `expect(x).toBeDefined()` or `assert!(result.is_ok())` as the sole assertion — mechanical (single-assertion test detection)\n- Snapshots only for stable deterministic output\n- Rust: assert specific error codes, stages, variant fields, not just `is_some()` — judgment\n\n**Group T6 — Test Doubles** (judgment with mechanical assist)\n- TS: `vi.mock` allowed only at true external boundaries (amqplib, aws-sdk, pg pool wrapper); `vi.mock` on a layer the codebase owns when a hand-rolled fake exists → over-mocking — mechanical (grep `vi.mock` + cross-check against known boundary list)\n- Rust: `mockall`/`mockito` banned; only trait-seam fakes (`FakeObjectStore`, `FakePublisher`) — mechanical (grep `mockall` in Cargo.toml dev-deps)\n- TS server-2: repository layer in a service-unit test must use fake repository, not `vi.mock(repository)` — judgment\n\n**Group T7 — No Test-Only Exports** (mechanical-safe)\n- TS: scan production files for exports whose only import sites are `*.test.ts` or `*.fixtures.ts` files — requires import-graph pass; mechanical\n- Rust: `pub(crate)` items added solely for test access — judgment (comment scan for \"for test\" annotations)\n- Known instance: `src/modules/public-stats/replay-mapper.ts` re-export for test ergonomics — flag\n\n**Group T8 — Coverage Suppression** (mechanical)\n- TS: every `/* v8 ignore */` in production source must carry `@preserve` suffix — `grep 'v8 ignore' | grep -v '@preserve'`; all 23 replays-fetcher ignores + 27 of 28 server-2 ignores fail this\n- TS: every `/* v8 ignore */` must carry a non-empty reason after `--` — `grep 'v8 ignore next' | grep -v ' -- '`\n- TS: 3+ ignores in one production file → refactor signal, not a lint violation (judgment)\n- TS: blanket `coverage.exclude` entries must be restricted to entry/bootstrap files; ordinary app logic in exclude list → flag (cross-reference vitest.config.ts exclude array against known entry-file list)\n- Rust: every `allowlist.toml` entry must have non-empty `reason`, `lines[]`, `reviewer`, non-past `expires`, and matching `// coverage-exclusion:` marker within ~5 lines of excluded code in source — mechanical; all 14 entries in replay-parser-2 have `expires = 2026-05-28` which is stale as of today\n- Rust: stale expiry → 🟡 finding per solidstats-parser-rust-tests policy\n\n**Group T9 — Integration Harness Correctness** (judgment with mechanical assist)\n- replays-fetcher: Postgres via `@testcontainers/postgresql`, S3 via `@testcontainers/minio`; mock pg or mock S3 at contract boundary → violation\n- server-2: Docker Compose (not testcontainers); report once as known gap (see `.planning/codebase/TESTING.md`), severity 🟡, do not repeat per test file\n- Rust parser: `testcontainers-modules` for container e2e; absence of testcontainers for non-`#[ignore]` integration tests → check\n- replays-fetcher: RabbitMQ testcontainer is banned (fetcher does not publish); flag if present\n- server-2 route tests: must use `buildApp()` + `app.inject()`; assert `statusCode` AND body shape\n\n**Group T10 — Required Tooling Absence** (mechanical)\n- Rust parser: `proptest`, `insta`, `cargo-fuzz` absent from all `Cargo.toml` dev-dependencies → 🟡 structural gap; `proptest-regressions/` not committed → additional note\n- TS repos: no equivalent required-tooling check beyond Vitest + coverage-v8\n\n**Group T11 — File Placement** (mechanical)\n- TS unit: must be `<module>.test.ts` co-located; not `<module>-test.ts`, `<module>.spec.ts`, or under a `tests/` dir unless decomposed suite\n- TS integration: must be `<module>.integration.test.ts` or `tests/postgres.test.ts` (server-2 convention); co-located `*.test.ts` that exercises real DB/network → misplaced\n- Rust integration: must be `crates/*/tests/<name>.rs`; integration logic inside `#[cfg(test)]` block → misplaced\n- Test helpers: must be role-named (`utilities.ts`, `fixtures.ts`); never `<prefix>-test.ts` or `test-utils.ts`\n\n**Mechanical-Safe vs Judgment Summary:**\n\n| Group | Mechanical-safe | Needs Haiku judgment |\n|---|---|---|\n| T1 Naming | Yes (regex) | For borderline cases |\n| T2 AAA | No | Yes |\n| T3 Isolation (timer leaks) | Partially (grep) | Yes (state leaks) |\n| T4 Determinism | Partially (grep setTimeout/sleep) | Yes (injected stubs context) |\n| T5 Oracle strength | Partially (sole assertion) | Yes (content quality) |\n| T6 Doubles | Partially (vi.mock grep) | Yes (is it a boundary?) |\n| T7 No test-only exports | Yes (import graph) | Yes (intent) |\n| T8 Suppression | Yes (grep @preserve, reason) | For cluster/refactor signal |\n| T9 Harness correctness | Partially (grep testcontainers vs docker) | Yes (justification) |\n| T10 Required tooling | Yes (Cargo.toml grep) | No |\n| T11 File placement | Yes (glob match) | No |\n\n---\n\n## 3. Edge-Case / Thoroughness Lane\n\n### Static Design\n\nThis lane runs after routing. No test execution. Results are leads (static, uncorroborated — caveat every finding with \"static analysis only; confirm by running tests\").\n\n**Step 1 — Pair production modules with test files**\n\nApply per-stack pairing rules:\n\n- TS (replays-fetcher): strip `.test.ts` or `.integration.test.ts` suffix → same path `.ts`. For `src/commands/*.ts`: pair all 6 with `src/cli.test.ts` (indirect via `buildCli`). For `src/run/no-leak.test.ts`: resolve via import block (many-to-one).\n- TS (server-2): strip `.test.ts` → same-dir `.ts` for co-located; for `tests/` decomposed suites, the parent module dir is the target; for `src/test/integration/*.test.ts` and `src/test/golden/*.golden.test.ts`, resolve via import block.\n- Rust: `crates/<crate>/tests/<name>.rs` → production crate = `<crate>`; production module = name-decoded (see pairingRule); use import (`use`) statements at top of test file as authoritative mapping. Inline `#[cfg(test)]` → paired with the same file's production body.\n\nFlag any production module with NO paired test file (unit or integration) as a thoroughness gap immediately — no further analysis needed.\n\n**Step 2 — Enumerate production branches**\n\nFor each production module, extract candidate edge paths:\n\n- TS: `if`/`else` arms, ternary branches, `switch` case arms, `catch` clauses, optional chaining fallbacks (`??`, `?.`), early `return` on guard conditions, `throw` sites, `null`/`undefined` guards\n- Rust: `match` arms (especially wildcard `_` arms that represent fallbacks), `if`/`else` branches, `?` early-returns (each `?` propagates an `Err` path), `.ok_or()`/`.map_err()` sites, `unwrap_or`/`unwrap_or_else` fallback arms, `Result`/`Option` variant arms\n\nLimit static analysis to top-level if/catch arms for the first pass; do not attempt to resolve dynamic dispatch paths through DI factories.\n\n**Step 3 — Cross-reference against test corpus**\n\nFor each candidate branch, check whether any paired test file exercises the discriminating condition:\n\n- TS: look for test names referencing the condition, `expect(...).toThrow(...)` calls, stub configurations that would trigger the branch (e.g., `FakeX.failOn = true`, `ScriptedClient({ failOn: 'X' })`), fixture data that reaches the branch\n- Rust: grep test files for the error code string constant, type variant name, or fixture data variant that would exercise the arm; for golden tests check `expected_features` in `manifest.json`\n\n**Step 4 — Emit \"untested behavior\" leads**\n\nA lead is emitted when no test fixture or named scenario cross-references a production branch. Format:\n\n```\n[edge-case lead] <file>:<line> — branch `<condition>` has no test exercising it\n  paired tests: <list>\n  static only — confirm by running coverage\n```\n\n**Stack-Specific Approaches and Feasibility**\n\n*replays-fetcher (moderate-high feasibility):*\n- Factory-DI (`createX(deps)`) means most branches are in pure-logic functions → tractable static pairing\n- `src/commands/*.ts` (6 files, 0 paired tests): all branches paired against `cli.test.ts` only; enumerate each command's conditional arms and verify each appears in a `cli.test.ts` scenario — lower confidence due to indirect coupling\n- Real gap known statically: `defaultSleep` in `pacing.ts` is never called through any test path (confirmed); `defaultNow` called in one test case only\n- Golden integration tests with `goldenFixturesPresent()` guard: any `test.skip` or conditional guard without a CI failure signal → flag as flakiness risk (mechanical: grep `goldenFixturesPresent` / `test.skip` in integration tests)\n- Caveat: non-linear DI substitution (which stubs are injected per test) requires understanding test Arrange blocks; purely textual analysis will miss some transitive coverage\n\n*server-2 (moderate feasibility):*\n- Service/usecase units with fake repos (explicit option flags on `FakeX` classes) → readable static gap detection\n- `ScriptedClient` SQL-prefix routing → branch exercise visible from test file's scripted responses\n- Postgres integration tests → branch exercise depends on seeded data in `beforeAll`, not statically visible; resort to noting which branches exist in the module and which SQL paths appear in test queries\n- `src/modules/public-stats/replay-mapper.ts` `winnerSide.state !== 'present'` branch: confirmed static gap (comment in source says \"not exercised in tests\"); emit as lead\n- `src/operations/*.ts` 4 files with inline main-guard ignores instead of blanket exclude → emit as suppression-strategy inconsistency, not an edge-case lead\n\n*replay-parser-2 (moderate feasibility):*\n- Named error codes (string constants, type variant names) are greppable across test files → reliable for named error paths\n- `match` arms in `ParseStatus`/`ParseStage` exhaustive matches → enumerate variants, grep test files for each variant name\n- `#[ignore]` container e2e bodies: include in pairing scan; annotate covered paths as \"covered by Docker e2e (not in default run)\", not \"uncovered\"\n- `allowlist.toml` 14 entries: cross-reference each with whether a test now exists (stale expiry is the signal)\n- Absence of proptest/fuzz: entire class of arbitrary-input paths has zero coverage detectable statically; emit once as structural gap per Group T10, not per-branch\n- Lowest feasibility for numeric boundary conditions (exact frame-count thresholds in aggregation) — note as proptest-required for those modules\n\n---\n\n## 4. Severity\n\nApply `solidstats-shared-review-standards §F`:\n\n| Condition | Severity | Tag |\n|---|---|---|\n| Test actively asserts wrong behavior (masks a real bug) | 🔴 BLOCK | `lane:test type:correctness` |\n| Test-only re-export in production source (§I) | 🟡 REQUEST CHANGES | `lane:test type:api-surface` |\n| Missing `@preserve` on `v8 ignore` (build-correctness defect, not style) | 🟡 REQUEST CHANGES | `lane:test type:suppression` |\n| `v8 ignore` without reason | 🟡 REQUEST CHANGES | `lane:test type:suppression` |\n| `v8 ignore` suppressing a reachable branch (convenience, not structural) | 🟡 REQUEST CHANGES | `lane:test type:suppression` |\n| Stale `allowlist.toml` expiry (Rust) | 🟡 REQUEST CHANGES | `lane:test type:suppression` |\n| Missing required tooling (proptest, insta, cargo-fuzz) | 🟡 REQUEST CHANGES | `lane:test type:thoroughness` |\n| Edge-case lead / untested branch (static) | 🟡 REQUEST CHANGES | `lane:test type:thoroughness static:unconfirmed` |\n| Weak oracle (sole `toBeDefined`, `is_ok()` alone) | 🟡 REQUEST CHANGES | `lane:test type:oracle` |\n| Real sleep in test body (non-integration) | 🟡 REQUEST CHANGES | `lane:test type:determinism` |\n| `vi.waitFor` with fully mocked dependency | 🟡 REQUEST CHANGES | `lane:test type:determinism` |\n| Over-mocking (vi.mock on owned layer) | 🟡 REQUEST CHANGES | `lane:test type:doubles` |\n| File placement violation | 🟡 REQUEST CHANGES | `lane:test type:placement` |\n| Test naming violation | 💬 COMMENT | `lane:test type:naming` |\n| Docker Compose vs testcontainers gap (server-2) | 🟡 REQUEST CHANGES (once) | `lane:test type:harness` |\n| Commands/ cluster — no paired test files | 🟡 REQUEST CHANGES | `lane:test type:thoroughness` |\n| `src/operations/*.ts` inline-ignore vs blanket-exclude inconsistency | 💬 COMMENT | `lane:test type:suppression` |\n\n**Key policy:** Test lane findings are never standalone 🔴 BLOCK unless a test actively masks a real bug. The `static:unconfirmed` tag on edge-case leads signals to the Adjudicate stage that Opus should not escalate these without corroboration.\n\n---\n\n## 5. Per-Stack Nuances and Risks\n\n### Rust — replay-parser-2\n\n**CFG-test dual-route risk:** Integration test files carry `#![allow(clippy::expect_used)]` at the file top — a production-rules pass over these files would flag this as a suppression violation. Route files under `crates/*/tests/` exclusively to the test lane. Strip `#[cfg(test)] mod tests { }` body before applying production rules to the surrounding file.\n\n**`#[ignore]` e2e coverage:** Do not flag Docker-gated behaviors as untested. Include `#[ignore]` test bodies in the static pairing scan; annotate covered paths as \"covered by Docker e2e (not in default run)\".\n\n**Cross-crate fixture coupling:** `include_bytes!` paths from `crates/parser-worker/tests/` reaching into `crates/parser-core/tests/fixtures/` are invisible to Cargo's dependency graph. Flag as maintainability risk (not a test quality violation).\n\n**Allowlist stale expiry:** All 14 entries expired 2026-05-28. Emit one 🟡 finding per stale entry; do not escalate to 🔴.\n\n**proptest/insta/cargo-fuzz absence:** Emit as one structural 🟡 finding (not per-module, not 🔴). Note that adding proptest requires also committing `proptest-regressions/` and never gitignoring it.\n\n### TS — replays-fetcher\n\n**Injected sleep stubs vs real timers:** Do not flag hand-written `async (ms) => {}` no-op stubs or `vi.fn()` sleep wrappers as real-timer usage. Restrict real-timer detection to test bodies calling uninjected `setTimeout`/`setInterval`/`Date.now`. Known real instances: `src/run/run-once.test.ts` lines 1424 and 1521.\n\n**Integration mode gate:** The integration run requires `VITEST_INTEGRATION=true` or explicit glob argument. The audit lane must not report false \"missing coverage\" for integration-only paths when running in unit mode. Emit one note at the top of the test lane report: \"Coverage thresholds verified against unit run only unless VITEST_INTEGRATION=true is set.\"\n\n**`*.fixtures.ts` helpers:** Route to FIXTURE catalog. Apply only one rule: they must not export production logic that belongs in the main module. Do not apply AAA, naming, or oracle rules to them.\n\n**Commands/ indirect coverage:** Do not treat 100% gate passing as proof that `src/commands/*.ts` branches are all tested. Explicitly enumerate each command's conditional arms and verify each appears in a `cli.test.ts` scenario.\n\n**`goldenFixturesPresent()` silent skip:** Any integration test that conditionally skips without a CI failure signal → flag as flakiness/coverage risk. Mechanical: grep `goldenFixturesPresent` or `test.skip` in integration test files.\n\n### TS — server-2\n\n**Decomposed-suite helpers misrouted:** `src/**/tests/utilities.ts`, `fixtures.ts`, etc. are in coverage scope (not under `src/test/**`) and carry their own `v8 ignore` markers for defensive throw guards in test-support code. When `v8 ignore` appears in a file classified as TEST HELPER, apply the test-helper standard (is this a test-invariant guard?), not the production suppression policy.\n\n**Operations files mixed strategy:** 4 operations files use inline `/* v8 ignore next 6 */` on their main guard instead of being blanket-excluded like `check-backup-runbook.ts`. Flag as suppression-strategy inconsistency (💬 COMMENT), not a 🔴 finding. Recommendation: move to blanket exclude per skill guidance.\n\n**Docker Compose harness:** Report once as known gap referencing `.planning/codebase/TESTING.md`. Severity 🟡. Do not repeat per test file. Do not flag TRUNCATE_ALL isolation as a violation — it is the documented mitigation.\n\n**`vi.waitFor` in mocked context:** Mechanical detection: grep for files containing both `vi.mock(` and `vi.waitFor(`; flag as determinism concern (§E). Do not apply this rule to `src/test/golden/fixtures/harness.ts` (live-broker polling is justified there).\n\n**Contract tests:** Classify `src/openapi/contract.test.ts` and `frozen-contract.test.ts` as CONTRACT, not unit or integration. Apply naming and oracle rules; do not apply isolation or harness rules.\n\n**Golden snapshot drift:** Note that 400+ `.snap.json` files represent a snapshot-staleness maintenance risk when the production pipeline output changes. Emit once as a process note, not a per-file finding.\n\n---\n\n## 6. Workflow Change List\n\n### 6a. Enumerate Phase\n\n**Current:** single `git ls-files` → all files → production catalog.\n\n**Change:**\n1. After `git ls-files`, apply the routing rules from §1 to produce five catalogs: PRODUCTION, TEST-UNIT, TEST-INTEGRATION, TEST-CONTRACT (server-2 only), FIXTURE/HELPER.\n2. PRODUCTION catalog feeds existing Scope → Find → Mechanical → Structural → Verify → Recall → Adjudicate stages unchanged.\n3. TEST-UNIT and TEST-INTEGRATION catalogs feed the new test lane stages below.\n4. FIXTURE/HELPER catalog is noted in context but not judged by either lane's rules (only the \"no production logic\" check applies).\n5. Rust files containing `#[cfg(test)]` blocks are added to BOTH PRODUCTION (minus the cfg-test span) AND TEST-UNIT (the cfg-test span only). The split is done by line-range extraction using the same heuristic as coverage-check.\n\n### 6b. Test Scope Stage (new, runs parallel to production Scope)\n\n**Input:** TEST-UNIT + TEST-INTEGRATION catalogs + FIXTURE/HELPER catalog.\n\n**Actions:**\n1. Load test rule catalog from skills listed in §2 (shared-testing-standards §A–§I + §L, per-stack skills, shared-review-standards §F).\n2. Build test-quality rule set organized as Groups T1–T11 (§2 above).\n3. Tag each rule as mechanical-safe or judgment.\n4. Produce: `TEST_RULE_CATALOG`, `PAIRING_MAP` (production module → test file(s) per §3 pairing rules), `STACK` (fetcher / server-2 / parser-rust).\n\n### 6c. Test Find Stage (new, Haiku batch, replaces nothing — additive)\n\n**Input:** Each test file from TEST-UNIT + TEST-INTEGRATION catalogs, `TEST_RULE_CATALOG`.\n\n**Batch composition:** Group test files by module (co-located pair + its decomposed suite if any) → one Haiku call per group with the applicable rule set for that stack.\n\n**Rules to check per call:**\n- Mechanical rules (T1, T3-partial, T4-partial, T6-partial, T7, T8, T10, T11): run as pre-filter before Haiku to reduce token cost\n- Judgment rules (T2, T3-subtleties, T4-injected-stub context, T5, T6-boundary-check, T9): send to Haiku\n\n**Output format per finding:**\n```\nlane: test\nfile: <path>\nrule: <T-group> <rule-name>\nseverity: <🔴|🟡|💬>\nfinding: <description>\nstatic: <confirmed|unconfirmed>\n```\n\n### 6d. Edge-Case Pass (new, runs after Test Find)\n\n**Input:** `PAIRING_MAP`, production file ASTs (already loaded in Structural stage), test file contents.\n\n**Steps (per §3):**\n1. For each production module, resolve paired test files from `PAIRING_MAP`. Flag unpaired modules immediately as 🟡 thoroughness gap.\n2. Enumerate production branches (TS: if/else/ternary/switch/catch/early-return/??; Rust: match arms/?/Result variants).\n3. Cross-reference each branch against paired test files (grep error codes, variant names, fixture data, stub configurations).\n4. Emit leads tagged `static:unconfirmed` for branches with no cross-reference hit.\n\n**Scope limit:** Do not attempt to resolve dynamic DI factory paths. For `src/commands/*.ts`, cross-reference against `cli.test.ts` only and note lower confidence.\n\n**Caveat on every lead:** \"Static analysis only — no test execution performed. Confirm by inspecting coverage output or running tests.\"\n\n### 6e. Coverage Suppression Check (mechanical, runs in Mechanical stage, now applies to both lanes)\n\n**TS:** `grep -rn 'v8 ignore' src/ --include='*.ts' | grep -v '@preserve'` → emit 🟡 per hit tagged `lane:test type:suppression`\n\n**TS:** `grep -rn 'v8 ignore next' src/ --include='*.ts' | grep -v ' -- '` → emit 🟡 per hit (missing reason)\n\n**TS:** Cross-reference `vitest.config.ts coverage.exclude` array against known-legitimate entry-file list; flag any non-entry, non-bootstrap file in the exclude list.\n\n**Rust:** Parse `coverage/allowlist.toml`; for each entry where `expires` < today → emit 🟡 tagged `lane:test type:suppression`; for each entry missing `reason` or `lines[]` → emit 🟡; for each entry, grep source file for `// coverage-exclusion:` marker within ±5 lines of each excluded line → flag absence.\n\n### 6g. Output Tagging\n\nAll test lane findings carry `lane: test` in addition to existing tags. Production lane findings carry `lane: production`. Adjudicate stage: when a test-lane finding and a production-lane finding conflict on the same file (e.g., a test file wrongly judged by production rules in a prior run), the test-lane routing takes precedence and the production-lane finding is suppressed.\n\nThe pilot's 27 false findings (test files judged by production rules, e.g., type-over-interface in `.test.ts`) are eliminated by the Enumerate routing split: test files never enter the production Find/Mechanical stages.\n\n### 6h. STACK_SKILLS Additions\n\nAdd to the Scope stage's per-stack skill loading:\n\n| Stack | Skill to load |\n|---|---|\n| replays-fetcher | `solidstats-fetcher-ts-tests` (already listed; confirm it is loaded in Test Scope, not just production Scope) |\n| server-2 | `solidstats-server-ts-tests` |\n| replay-parser-2 | `solidstats-parser-rust-tests` |\n| all stacks | `solidstats-shared-testing-standards`, `solidstats-shared-review-standards §F` |\n\nThese are loaded in the **Test Scope stage**. The existing production Scope stage continues loading only production-convention and code-review skills."
+}

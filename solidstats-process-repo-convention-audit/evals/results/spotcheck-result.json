@@ -1,0 +1,49 @@
+{
+  "sampled": 27,
+  "verified": 27,
+  "realCount": 24,
+  "falsePositiveCount": 3,
+  "fpRate": 0.111,
+  "byStratum": {
+    "🔴": {
+      "n": 5,
+      "real": 5
+    },
+    "🟠": {
+      "n": 10,
+      "real": 9
+    },
+    "mechanical": {
+      "n": 6,
+      "real": 4
+    },
+    "🟡": {
+      "n": 6,
+      "real": 6
+    }
+  },
+  "falsePositives": [
+    {
+      "ruleId": "band-no-skip",
+      "file": "src/commands/shared.ts",
+      "line": 13,
+      "severity": "🟠",
+      "reason": "The quoted code at line 13 is genuine production code, but it does NOT violate the rule. The file `src/commands/shared.ts` is the composition root (dependency injection assembly point), and the import of `discoverReplaysDryRun` is wire-time only — used solely to reference its type in the `BuildCliDependencies` interface and provide it as a default in `resolveDependencies()`. The \"band-skip\" rule forbids *end-use* direct imports (e.g., a command handler calling a capability), not composition-root wiring. This is standard dependency injection pattern and is explicitly authorized by the architecture."
+    },
+    {
+      "ruleId": "eslint-no-blanket-file-disable",
+      "file": "src/discovery/source-client.test.ts",
+      "line": 1,
+      "severity": "🟠",
+      "reason": "The comment at line 1 is confirmed present and live, but it violates a different interpretation than the rule name suggests. The comment `/* eslint-disable max-lines -- ... */` is a TARGETED disable (one specific rule only), not a BLANKET disable (all rules). The rule \"eslint-no-blanket-file-disable\" should match `/* eslint-disable */`, not targeted rule disables. The audit tool appears to misclassify all file-level eslint-disable comments as \"blanket,\" even when they specify a single rule."
+    },
+    {
+      "ruleId": "type-over-interface",
+      "file": "src/contract-check/contract-check.test.ts",
+      "line": 172,
+      "severity": "🔵",
+      "reason": "The quoted code at contract-check.test.ts:172 is genuine, but it is LIVE TEST CODE (not production). The audit skill explicitly excludes test files by PATH SEGMENT pattern (*.test.*) during enumeration (line 124 of SKILL.md), and includeTests defaults to false (line 102). The file should never have been scanned for violations."
+    }
+  ],
+  "lowConfidenceReals": []
+}
