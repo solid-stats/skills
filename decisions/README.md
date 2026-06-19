@@ -21,6 +21,7 @@ each ADR's Sources section.
 | [0005](0005-lint-and-coverage-suppression-policy.md) | Lint & coverage suppression policy (never silence a structural gate; config-once; narrow exceptions) | `shared-ts`/`-testing`, `parser-rust`, all `-tests` |
 | [0006](0006-replay-parser-2-convention-deltas.md) | replay-parser-2 convention deltas (observability §K–§M, determinism, worker) | parser trio |
 | [0007](0007-bmad-borrowed-improvements.md) | Borrowed GSD process improvements: plan provenance (new `shared-planning-standards`), adversarial review lenses + GSD-sync discovery, graphify-in-workflow (C6) via the agent-skills lever, and the update-safe lens fan-out (new `process-review-lenses` skill + bundled Workflow) | `shared-planning-standards`, `process-review-lenses`, `shared-review-standards`, all four reviewers |
+| [0008](0008-repo-taxonomy-and-documentation-standard.md) | Repo taxonomy (5 platform / 3 supporting / 1 legacy) + per-tier documentation matrix; audience-based doc language with the bilingual org-profile carve-out | `shared-project-standards`, the `.github` org profile, all org repos |
 
 ## Code-side follow-ups
 
