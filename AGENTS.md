@@ -1,3 +1,18 @@
+> **Repo:** `skills` — the shared AI-agent skill set for the SolidStats platform (the SolidGames
+> replay-statistics product). Each top-level directory is a standalone, installable skill.
+>
+> **Boundary:** a **supporting** repo (per `solidstats-shared-project-standards` §J) — it owns no
+> runtime boundary. It owns only the skill content and its authoring rules: it defines the
+> conventions, review, testing, and planning standards the platform repos build by. It does **not**
+> hold product source code, migrations, runtime configuration, secrets, or single-developer
+> workflows — those live in the consuming repos.
+>
+> **Shared standards:** project-wide rules live in this same skill set —
+> `solidstats-shared-project-standards` (taxonomy, boundary map, doc language) is the baseline every
+> repo assumes. See `solid-stats/skills`.
+
+---
+
 # AGENTS.md — SolidStats Skills Repository
 
 This repository stores reusable AI agent skills for **SolidStats** (the SolidGames
