@@ -1,5 +1,15 @@
 # Changelog — solidstats-frontend-react-code-review
 
+## 2026-06-20 — Tailwind styling refs + design-review cross-ref
+
+- Phase-2 styling sweep and the styling severity row retargeted from vanilla-extract
+  (`*Style.css.ts` / `transition: all`) to **Tailwind v4** — an arbitrary value (`bg-[#…]`, `p-[7px]`)
+  instead of a token utility is the new 🔵 styling flag; `[conv: styling]` still delegates the full
+  ruleset to `solidstats-frontend-react-conventions`.
+- Output now routes **visual / UX / design-system** judgement to the counterpart
+  `solidstats-frontend-react-design-review` (this skill reviews the code, that one reviews the rendered
+  UI).
+
 ## 2026-06-16 — Review-lens mapping (BMAD Improvement 2)
 - Added a **Review lenses** section mapping the three generic adversarial lenses from
   `solidstats-shared-review-standards` §J onto this reviewer's two phases: **Contract Adversary** →

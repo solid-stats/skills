@@ -11,7 +11,7 @@ only the relevant ones, not all at once.
 | `src/pages/**` | `architecture.md`, `component-shape.md`, `state.md`, then the topic file for what the page does (data-flow / a11y / performance) |
 | `src/shared/api/**` | `data-flow.md`, `typescript.md` (generated types) |
 | `src/shared/uikit/**` | `component-shape.md`, `styling.md`, `a11y.md` |
-| `src/shared/.../*.css.ts` | `styling.md` |
+| `src/styles/theme.css` (the generated `@theme`) | `styling.md` |
 | anything with search params / navigation | `routing.md`, `state.md` |
 | anything fetching/mutating server data | `data-flow.md` |
 | anything with client-only state | `state.md` |
@@ -42,3 +42,4 @@ only the relevant ones, not all at once.
 - Raw fetch (should not exist): `rg "\bfetch\("`
 - Hardcoded UI strings (smell): `rg ">[A-ЯA-Z][a-zа-я ]{3,}<"`
 - Magic z-index / raw hex (smell): `rg "z-?index:\s*\d|#[0-9a-fA-F]{3,6}"`
+- Arbitrary Tailwind values (should not exist): `rg "\w-\[[^]]+\]"`

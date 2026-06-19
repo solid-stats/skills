@@ -1,5 +1,16 @@
 # Changelog — solidstats-frontend-react-tests
 
+## 2026-06-20 — Ladle component-isolation harness + spec use-cases as the E2E source
+
+- Added the **Ladle story harness**: component/integration tests mount through the durable Ladle
+  catalog built by `solidstats-frontend-react-design` (Playwright drives one story at a time —
+  deterministic, isolated, no full-app routing/network). It is the sanctioned replacement for RTL and
+  keeps the test harness and the design catalog the same artifact.
+- **Critical journeys derive from the surface spec's use-cases / product-scenarios** section (the E2E
+  source in `solidstats-frontend-react-design` → `references/spec-template.md`): one Playwright journey
+  per use-case, the spec's ×5 scenario endings as its assertions. Description updated to name the Ladle
+  harness.
+
 ## 2026-06-06 — Follow-up (user directives)
 - CI gate now includes `vp check` (Vite+ lint/format/type-check).
 

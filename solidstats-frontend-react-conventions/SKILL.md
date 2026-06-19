@@ -5,7 +5,7 @@ description: >
   TSX). Covers FSD layers and slices, component shape (server/client boundary), the TanStack Query +
   Router data flow (loader-prefetch into the Query cache), state boundaries (URL / Router / Query /
   Nano Stores), routing and search params, typed ICU localization (`/ru` `/en`), TypeScript strictness
-  with generated OpenAPI types as the source of truth, vanilla-extract styling, accessibility
+  with generated OpenAPI types as the source of truth, Tailwind v4 styling, accessibility
   (WCAG 2.2 AA), performance/Core Web Vitals budgets, SSR/SEO, SSE realtime, errors, tests, and the
   SolidStats domain. Consult this whenever creating a feature/page/component, modifying UI, adding a
   data fetch, wiring routing, touching localization, or deciding where a file lives — before writing
@@ -34,7 +34,7 @@ This skill is the rule source that
 and [`solidstats-frontend-react-tests`](../solidstats-frontend-react-tests/SKILL.md) assumes.
 
 > **Stack (locked by the brief):** TanStack Start (SSR) + Router + Query + Table · Nano Stores (light
-> client state only) · vanilla-extract · Ark UI (headless primitives) · Lucide (the only icon set) ·
+> client state only) · Tailwind v4 (theme tokens from a `DESIGN.md`) · Ark UI (headless primitives) · Lucide (the only icon set) ·
 > typed ICU i18n (`/ru` `/en`) · `openapi-typescript` paths + a typed thin client (`openapi-fetch` /
 > `openapi-react-query`) · Node/Docker · SSE realtime · **TanStack Form** (request steppers) ·
 > **Vite+** (`vp check`: Oxlint + Oxfmt + tsgo) for lint/format/type-check.
@@ -123,11 +123,16 @@ stale types. `noUncheckedIndexedAccess` on. **Backend-driven value maps are `Rec
 backend enum change breaks `tsc`. Model (server shape) → Data (app shape) processed at the boundary.
 Detail in `references/patterns/typescript.md`.
 
-## 9. Styling (vanilla-extract)
+## 9. Styling (Tailwind v4)
 
-Colocated `<ComponentName>Style.css.ts`; tokens + a first-class dark/light theme contract; `clsx` for
-class composition; no `transition: all`; Lucide-only icons; stable dimensions for tables/cards/
-skeletons (no CLS); no nested cards / ornamental gradients. Detail in
+Tokens are generated from a `@google/design.md` `DESIGN.md` into the Tailwind `@theme` (the single
+source of truth — never a hand-edited parallel CSS); style with utilities that resolve to those tokens
+and use **no arbitrary values** (`bg-[#…]`, `p-[7px]`); **`tailwind-variants`** for variants/recipes
+(`clsx`/`cn` only for a one-off conditional `className`); Tailwind's **stock 4px spacing scale**;
+**dark-only** (no light theme); Lucide-only icons; animate `transform`/`opacity` only; stable
+dimensions for tables/cards/skeletons (no CLS); no nested cards / ornamental gradients. The token system
+and export workflow are owned by
+[`solidstats-frontend-react-design`](../solidstats-frontend-react-design/SKILL.md); detail in
 `references/patterns/styling.md`.
 
 ## 10. Accessibility
@@ -206,7 +211,7 @@ index mapping `src/` paths → pattern files) to decide scope.
 | `routing.md` | Typed routes, search-param single-source-of-truth, scroll restoration, auth/role gates, `/ru` `/en`. |
 | `localization.md` | Typed ICU i18n, `/ru` `/en`, key structure, `const ln` aliasing. |
 | `typescript.md` | Generated-types source of truth, backend-enum `Record` safety, Model/Data boundary, strictness. |
-| `styling.md` | vanilla-extract file naming, tokens, theme contract, stable dimensions. |
+| `styling.md` | Tailwind v4 utilities, `@theme` tokens from a `DESIGN.md`, no arbitrary values, `tailwind-variants`, stable dimensions. |
 | `a11y.md` | WCAG 2.2 AA controls, keyboard/focus, dialogs (Ark UI), live regions, contrast, touch targets. |
 | `performance.md` | CWV budgets, splitting, virtualization, render stability, images, reduced-motion, bundle budgets. |
 | `seo.md` | SSR for indexable pages, titles/meta, canonical/sitemap/structured-data, `/ru` `/en` hreflang, crawl-trap avoidance. |
@@ -224,6 +229,12 @@ Apply alongside this skill: `solidstats-shared-review-standards` + `solidstats-f
 external `tanstack-start` and `openapi-to-typescript` skills remain the framework/tool references
 (not vendored here).
 
+The **design layer** is owned by
+[`solidstats-frontend-react-design`](../solidstats-frontend-react-design/SKILL.md) (the creation
+pipeline + the `DESIGN.md` token source) and reviewed by
+[`solidstats-frontend-react-design-review`](../solidstats-frontend-react-design-review/SKILL.md) —
+design governs the visual system, these conventions govern the code.
+
 ## 19. Quick checklist
 
 1. File lives in the right layer/slice/segment; no upward imports; slice has an `index.ts` public surface.
@@ -231,7 +242,7 @@ external `tanstack-start` and `openapi-to-typescript` skills remain the framewor
 3. Data is fetched via a loader `ensureQueryData` prefetch + `useQuery`, through the typed thin client; no hand-written DTOs.
 4. Shareable state is in the URL (single source of truth); ephemeral state isn't; Back restores table+scroll+cache.
 5. Types: `type` over `interface`; generated OpenAPI types used; backend enum maps are `Record<Enum,…>` so `tsc` breaks on change.
-6. Styles in colocated `<Name>Style.css.ts`; tokens/theme contract; stable dimensions; no `transition: all`; Lucide icons only.
+6. Styles via Tailwind utilities resolving to `@theme` tokens (no arbitrary values); `tailwind-variants` for variants; stable dimensions (no CLS); Lucide icons only.
 7. a11y: focus, keyboard, accessible names, labeled fields, contrast, 44×44 targets; Ark UI primitives.
 8. CWV budgets respected; LCP in initial HTML; reserved space (no CLS); route-split heavy code.
 9. SEO: SSR meaningful HTML for indexable pages; titles/meta/canonical; `/ru` `/en` hreflang.

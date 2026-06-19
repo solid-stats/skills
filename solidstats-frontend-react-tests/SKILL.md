@@ -3,7 +3,7 @@ name: solidstats-frontend-react-tests
 description: >
   Testing for the SolidStats `web` frontend (TanStack Start / React) — the per-stack layer on top of
   solidstats-shared-testing-standards. Adds the runner split (Vitest for hooks/logic, Playwright for
-  components and critical journeys), the journey coverage list (list→detail→back restoration, SSE,
+  components and critical journeys via the Ladle story harness), the journey coverage list (list→detail→back restoration, SSE,
   loading/error/offline states), accessibility checks (axe), the CI browser/budget matrix, and the
   seeded-backend E2E policy. Use when writing or reviewing frontend unit, component, or E2E tests.
   Use this proactively — apply it when writing or reviewing ANY frontend test, even when not
@@ -30,9 +30,27 @@ oracle strength, the coverage mindset, TDD). This skill adds the **frontend HOW*
 The unit-vs-integration boundary (testing-standards §B) maps here as: logic → Vitest unit; anything
 whose correctness depends on the real DOM, routing, the Query cache, SSR, or the network → Playwright.
 
+## Component isolation harness (Ladle)
+
+Component and integration tests mount through **Ladle stories** — the durable UIKit catalog built by
+[`solidstats-frontend-react-design`](../solidstats-frontend-react-design/SKILL.md), not a throwaway
+fixture. Each shared component keeps a permanent story covering its states (the surface spec's
+component-state and ×4 data-volume matrix); Playwright drives **one story at a time** for a
+deterministic, isolated mount with no full-app routing or network. This is the sanctioned way to "test
+a component in isolation" — it **replaces RTL** (still banned: no render-and-assert-DOM) and keeps the
+test harness and the design catalog the *same artifact*, so a component cannot drift from its
+catalogued contract.
+
+- The **story is the unit**: assert the rendered states, keyboard interaction, and axe-cleanliness per
+  story. Integration (a few catalogued components composed) also runs as a story before it graduates
+  into a route.
+
 ## Critical journeys (Playwright)
 
-These are launch-blocking and must be covered:
+Journeys derive from the surface spec's **use-cases / product-scenarios** section — the E2E source in
+`solidstats-frontend-react-design` → `references/spec-template.md`: each use-case becomes a Playwright
+journey and the spec's ×5 scenario endings become its assertions. These are launch-blocking and must be
+covered:
 
 - **list → filter/sort → deep scroll → detail → Back** restores table state, scroll, virtualized row
   position, and cache with **no blocking reload or CLS** (the signature requirement).

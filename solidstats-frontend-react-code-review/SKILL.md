@@ -89,8 +89,8 @@ order** (UX continuity is the top product priority, then a11y, then SEO — mirr
    boundary, thin `src/routes`. `[conv: architecture]`
 8. **Component shape** — named function (no `observer`), props order, server/client boundary, Lucide
    icons. `[conv: component-shape]`
-9. **Styling** — colocated `*Style.css.ts`, semantic tokens + theme contract, stable dimensions, no
-   nested cards / `transition: all`. `[conv: styling]`
+9. **Styling** — Tailwind utilities resolving to `@theme` tokens, **no arbitrary values** (`bg-[#…]`,
+   `p-[7px]`), `tailwind-variants` for variants, stable dimensions, no nested cards. `[conv: styling]`
 10. **TypeScript** — generated types as source of truth, backend-enum `Record<Enum,…>` safety,
     Model/Data boundary, `zod/v4-mini`, `noUncheckedIndexedAccess`. `[conv: typescript]`
 11. **Localization** — typed ICU, `/ru` `/en`, `const ln`, no hardcoded strings, RU/EN parity.
@@ -124,7 +124,7 @@ Each finding lands in one severity bucket, carries a `[topic]` tag, and cites `[
 | Missing reserved space (minor CLS), un-virtualized large table | 🟡 |
 | Wrong layer/slice placement; uikit importing business | 🟡 |
 | Hardcoded UI string; missing RU/EN parity | 🟡 |
-| Raw hex/magic z-index instead of token; `transition: all` | 🔵 |
+| Arbitrary Tailwind value (`bg-[#…]`, `p-[7px]`) or raw hex instead of a token utility; magic z-index | 🔵 |
 | Naming, comments, import order | 🔵 |
 
 ---
@@ -158,4 +158,9 @@ Follow the output format, continuous numbering, severity buckets, and verdict ru
 `solidstats-shared-review-standards` (§D–§E). Open the report with the **Quality gate** result (above
 the buckets); there is no "Good" section. Cite the broken convention on each finding. The test-file rule
 lives in review-standards §F; defer detailed test-quality judgement to
-[`solidstats-frontend-react-tests`](../solidstats-frontend-react-tests/SKILL.md).
+[`solidstats-frontend-react-tests`](../solidstats-frontend-react-tests/SKILL.md). Visual, UX, and
+design-system conformance (token / contrast fidelity, real-width layout, motion, the rendered-state
+matrix) is the counterpart skill
+[`solidstats-frontend-react-design-review`](../solidstats-frontend-react-design-review/SKILL.md) — this
+skill reviews the code, that one reviews the rendered UI; route a finding that needs a real-browser or
+visual pass there.

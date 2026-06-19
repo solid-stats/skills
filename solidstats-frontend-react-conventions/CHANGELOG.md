@@ -1,5 +1,21 @@
 # Changelog — solidstats-frontend-react-conventions
 
+## 2026-06-20 — Styling retargeted: vanilla-extract → Tailwind v4 (dark-only)
+
+- The brief now locks **Tailwind v4** — tokens generated from a `@google/design.md` `DESIGN.md` into the
+  `@theme` block — and a **dark-only** system, replacing the vanilla-extract theme-contract direction.
+  Rewrote `references/patterns/styling.md` end to end: `@theme` tokens as the single source of truth
+  (never a hand-edited parallel CSS), **no arbitrary values**, `tailwind-variants` for variants/recipes,
+  Tailwind's stock 4px spacing, z-index from a token scale. Removed the `*.css.ts` /
+  `createThemeContract` / dark+light model and the draft-era "open call to confirm" note.
+- `SKILL.md`: §9 plus the description, stack line, reference-index row, and quick-checklist item
+  retargeted to Tailwind; §18 now cross-refs `solidstats-frontend-react-design` / `-design-review`
+  (design governs the visual system, these conventions govern the code).
+- `references/project-patterns.md`: the `*.css.ts` path mapping → `src/styles/theme.css`; added an
+  arbitrary-Tailwind-value smell search.
+- Breakpoints and content width are **not** restated here — the single source is
+  `solidstats-frontend-react-design/references/design-system.md`.
+
 ## 2026-06-13 — Dedup `typescript.md` against solidstats-shared-ts-standards (taxonomy V5)
 
 - `typescript.md`: the **Derivation & utilities** library block (`es-toolkit` / `type-fest` /
