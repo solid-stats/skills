@@ -1,5 +1,22 @@
 # Changelog — solidstats-shared-project-standards
 
+## 2026-06-19 — v1.3 — Repo taxonomy & documentation standard
+
+- Added §J Repo Taxonomy & Documentation Standard: the three org tiers (5 platform services /
+  3 supporting / 1 legacy) and the per-tier documentation matrix (README, AGENTS.md + CLAUDE.md
+  stub, LICENSE, `.planning/`), plus the AGENTS.md shared-header rule, the CLAUDE.md stub rule,
+  centralized governance via `.github`, and the org-profile-reflects-reality rule.
+- Reframed the intro and §D first line from "five-repo platform" to "every repo in the org,
+  across three tiers (§J)" — the platform tier is still the five services; the boundary map is
+  unchanged. Reconciles the stale "5-repo" wording against the 9 real repos (reality is canon for
+  existence facts; the skill is canon for structure).
+- Refined §H Documentation Language: every repo README is bilingual — a Russian `README.md`
+  (primary) plus an English `README.en.md` mirror — because a README is the user-facing front door
+  for the RU-speaking community, the same pattern the org profile already uses. Everything internal
+  (code, comments, planning, skill bodies/refs, `AGENTS.md`, `docs/`) stays English. Replaces the
+  prior blanket "README files: English only." GSD-session-Russian and RU+EN trigger rules unchanged.
+- Cross-stack reasoning recorded in `decisions/0008-repo-taxonomy-and-documentation-standard.md`.
+
 ## 2026-06-18 — v1.2 — Skill is the source of truth
 
 - Added §A bullet "The skill is the source of truth": the installed `solidstats-*` skill
