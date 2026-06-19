@@ -1,5 +1,15 @@
 # Changelog — solidstats-shared-project-standards
 
+## 2026-06-20 — v1.4 — §I docs via free sources (drop Context7); web stack → Tailwind
+
+- §I MCP Usage reframed from "Context7 as the primary documentation MCP" to **free official
+  sources only**: WebFetch / WebSearch against official docs + a project's `llms.txt`, and the repo
+  `README`/`docs` via `gh`. **Context7 and any paid documentation MCP are explicitly out** — removed
+  the Context7 two-step example, the `@upstash/context7-mcp` install block, and the Context7
+  ToolSearch load; deferred-tool loading now targets `WebSearch`/`WebFetch`.
+- Fixed the per-repo library table: `web` now lists **tailwindcss, tailwind-variants** (was the
+  superseded vanilla-extract).
+
 ## 2026-06-19 — v1.3 — Repo taxonomy & documentation standard
 
 - Added §J Repo Taxonomy & Documentation Standard: the three org tiers (5 platform services /
