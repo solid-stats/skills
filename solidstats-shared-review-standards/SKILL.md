@@ -18,6 +18,7 @@ description: >
   Triggers (meta only): "review standard", "review severity buckets", "review output format",
   "verdict rules", "review lenses", "review discovery step", "стандарт ревью", "формат отчёта ревью",
   "шкала severity", "правила вердикта", "линзы ревью", "discovery-шаг ревью".
+disable-model-invocation: true
 ---
 
 # SolidStats Review Standards — Shared Foundation

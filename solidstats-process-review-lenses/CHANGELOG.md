@@ -1,5 +1,9 @@
 # Changelog — solidstats-process-review-lenses
 
+## 2026-06-20 — make direct-invoke only via `disable-model-invocation`
+- Added `disable-model-invocation: true` to the frontmatter. Per the Claude Code skills docs this removes the skill's description from per-session context entirely (not just shortens it), so it now costs zero tokens per session in every consuming repo while the FULL description is kept as documentation. The skill is still invoked by name (and read by its hard-requirers via file path); Claude no longer auto-triggers it.
+
+
 ## 2026-06-16 — Initial
 - Trigger wrapper for the parallel review-lens fan-out (BMAD plan P3 — see
   `plans/product/BMAD-EVALUATION-AND-GSD-IMPROVEMENTS.md` Improvement 2 / D3 and ADR

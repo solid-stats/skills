@@ -13,6 +13,7 @@ description: >
   Triggers (meta only): "testing standard", "test philosophy", "unit vs integration",
   "test doubles", "стандарт тестов", "философия тестов", "юнит или интеграционный тест",
   "тест-даблы".
+disable-model-invocation: true
 ---
 
 # SolidStats Testing Standards — Shared Foundation

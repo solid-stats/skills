@@ -1,5 +1,9 @@
 # Changelog — solidstats-shared-review-standards
 
+## 2026-06-20 — make direct-invoke only via `disable-model-invocation`
+- Added `disable-model-invocation: true` to the frontmatter. Per the Claude Code skills docs this removes the skill's description from per-session context entirely (not just shortens it), so it now costs zero tokens per session in every consuming repo while the FULL description is kept as documentation. The skill is still invoked by name (and read by its hard-requirers via file path); Claude no longer auto-triggers it.
+
+
 ## 2026-06-16 — Discovery step + review lenses
 - §I **Discovery — locate the plan, map the change** (new). Conditional GSD-sync pass adapted from
   `estesis-frontend-react-vc-code-review` (`references/gsd-sync.md`): I.1 self-discovery of the

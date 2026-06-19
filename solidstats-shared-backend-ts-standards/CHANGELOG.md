@@ -1,5 +1,9 @@
 # Changelog — solidstats-shared-backend-ts-standards
 
+## 2026-06-20 — make direct-invoke only via `disable-model-invocation`
+- Added `disable-model-invocation: true` to the frontmatter. Per the Claude Code skills docs this removes the skill's description from per-session context entirely (not just shortens it), so it now costs zero tokens per session in every consuming repo while the FULL description is kept as documentation. The skill is still invoked by name (and read by its hard-requirers via file path); Claude no longer auto-triggers it.
+
+
 ## 2026-06-13 — §D: zod is the single schema-first tool (TypeBox retired)
 
 - **§D "Config & validated input discipline":** made zod 4 the single schema-first tool now that

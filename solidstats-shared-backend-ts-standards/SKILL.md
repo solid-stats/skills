@@ -16,6 +16,7 @@ description: >
   Triggers (meta only): "backend ts standards", "shared service conventions", "typed error system",
   "logging standard", "стандарты сервисного TS", "общие конвенции сервисов", "система
   типизированных ошибок", "стандарт логирования".
+disable-model-invocation: true
 ---
 
 # SolidStats Backend TS Standards — Shared Service Baseline

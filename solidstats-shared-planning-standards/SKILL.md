@@ -14,6 +14,7 @@ description: >
   Triggers (meta only): "planning standard", "plan provenance", "premises ledger", "source
   anchors", "carried-forward learnings", "graphify in planning", "стандарт планирования",
   "провенанс плана", "реестр предпосылок", "якоря источников", "граф знаний в планировании".
+disable-model-invocation: true
 ---
 
 # SolidStats Planning Standards — Shared Foundation

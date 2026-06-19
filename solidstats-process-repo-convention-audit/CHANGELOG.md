@@ -1,5 +1,9 @@
 # Changelog — solidstats-process-repo-convention-audit
 
+## 2026-06-20 — make direct-invoke only via `disable-model-invocation`
+- Added `disable-model-invocation: true` to the frontmatter. Per the Claude Code skills docs this removes the skill's description from per-session context entirely (not just shortens it), so it now costs zero tokens per session in every consuming repo while the FULL description is kept as documentation. The skill is still invoked by name (and read by its hard-requirers via file path); Claude no longer auto-triggers it.
+
+
 ## 2026-06-17 — v1.2: test lane + spot-check fixes (JS-validated, not re-run end-to-end)
 The v1.1 pilot + an adversarial spot-check (FP-rate 3/27 ≈ 11%, all 5 🔴 confirmed real) drove these.
 The whole workflow was executed with mocked agents to validate the JS orchestration (routing, the

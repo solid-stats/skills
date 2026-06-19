@@ -129,14 +129,28 @@ Workspace directories follow the same name as the skill with a `-workspace` suff
 
 These are repo-wide rules that shaped the skill set; honor them when adding or editing skills.
 
-- **RU + EN triggers are mandatory** on every skill's `description`. The team works in a RU
-  context, so every skill must trigger on both languages.
+- **RU + EN triggers are mandatory** on every **auto-triggering** skill's `description`. The team works
+  in a RU context, so every skill Claude can auto-invoke must trigger on both languages. Skills marked
+  `disable-model-invocation: true` (see below) are never auto-invoked, so trigger phrases are moot for
+  them — keep or drop them freely; they cost nothing either way.
 - **Descriptions are written broad and "pushy."** The team prefers a skill to trigger and standardize
   the code over saving tokens by under-triggering. Each conventions/code-review/tests skill's
   `description` includes a "use this proactively — even when the task doesn't name it" clause; the
   conventions skills say to consult them *before writing any code* in their stack. Over-triggering is
-  acceptable. Exception: the `solidstats-shared-*-standards` skills stay meta (read by other skills,
-  not triggered directly).
+  acceptable.
+- **Direct-invoke skills set `disable-model-invocation: true` — not a shortened description.** Per the
+  Claude Code skills docs, that flag removes the skill's `description` from per-session context
+  entirely (the doc's "Description not in context" row), so a skill costs **zero** session tokens until
+  it is explicitly invoked — while keeping its **full** description as in-frontmatter documentation. So
+  do NOT lobotomize a meta/direct-invoke skill's description to save tokens; set the flag and keep the
+  description complete. The skill is still invoked by name (and still read by its hard-requirers via
+  file path); Claude simply no longer auto-triggers it. Skills that carry the flag today:
+  - the `solidstats-shared-*-standards` skills, which are read by other skills via their hard-require
+    list, not triggered directly — **except `solidstats-shared-project-standards`, which stays
+    auto-triggering (no flag)** because it is designed to auto-fire at the start of every task;
+  - the direct-invoke process wrappers `solidstats-process-repo-convention-audit` and
+    `solidstats-process-review-lenses` (run by name from the top-level session; the audit is
+    milestone-only, the lenses are recommended by name from the code-review skills).
 - **Documentation is English only** (SolidStats product standard). Skill bodies, references,
   and templates are written in English; only the trigger phrases carry RU variants.
 - **Conventions skills are prescriptive.** A `*-conventions` skill defines the *desired*

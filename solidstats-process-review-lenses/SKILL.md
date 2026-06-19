@@ -13,6 +13,7 @@ description: >
   review", "thorough code review", "review from several angles", "глубокое ревью", "ревью с линзами",
   "ревью с фан-аутом", "состязательное ревью", "тщательное ревью", "ревью с нескольких сторон",
   "разбери код с разных углов".
+disable-model-invocation: true
 ---
 
 # SolidStats Review Lenses — deep fan-out review

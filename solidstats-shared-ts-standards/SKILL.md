@@ -18,6 +18,7 @@ description: >
   baseline", "coverage gates", "utility library standard", "TS test idioms", "стандарты
   TypeScript", "базовый tsconfig", "общий ESLint", "гейты покрытия", "утилитные библиотеки",
   "TS тест-идиомы".
+disable-model-invocation: true
 ---
 
 # SolidStats TypeScript Standards — Shared Baseline
