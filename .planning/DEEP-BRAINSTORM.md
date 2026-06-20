@@ -6,7 +6,7 @@
 - GSD stage: explore → new-project (greenfield tooling repo; no `.planning/` existed before this brief)
 - Target outcome: A decision pack that defines the v1 skill set, naming, distribution model, and authoring strategy — ready to feed `gsd:new-project` in the skills repo.
 - Artifact owner: Pavlov Alexandr
-- Repo: `/home/afgan0r/Projects/SolidGames/skills` — GitHub remote `git@github.com:solid-stats/skills.git`, branch `main`, no commits yet.
+- Repo: `.` — GitHub remote `git@github.com:solid-stats/skills.git`, branch `main`, no commits yet.
 
 ## Goal
 Create `solid-stats/skills`: a single source of truth for SolidStats AI agent skills, mirroring the `estesis-skills` structure and distribution model (`npx skills` + per-project `skills-lock.json`), but retargeted to the SolidStats stack (TS/Fastify, Rust, React/TanStack) and absorbing the generic pattern-skills currently pulled from public GitHub sources.
@@ -126,7 +126,7 @@ Create `solid-stats/skills`: a single source of truth for SolidStats AI agent sk
 | P1 | Hosting? | GitHub `solid-stats/skills` | GitHub source type; `npx skills add solid-stats/skills`. |
 
 ## Recommended Next GSD Step
-- **Primary:** `gsd:new-project` in `/home/afgan0r/Projects/SolidGames/skills`.
+- **Primary:** `gsd:new-project` in `.`.
   - Seed PROJECT.md from this brief; build a ROADMAP that sequences the 11 skills by dependency:
     1. **Scaffold** — README catalog, AGENTS.md, naming convention, skill-creator install, first push to GitHub.
     2. **Foundations** — `review-standards` (adapt from estesis) + `testing-standards` (author fresh). No elicitation; unblocks everything.
