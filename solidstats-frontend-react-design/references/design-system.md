@@ -27,18 +27,19 @@ YAML front matter (machine-readable tokens) + Markdown body (rationale):
 ---
 name: SolidStats
 colors:
-  bg-0: "#0A0D13"
-  surface-1: "#151A25"
-  primary: "#36C5E0"
-  win: "#3FCF8E"
+  # illustrative shape only — the real palette lives in DESIGN.md, never duplicated here
+  bg-0: "#RRGGBB"
+  surface-1: "#RRGGBB"
+  primary: "#RRGGBB"        # the single cyan accent
+  win: "#RRGGBB"            # one of the four semantics (each + -weak + -border)
 typography:
   display:
-    fontFamily: Saira
+    fontFamily: <display-family>
     fontWeight: 700
 spacing:
   # spacing uses Tailwind's stock 4px scale (p-1=4px, p-2=8px …) — no custom keys
 rounded:
-  md: 6px
+  md: <px>
 components:
   button-primary:
     backgroundColor: "{colors.primary}"
@@ -50,22 +51,30 @@ components:
 Markdown body, canonical section order: **Overview · Colors · Typography · Layout · Elevation &
 Depth · Shapes · Components · Do's and Don'ts.**
 
-## Export → Tailwind v4 `@theme` (this *is* the token codegen)
+## Export → Tailwind v4 `@theme`
+
+`theme.css` is **generated from `DESIGN.md`, never hand-edited** — `DESIGN.md` is the single token
+source of truth. Regenerate it on every token change (a committed build step, not magic):
 
 ```bash
-npx @google/design.md export --tailwind-v4 DESIGN.md > src/styles/theme.css
+node scripts/gen-theme.mjs      # reads DESIGN.md → writes src/styles/theme.css
 ```
 
-Import `theme.css` once. It emits the `@theme { --color-*, --spacing-*, --radius-*, --text-*, … }`
-block, exposing every token as both a Tailwind utility namespace and a runtime CSS variable. Add
-`--*: initial` (or `--color-*: initial`) so Tailwind's stock palette is removed and only the
-SolidStats dark palette exists. There is **no bespoke generator** — the CLI owns this.
+It emits the `@theme { --color-*, --text-* with paired --text-*--line-height, --font-*, --radius-*,
+--breakpoint-3xl/4xl, --container* … }` block, plus a leading `--*: initial` reset so Tailwind's stock
+palette is dropped and only the SolidStats dark tokens exist (no exporter emits that reset — the
+generator must). Import `theme.css` once.
 
-`design.md` also exports **W3C DTCG** (the design-token interchange standard, stable since Oct 2025)
-and Tailwind v3 JSON, so `DESIGN.md` stays on the standard and portable (Style Dictionary, other
-token tooling) rather than locked to one exporter. The export is an **explicit step run on every
-token change** — token codegen is not automatic, and real teams' token pipelines are mostly
-hand-driven, so treat "export" as a committed build step, not magic.
+> **Why a project generator, not the `@google/design.md` CLI (interim).** The official
+> `design.md export --format css-tailwind` (the flag is `--format css-tailwind`, **not**
+> `--tailwind-v4`) **silently drops typography `line-height`** in v0.3.0 — and so does its `dtcg`
+> export — which is disqualifying for a paired text/line-height scale. So `@google/design.md` is used
+> here for **`lint` and `diff` only** (its real value: the WCAG-contrast and broken-`{token}` gates on
+> `DESIGN.md`), while `scripts/gen-theme.mjs` owns the `@theme` codegen. **Migration trigger:** when a
+> design.md release emits the paired line-height (`--leading-*`, already promised in its README),
+> retire the generator and switch to the official `export --format css-tailwind` after re-validating
+> the output. design.md's `dtcg` export stays the portability path (W3C DTCG, stable since Oct 2025)
+> once it too preserves line-height.
 
 ### Spacing — Tailwind's default scale
 
@@ -74,12 +83,14 @@ Use **Tailwind's stock spacing scale** — it is already a 4px grid (`p-1` = 4px
 keep their standard Tailwind meaning, nothing diverges from muscle memory, and there is one fewer
 token set to maintain.
 
-## Responsive breakpoints & content width (the canonical set — change here, nowhere else)
+## Responsive breakpoints & content width (the canonical rationale + design widths)
 
-The whole skill set keys off **one** breakpoint set and **one** content-width strategy, defined
-here. Reflow is container-driven (`@container` / the `--container-*` scale), **not** viewport (the
-device-frame trap). Grounded in the Steam Hardware Survey (our PC-gamer audience) and aligned to
-Tailwind v4 tokens.
+The whole skill set keys off **one** breakpoint set and **one** content-width strategy. The
+machine-emitted values (`--breakpoint-*`, `--container*`) are authored once in `DESIGN.md` `layout.*`
+and flow to `theme.css`; this section is the **rationale + the design/test widths**, not a second
+token source — keep them in sync, don't fork the numbers. Reflow is container-driven (`@container` /
+the `--container-*` scale), **not** viewport (the device-frame trap). Grounded in the Steam Hardware
+Survey (our PC-gamer audience) and aligned to Tailwind v4 tokens.
 
 **Why large screens are first-class.** The SolidGames audience is PC gamers; per the Steam Hardware
 Survey **~54% sit at 1920-width and ~40% are WIDER than 1920** (2560×1440 ≈ 21%, 2560×1600 ≈ 5%,
@@ -91,8 +102,9 @@ data-dense product, so **data surfaces use the width**; only reading content sta
 - `--container-prose` ≈ **720px** — reading content (request flows, moderation comments,
   about/help). Capped for line length regardless of screen size.
 - `--container` (data/page) ≈ **1760px ceiling, fluid below** — tables, leaderboards, stat grids,
-  profiles. Grows with the viewport (side padding) up to the ceiling, then centers. **This replaces
-  the old `--container: 1240`** — flag the brief and `_ds` to match.
+  profiles. Grows with the viewport (side padding) up to the ceiling, then centers. **This replaced
+  the old `--container: 1240`** — now reconciled in `DESIGN.md`; the old value survives only in the
+  frozen `.design/` archive.
 
 **Breakpoints / design + test widths:**
 
@@ -110,8 +122,8 @@ data-dense product, so **data surfaces use the width**; only reading content sta
 2560); keep Tailwind's `md/lg/xl/2xl` (768 / 1024 / 1280 / 1536).
 
 **Design and review at 360 · 768 · 1024 · 1280 · 1920 · 2560**, with 390/414 mobile spot-checks and
-a 3440 ultrawide cap-check. Every other file points here — do not re-hardcode breakpoints or
-container widths elsewhere.
+a 3440 ultrawide cap-check. Other skill files point here for the design/test widths; the token
+**values** live once in `DESIGN.md` `layout.*` → `theme.css`.
 
 > The brief mandates mobile-first and the design system stays dark/dense; option B (large screens
 > use the width) was chosen against the Steam data because the gamer audience skews to 1440p+/
@@ -142,16 +154,17 @@ Fast and functional — the product reports, it doesn't perform. Tokens: `--dur-
 - `npx @google/design.md diff <old> <new>` — token-level regressions; use when editing the system to
   see exactly what moved before it ships.
 
-> **Adoption caveat & the verified DTCG→`@theme` fallback.** Verify `@google/design.md`'s
-> maturity / version / license before pinning it as a build dependency. The **primary path** is
-> `design.md export --tailwind-v4` (DESIGN.md → `@theme` directly — no DTCG bridge needed). If that
-> output ever disappoints, the verified fallback is to export `DESIGN.md` → **W3C DTCG**, then bridge
-> DTCG → `@theme` with **`@terrazzo/plugin-tailwind`** (Terrazzo; reads DTCG JSON, emits a Tailwind
-> v4 `@theme` block — the most turnkey bridge, CSS-first, v4-only) or **Style Dictionary v4**
-> (DTCG-native, but `@theme` needs a custom CSS format). **Caveat for our type scale:** Terrazzo
-> collapses double-dash names by default, so paired props like `--text-xs--line-height` need its
-> custom `variableName` function. The `DESIGN.md` (→ its DTCG export) stays the SoT regardless of
-> exporter.
+> **Tooling reality (validated 2026-06-20).** `@google/design.md` is `v0.3.0`, **Apache-2.0** (npm
+> renders "Proprietary" only because its `package.json` `license` field is empty — cosmetic), ~105k
+> weekly downloads, actively maintained. Safe to pin **as a `lint` / `diff` dev tool**, but **not as
+> the `@theme` generator yet**: `export --format css-tailwind` (and its `dtcg` export) silently drop
+> typography `line-height` in 0.3.0. So the codegen is the project's `scripts/gen-theme.mjs` (above)
+> until that ships fixed — the migration trigger. A `@terrazzo/plugin-tailwind` bridge (DTCG →
+> `@theme`, MIT, the most turnkey bridge) is a viable alternative generator, **but** feeding it
+> design.md's DTCG inherits the same line-height loss (you'd source line-height separately), and its
+> own `variableName` flattens double-dash names like `--text-xs--line-height` — so the tiny in-repo
+> generator is simpler today. `DESIGN.md` is the SoT regardless of exporter; `theme.css` is a pure
+> build output.
 
 ## `ui-ux-pro-max` — advisory by design (it *can* persist; we just don't need it to)
 
