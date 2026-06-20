@@ -1,0 +1,188 @@
+{
+  "model": "opus",
+  "sampled": 26,
+  "verified": 26,
+  "realCount": 13,
+  "falsePositiveCount": 13,
+  "fpRate": 0.5,
+  "byStratum": {
+    "v12-test": {
+      "n": 1,
+      "real": 0,
+      "fp": 1
+    },
+    "v12-orange": {
+      "n": 10,
+      "real": 5,
+      "fp": 5
+    },
+    "v12-ascast": {
+      "n": 7,
+      "real": 7,
+      "fp": 0
+    },
+    "v12-arch": {
+      "n": 3,
+      "real": 0,
+      "fp": 3
+    },
+    "v1.1-red": {
+      "n": 5,
+      "real": 1,
+      "fp": 4
+    }
+  },
+  "v11RedRegression": {
+    "total": 5,
+    "stillReal": 1,
+    "verdicts": [
+      {
+        "ruleId": "lsp-no-as-contract-defeat",
+        "file": "src/config.ts",
+        "line": 198,
+        "real": false,
+        "confidence": "high",
+        "reason": "Span confirmed: `return value as SourceTransport;` at src/config.ts:198, live production code in sourceTransportOrUndefined (SourceTransport = \"direct\"|\"ssh\"). But the cast does not defeat a contract: its only consumer (readSourceConfigInput) feeds an object that is immediately Zod-validated — configSchema/sourceConfigSchema include `sourceTransport: z.enum([\"direct\",\"ssh\"])` (line 93) and loadConfig/loadSourceConfig call safeParse and throw ConfigValidationError on any non-union value (lines 240,272). So a bogus string can never survive; the cast is a pre-safeParse staging shape, a safe-but-unexplained cast, exactly the false-positive class the rubric says to reject. No subtype-substitution (LSP) relationship is involved either."
+      },
+      {
+        "ruleId": "lsp-no-as-contract-defeat",
+        "file": "src/discovery/discover.ts",
+        "line": 128,
+        "real": true,
+        "confidence": "medium",
+        "reason": "Line 128 of src/discovery/discover.ts contains exactly `const parsed = JSON.parse(text) as Partial<SourceFixture>;` as live production code in parseSourceFixture. JSON.parse returns any; the cast asserts a shape the value is not guaranteed to have — the canonical unchecked-JSON.parse case the rule targets. Only Array.isArray is checked (line 130), yet line 132 returns parsed.candidates typed as readonly SourceCandidateFixture[] (elements with required filename/url) without validating element shape, and the cast carries no comment explaining why it is safe (violating shared-ts-standards §B \"no unexplained as casts\"). Confidence is medium, not high, because toReplayCandidate re-validates each element downstream, so the contract defeat does not actually cause a runtime bug — but the cast site itself still asserts an unguaranteed shape, matching the rule."
+      },
+      {
+        "ruleId": "lsp-no-as-contract-defeat",
+        "file": "src/run/golden-fixtures.ts",
+        "line": 59,
+        "real": false,
+        "confidence": "medium",
+        "reason": "The span exists verbatim at lines 59-61, but the finding misclassifies it. golden-fixtures.ts is test-support code — imported ONLY by golden-*.integration.test.ts, carries the `fixtures` marker (line 12) that depcruise excludes from production rules — yet it's filed `lane production` 🔴. The real cited rule is ts-standards \"No unexplained `as` casts\" (a typing-hygiene/style rule, at most 🟡 on production), not any LSP/Liskov contract: JSON.parse returns `any`, so `as GoldenManifest` is not a subtype-substitution violation, and the rule id `lsp-no-as-contract-defeat` does not exist in the skill set. Re-grading this as a 🔴 production LSP-contract-defeat invents a stricter rule and wrong lane; the manifest is also a human-authored, repo-committed corpus whose shape and throw semantics are documented in the module docblock (lines 50-57), so the cast is not the untrusted-input contract defeat claimed."
+      },
+      {
+        "ruleId": "lsp-no-as-contract-defeat",
+        "file": "src/staging/payload.ts",
+        "line": 63,
+        "real": false,
+        "confidence": "high",
+        "reason": "Span exists verbatim at lines 63-65 as live production code. But the cited rule (correctness → Contract compliance/LSP, per backend-ts standards §\"Contract compliance (LSP)\") targets an `as`-cast that forces a value to satisfy a declared contract/interface/factory it does not fulfill. Here no contract is implemented: `match.groups` is cast to a keyed Record after the regex (lines 54-57) matched all six mandatory named groups (`\\d{...}`, none optional) AND after the `if (match?.groups === undefined) return undefined` guard — so the value IS guaranteed to have exactly that shape. This is a type-SAFE narrowing cast, not a contract defeat (unlike an unchecked JSON.parse). At most it's an \"unexplained `as` cast\" lacking a comment — a different rule (ts-standards §Type declarations), not the LSP/contract rule cited. False positive against the cited rule."
+      },
+      {
+        "ruleId": "no-blocking-io-async",
+        "file": "src/storage/store-raw-replay.ts",
+        "line": 40,
+        "real": false,
+        "confidence": "high",
+        "reason": "Line 40 `const checksum = calculateSha256(bytes)` is present and live. But calculateSha256 (checksum.ts) is `createHash(\"sha256\").update(bytes).digest(\"hex\")` — a pure CPU hash that performs NO I/O, so it does not match the rule's literal \"blocking I/O\" / \"no sync fs reads\" target, nor the finding's std-label. The only clause it could touch is \"no sync hashing of large input on a hot path,\" which is qualified by BOTH large-input AND hot-path; here it is one hash per fetched replay in an ingestion-staging step (not a shared request hot path) with no evidence of large input. Rule base severity is 🟠 (🔴 only when it stalls a hot/shared path), so the 🔴 grade is also unjustified. False positive."
+      }
+    ]
+  },
+  "falsePositives": [
+    {
+      "stratum": "v12-test",
+      "ruleId": "test-no-paired-test",
+      "file": "/home/afgan0r/Projects/SolidGames/replays-fetcher/scripts/capture-golden-fixtures.ts",
+      "line": 1,
+      "severity": "🟡",
+      "reason": "The quoted docblock exists at lines 1-3, but the file is scripts/capture-golden-fixtures.ts — a human-run capture utility the skill (and the file's own header, lines 18-20) explicitly places OUTSIDE tsconfig/knip/depcruise scope and the coverage gate, never run by the executor. The actual rule co-locates UNIT tests with source (x.ts→x.test.ts) and gates only \"reachable-source\" coverage; it does not mandate a paired test for deliberately out-of-scope, non-reachable scripts. Flagging this invents a universal \"every .ts needs a test\" rule the skill never states. The evidence quoted is also a JSDoc comment, not live testable code."
+    },
+    {
+      "stratum": "v12-orange",
+      "ruleId": "graceful-shutdown",
+      "file": "src/commands/run-once.ts",
+      "line": 104,
+      "severity": "🟠",
+      "reason": "The span at run-once.ts:104-108 exists and is live production code, but it is resource CONSTRUCTION (`createStoreRawResources(deps, config, true)`), not a shutdown path. The cited rule targets a SIGTERM/SIGINT handler that drains in-flight work and tears down — fetcher form: \"finish-or-checkpoint the current item, then teardown.\" run-once is a one-shot CLI command that runs one cycle and sets process.exitCode; the daemon is watch.ts, which calls the identical resource factory then wires createShutdownSeam() (SIGTERM/SIGINT) + try/finally dispose — i.e., the rule IS satisfied where it applies. Aiming graceful-shutdown at a construction call in a short-lived command is not a violation of that rule as written; a never-closed pool would be the separate §AB resource-lifecycle rule, not graceful-shutdown. False positive."
+    },
+    {
+      "stratum": "v12-orange",
+      "ruleId": "typed-errors-only",
+      "file": "src/config.ts",
+      "line": 26,
+      "severity": "🟠",
+      "reason": "The throw at src/config.ts:26 is present, but it does NOT violate typed-errors-only as written. The rule scopes itself to \"ingest logic / business logic\" whose errors propagate to the CLI exit-code boundary (std §B, conv Phase 1 item 3 + severity row \"Raw Error from ingest logic\"). This throw lives inside the `booleanFromEnvironment` Zod `.transform()` callback in the config-validation schema — not ingest logic. Both schemas are consumed only via `.safeParse` (lines 240, 272), so Zod catches the thrown Error and turns it into a ZodError issue, which loadConfig/loadSourceConfig then wrap into the typed `ConfigValidationError` (an AppError). This is exactly the §C-mandated \"safeParse + a typed error; a raw ZodError never escapes\" flow — the raw Error never propagates out. Idiomatic Zod custom-validation throw; the finding pattern-matched the literal `throw new Error` text and ignored both the rule's scope and the safeParse boundary."
+    },
+    {
+      "stratum": "v12-orange",
+      "ruleId": "band-wrong-placement",
+      "file": "src/config.ts",
+      "line": 5,
+      "severity": "🟠",
+      "reason": "Span confirmed at config.ts:5 (`import type { SourceTransport } from \"./discovery/types.js\"`). But it does not violate band-wrong-placement as written. (a) That rule targets a FILE sitting in the wrong band; config.ts is in its CORRECT band — the §A table lists `config.ts` explicitly under Cross-cutting \"Holds today.\" The real concern here is an upward import (Cross-cutting → Capability), which is fence #1 (dependency-direction), a different rule the finding mislabels. (b) The reviewer skill (solidstats-fetcher-ts-code-review SKILL.md L116-126) explicitly SUSPENDS band-membership, layer-placement, dependency-direction, and module-layout findings: the five-band architecture is PROPOSED/PENDING, the code \"still predates the refactor,\" and the depcruise fences/layer checks only switch on once the trio is wired into the repo. No band-placement finding may be raised today. False positive."
+    },
+    {
+      "stratum": "v12-orange",
+      "ruleId": "test-naming-does-not-start-capital",
+      "file": "src/source/throttle.test.ts",
+      "line": 61,
+      "severity": "🟠",
+      "reason": "The span at line 61 is the real test `test(\"MD: a full rate-limited window...\")`, which starts with capital \"M\". But §D of the shared testing standards (line 111-112) REQUIRES a test name to \"start with a capital letter when it begins with ordinary descriptive text\" — capitalization is mandated, not forbidden. The rule label `test-naming-does-not-start-capital` inverts the actual rule. The name complies with §D (and the \"MD\" prefix is also fine), so the pattern this finding claims does not match."
+    },
+    {
+      "stratum": "v12-orange",
+      "ruleId": "cross-band-type-in-types-dir",
+      "file": "src/staging/payload.ts",
+      "line": 8,
+      "severity": "🟠",
+      "reason": "Span is present verbatim at line 8, and it is live production code. But §A #5 targets a *cross-band upward* type import (the worked example: `RunSummary` in `run/`-Orchestration imported upward by `evidence/`-Adapter). Here both `storage/` and `staging/` are the SAME band (Capability, SKILL.md line 86), and `RawReplayStorageEvidence` is `storage/`'s own output contract that `staging/` consumes downstream (storage→staging data-flow), not an upward reach. No fence forbids capability-to-capability type imports. The finding stretches a cross-band upward rule onto a legitimate same-band sibling import."
+    },
+    {
+      "stratum": "v12-arch",
+      "ruleId": "cross-band-type-in-types-dir",
+      "file": "src/staging/types.ts",
+      "line": 1,
+      "severity": "🟠",
+      "reason": "The import exists at staging/types.ts:1 as quoted. But rule #5 (cross-band-type-in-types-dir) targets a cross-BAND contract imported UPWARD by a lower band (its sole example: adapter evidence/ reaching up into orchestration run/ for RunSummary — \"a layer violation\"). Per the §A table, staging/ and storage/ are BOTH the Capability band, so this is a horizontal sibling-capability import of storage's own output type (RawReplayStorageEvidence, defined and produced in storage/), not an upward cross-band leak. No band is reached into upward, no boundary fence forbids it, and the layer-violation harm the rule exists to prevent is absent. The finding over-extends an upward-import rule to safe peer-capability type reuse."
+    },
+    {
+      "stratum": "v12-arch",
+      "ruleId": "band-wrong-placement",
+      "file": "src/storage/s3-raw-storage.ts",
+      "line": 11,
+      "severity": "🟠",
+      "reason": "Line 11 does contain the quoted live `import type { ReplayCandidate }` in production code, but it does not violate the cited rule. §A's band table and its enforceable fences (#1–#8) never forbid the storage band from consuming discovery's output payload type. `ReplayCandidate` is the natural downstream pipeline contract (discover → fetch → store); `storeRawReplay`/storage `types.ts` are all built to consume it. Fence #6 constrains the OPPOSITE direction (`discovery/` must not import `storage/`), and the §A-derived depcruise preset has only `no-commands-to-storage-direct` — nothing against storage→discovery. The one upward-import smell §A actually names is `evidence/ → run/` (RunSummary), a different file/rule (adjustment-5 \"cross-band contracts live in types/\", explicitly gated on the not-yet-done migration). Flagging this type-only sibling import as a \"defined responsibility\"/band-placement violation invents a stricter rule than the one written."
+    },
+    {
+      "stratum": "v12-arch",
+      "ruleId": "band-wrong-placement",
+      "file": "src/storage/store-raw-replay.ts",
+      "line": 9,
+      "severity": "🟠",
+      "reason": "Quoted import is present at line 9 (a type-only import of ReplayCandidate from ../discovery/types.js). But the finding is invalid: (1) the code-review skill explicitly SUSPENDS this finding class — \"do NOT raise band-membership, layer-placement, dependency-direction, or module-layout findings\" until §A (PROPOSED/pending sign-off) ships its depcruise fences. (2) On the merits the band table is not violated: discovery/ and storage/ are BOTH in the Capability band, so this is a same-band peer import, not an upper/lower direction violation (fence #1 downward-only N/A). The only directional fence between them, #6, forbids discovery→storage — the opposite direction; nothing forbids storage→discovery. ReplayCandidate is the pipeline-wide candidate contract imported from discovery/types.js by ~every band (run/, commands/, config, contract-check/, check/, types/), i.e. a de-facto cross-band contract. False positive."
+    },
+    {
+      "stratum": "v1.1-red",
+      "ruleId": "lsp-no-as-contract-defeat",
+      "file": "src/config.ts",
+      "line": 198,
+      "severity": "🔴",
+      "reason": "Span confirmed: `return value as SourceTransport;` at src/config.ts:198, live production code in sourceTransportOrUndefined (SourceTransport = \"direct\"|\"ssh\"). But the cast does not defeat a contract: its only consumer (readSourceConfigInput) feeds an object that is immediately Zod-validated — configSchema/sourceConfigSchema include `sourceTransport: z.enum([\"direct\",\"ssh\"])` (line 93) and loadConfig/loadSourceConfig call safeParse and throw ConfigValidationError on any non-union value (lines 240,272). So a bogus string can never survive; the cast is a pre-safeParse staging shape, a safe-but-unexplained cast, exactly the false-positive class the rubric says to reject. No subtype-substitution (LSP) relationship is involved either."
+    },
+    {
+      "stratum": "v1.1-red",
+      "ruleId": "lsp-no-as-contract-defeat",
+      "file": "src/run/golden-fixtures.ts",
+      "line": 59,
+      "severity": "🔴",
+      "reason": "The span exists verbatim at lines 59-61, but the finding misclassifies it. golden-fixtures.ts is test-support code — imported ONLY by golden-*.integration.test.ts, carries the `fixtures` marker (line 12) that depcruise excludes from production rules — yet it's filed `lane production` 🔴. The real cited rule is ts-standards \"No unexplained `as` casts\" (a typing-hygiene/style rule, at most 🟡 on production), not any LSP/Liskov contract: JSON.parse returns `any`, so `as GoldenManifest` is not a subtype-substitution violation, and the rule id `lsp-no-as-contract-defeat` does not exist in the skill set. Re-grading this as a 🔴 production LSP-contract-defeat invents a stricter rule and wrong lane; the manifest is also a human-authored, repo-committed corpus whose shape and throw semantics are documented in the module docblock (lines 50-57), so the cast is not the untrusted-input contract defeat claimed."
+    },
+    {
+      "stratum": "v1.1-red",
+      "ruleId": "lsp-no-as-contract-defeat",
+      "file": "src/staging/payload.ts",
+      "line": 63,
+      "severity": "🔴",
+      "reason": "Span exists verbatim at lines 63-65 as live production code. But the cited rule (correctness → Contract compliance/LSP, per backend-ts standards §\"Contract compliance (LSP)\") targets an `as`-cast that forces a value to satisfy a declared contract/interface/factory it does not fulfill. Here no contract is implemented: `match.groups` is cast to a keyed Record after the regex (lines 54-57) matched all six mandatory named groups (`\\d{...}`, none optional) AND after the `if (match?.groups === undefined) return undefined` guard — so the value IS guaranteed to have exactly that shape. This is a type-SAFE narrowing cast, not a contract defeat (unlike an unchecked JSON.parse). At most it's an \"unexplained `as` cast\" lacking a comment — a different rule (ts-standards §Type declarations), not the LSP/contract rule cited. False positive against the cited rule."
+    },
+    {
+      "stratum": "v1.1-red",
+      "ruleId": "no-blocking-io-async",
+      "file": "src/storage/store-raw-replay.ts",
+      "line": 40,
+      "severity": "🔴",
+      "reason": "Line 40 `const checksum = calculateSha256(bytes)` is present and live. But calculateSha256 (checksum.ts) is `createHash(\"sha256\").update(bytes).digest(\"hex\")` — a pure CPU hash that performs NO I/O, so it does not match the rule's literal \"blocking I/O\" / \"no sync fs reads\" target, nor the finding's std-label. The only clause it could touch is \"no sync hashing of large input on a hot path,\" which is qualified by BOTH large-input AND hot-path; here it is one hash per fetched replay in an ingestion-staging step (not a shared request hot path) with no evidence of large input. Rule base severity is 🟠 (🔴 only when it stalls a hot/shared path), so the 🔴 grade is also unjustified. False positive."
+    }
+  ],
+  "lowConfidenceReals": []
+}

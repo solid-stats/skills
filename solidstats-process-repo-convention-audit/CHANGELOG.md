@@ -1,5 +1,43 @@
 # Changelog — solidstats-process-repo-convention-audit
 
+## 2026-06-20 — v1.2 validated by a real end-to-end run (replays-fetcher@c850190)
+First real run of the agent prompts since v1.1 (the 2026-06-17 v1.2 entry below was mocked-agents
+only). Re-ran at the pilot commit `c850190` for an apples-to-apples comparison — same target code +
+same git-tracked rule-source skills, only the orchestration changed. Cost: **500 agents, 21.27M
+tokens, ~83 min** (~2× the pilot; the new test + edge-case lanes). Output: **335 findings**
+(🔴0 🟠24 🟡100 🔵211), 16 architecture, 155 mechanical, 88 test, 16 edge-case; Opus {used 40,
+skipped 5, alwaysAdjudicated 22}. Full write-up: `evals/results/pilot-v1.2-spotcheck-analysis.md`.
+
+- **The 🔴 5→0 vs the pilot is correct, not a regression — confirmed by an Opus-graded re-check** of a
+  26-finding contested sample (`model=opus`, FP-rate 13/26; `results/spotcheck-v1.2-opus-result.json`).
+  Of v1.1's five 🔴, Opus rates only ONE real (`discovery/discover.ts:128` `JSON.parse(text) as
+  Partial<>`, medium) — and v1.2 still catches that one, as 🟡 `no-unexplained-as-cast`. The other four
+  are FPs: `config.ts:198` is Zod-validated downstream (`z.enum(["direct","ssh"])` + safeParse),
+  `payload.ts:63` is a regex-guaranteed narrowing, `store-raw-replay.ts:40` is CPU hashing (not I/O),
+  `golden-fixtures.ts:59` is test-support code. (This RETRACTS this entry's initial hand reading, which
+  wrongly called `config.ts:198` an under-graded 🔴 and `golden-fixtures.ts:59` a miss — the Opus
+  consumer-tracing pass overturned both.)
+- **v1.2's 🟡 as-cast lane is clean (7/7 real).** Its real weakness is the 🟠 semantic + architecture
+  lane — ~9 FPs in the contested set (NB: a deliberately disputed oversample, NOT v1.2's global rate;
+  the 155 mechanical findings are near-100% precision). FP classes for v1.3:
+  (1) **architecture/band over-flagging** — `band-wrong-placement` / `cross-band-type-in-types-dir` fire
+  on type-only imports between same-tier bands and on allowed payload-type consumption (misapplied §A
+  fences; partly grey-zone since the audit overrides the diff-reviewer's band-suspension, but Opus's
+  rejections are mostly substantive);
+  (2) `graceful-shutdown` aimed at resource CONSTRUCTION (`run-once.ts`) when the daemon (`watch.ts`)
+  holds the real SIGTERM teardown;
+  (3) `typed-errors-only` firing inside a Zod `.transform()` throw (`config.ts:26`) that safeParse turns
+  into a typed `ConfigValidationError`;
+  (4) `test-naming-does-not-start-capital` logic-inverted (flagged a name that DOES start capital);
+  (5) `test-no-paired-test` on an out-of-scope `scripts/` file.
+- **Root cause + meta:** precision ladder — Haiku (called all 5 v1.1 🔴 real) ≪ hand-analysis ≪ Opus
+  (1/5, consumer-tracing + skill-scope). The audit's own **Verify stage is Haiku**, which is why these
+  🟠/architecture FPs leaked into the output. **v1.3 priority: adjudicate semantic 🟠/architecture
+  findings with Opus, not a Haiku Verify pass alone**, plus the five rule-scoping fixes above.
+
+Validated by hand (5 spans) + data inspection; a full Haiku FP-rate sweep was skipped by design — the
+parameterized `evals/spotcheck-v1.2.workflow.js` is kept for an Opus-graded re-check.
+
 ## 2026-06-20 — make direct-invoke only via `disable-model-invocation`
 - Added `disable-model-invocation: true` to the frontmatter. Per the Claude Code skills docs this removes the skill's description from per-session context entirely (not just shortens it), so it now costs zero tokens per session in every consuming repo while the FULL description is kept as documentation. The skill is still invoked by name (and read by its hard-requirers via file path); Claude no longer auto-triggers it.
 
