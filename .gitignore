@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# graphify knowledge-graph output — regenerated locally, never committed
+graphify-out/
