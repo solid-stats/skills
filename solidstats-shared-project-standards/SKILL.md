@@ -55,6 +55,14 @@ development is outside the process.
   Either way, surface the conflict and route the fix to one side — never quietly follow the code
   and move on. This is the working-time face of the authoring rule that conventions are
   *prescriptive*: code is brought into line with the skill, not the reverse.
+- **Capturing the skill fix — don't let it evaporate.** When the skill is the thing that's wrong —
+  it states a wrong fact, lacks a rule the code legitimately needs, or following it caused a bug —
+  proactively **offer to capture that via `solidstats-process-skill-feedback`** (a one-line,
+  non-blocking nudge; capture only on a yes). That records the divergence into the target skill's
+  `corrections-log.md` so the fix survives after you move on: a **fact** can be promoted into the
+  skill at one occurrence, a **preference** after it recurs. This is only for *skill* divergences —
+  the test is whether fixing it means editing a `solidstats-*` SKILL.md; a fact about the product or
+  codebase goes to memory / MemPalace instead.
 
 ---
 
