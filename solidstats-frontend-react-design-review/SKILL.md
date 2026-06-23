@@ -130,7 +130,16 @@ Every **scenario ending ×5** (success / system-error / user-error / loading / o
 and **data-volume state ×4** (empty / few / many / limit-reached) from the surface spec is **rendered
 and visually verified — not trusted from the story matrix's existence**. Render each state and confirm
 it is correct AND visually distinct (selected doesn't break the column layout; focused ≠ enabled;
-loading shows the skeleton, not real data). Render each ×4 data-volume at a **real width** — full-width
+loading shows the skeleton, not real data). **A forced cell is not the live state:** a StateMatrix
+`hover` / `pressed` / `focused` cell that forces its state via a hardcoded `data-state` / `className`
+override may NOT mirror the live recipe — it can be variant-agnostic (one grey `bg-surface-3` for every
+variant's "hover") and, in a merge-free `tailwind-variants/lite` build, the override can lose to the
+base and render the RESTING style. So a forced cell can be rendered, visually distinct, and still WRONG
+(a real Button matrix showed primary "hover" as grey, never the cyan `primary-hover`, and passed
+review). Verify each forced cell against the REAL pseudo-state — force `:hover` / `:active` /
+`:focus-visible` via Chrome DevTools `forcePseudoState` (or hover a real control) and read computed
+styles — and treat a forced matrix as decorative until proven to mirror the recipe. Render each ×4
+data-volume at a **real width** — full-width
 labelled sections, not narrow `StateMatrix` grid cells that collapse wide rows so nothing renders —
 and confirm rows actually appear and the volumes read differently. Long values truncate+tooltip or
 wrap (never clip); empty states carry actionable copy; loading uses reserved-height skeletons;

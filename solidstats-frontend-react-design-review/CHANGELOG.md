@@ -1,5 +1,15 @@
 # Changelog — solidstats-frontend-react-design-review
 
+## 2026-06-23 — Pillar 4: a forced state cell is not the live state (promoted)
+
+- `SKILL.md` Pillar 4: a StateMatrix `hover` / `pressed` / `focused` cell that forces its state via a
+  hardcoded `data-state` / `className` override may not mirror the live recipe (variant-agnostic, or lost
+  to the base in the merge-free `tv()/lite` build) — so it can render, look distinct, and still be wrong.
+  Verify each forced cell against the REAL pseudo-state (CDP `forcePseudoState` / a real hover + computed
+  styles); treat a forced matrix as decorative until proven to mirror the recipe. A real Button matrix
+  showed primary "hover" as grey and passed the 02-07 review.
+- Promoted from corrections-log `SC-2026-06-23-0d07` (gap · fact · generalized).
+
 ## 2026-06-23 — Pillars must render, measure, and check parity — not trust proxies (promoted)
 
 Six promoted facts from the Phase-2 UAT, all sharpening pillars that granted APPROVE on declarative

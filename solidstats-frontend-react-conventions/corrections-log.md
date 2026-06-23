@@ -80,3 +80,44 @@ rationale: >
 status: promoted
 signature: "gap|styling|cursor-pointer on every interactive element, single-owned by the Button/Link control recipe"
 ```
+
+### SC-2026-06-23-c1de · caused-bug · fact · styling
+
+```yaml
+id: SC-2026-06-23-c1de
+date: 2026-06-23
+target_skill: solidstats-frontend-react-conventions
+repo: web
+source: agent-discovered
+signal: caused-bug
+class: fact
+generalized: true
+section: "styling"
+topic: tailwind-variants-lite-merge
+dev_change: >
+  styling.md mandates `tailwind-variants (tv)` for variant logic but never notes this repo uses the
+  merge-free `tailwind-variants/lite` build, which does NOT run tailwind-merge. Consequence: a
+  conflicting utility is not deduped, so (a) a `className` override passed to a component does NOT
+  reliably beat the variant's base utility — same specificity, so CSS stylesheet ORDER decides, not
+  class-attribute order — and (b) two conflicting utilities across variants both emit. Real bug: a
+  catalog cell passed `bg-surface-3` to override a ghost button's base `bg-transparent`; the override
+  silently LOST (transparent won by stylesheet order) and the forced state rendered wrong. The rule
+  should warn: under `/lite`, hold mutually-exclusive utilities as variants (the repo already does
+  this for `justify`), and to force an override use the recipe's own variant or `!important` — never
+  assume a passed `className` wins.
+code:
+  file: "packages/design/src/shared/uikit/Button/control.ts"
+  line: 92
+  source: agent-snippet
+  status: positive-example
+  snippet: |
+    // FORCED_STATE catalog mirror — `!` important so the forced utility deterministically overrides
+    // the variant base in the merge-free /lite build (a plain override loses by stylesheet order):
+    //   ghost: { hover: "bg-surface-1! text-text-primary!", ... }
+rationale: >
+  Following the rule as written (plain tv() + a className override) produced a silently-wrong render
+  in the merge-free build — caused-bug, fact (promote@1). Additive: document the `/lite` no-merge
+  caveat plus the two override-safe patterns; do not change the tv() mandate.
+status: promoted
+signature: "caused-bug|styling|tailwind-variants/lite is merge-free — a className override doesn't reliably beat the base; use a variant or !important"
+```

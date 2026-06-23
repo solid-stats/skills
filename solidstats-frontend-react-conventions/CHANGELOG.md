@@ -1,5 +1,15 @@
 # Changelog — solidstats-frontend-react-conventions
 
+## 2026-06-23 — Document the merge-free `tailwind-variants/lite` override caveat (promoted)
+
+- `references/patterns/styling.md`: under *Utilities, not arbitrary values*, note that this repo imports
+  `tv` from `tailwind-variants/lite` (no `tailwind-merge`), so conflicting utilities are not deduped — a
+  passed `className` override does not reliably beat the variant's base (CSS source order wins), and
+  mutually-exclusive utilities must be held as variants or forced with `!important`. Added the matching
+  review flag. Caused a real silently-wrong render (a ghost button's `bg-transparent` ate a `bg-surface-3`
+  override).
+- Promoted from corrections-log `SC-2026-06-23-c1de` (caused-bug · fact).
+
 ## 2026-06-23 — `cursor-pointer` on every interactive element (promoted)
 
 - `references/patterns/styling.md`: under *Design direction (enforced)*, every interactive control

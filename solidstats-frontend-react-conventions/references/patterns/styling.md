@@ -37,6 +37,14 @@ single `DESIGN.md` token source. This supersedes the original vanilla-extract di
   states, or sizes (button, badge, card, table row) — it owns variant logic, slot composition, and
   class-conflict resolution. Reach for `clsx` / `cn` only for a one-off conditional `className`; never
   hand-concatenate class strings or build a bespoke recipe layer.
+- **`tailwind-variants/lite` is merge-free.** This repo imports `tv` from `tailwind-variants/lite` (no
+  `tailwind-merge`), so conflicting utilities are NOT deduped — the "class-conflict resolution" above
+  does not apply. Two consequences: a `className` override passed into a component does **not** reliably
+  beat the variant's base utility (same specificity → CSS source order wins, not class-attribute
+  order), and two conflicting utilities both emit. Hold mutually-exclusive utilities as **variants**
+  (e.g. a `justify` variant, not a passed `justify-*`); to force an override deterministically use the
+  recipe's own variant or `!important` (`bg-x!`) — never assume a passed `className` wins. (A catalog
+  cell once overrode a ghost button's `bg-transparent` with `bg-surface-3` and silently lost.)
 - No ad-hoc CSS outside Tailwind: no inline `style={{…}}` for themable properties, no stray `.css`
   files. A genuine escape hatch (a dynamic computed value, a third-party widget) reads a CSS variable
   from `@theme`, not a hardcoded literal.
@@ -86,6 +94,8 @@ Review flags:
   or a hardcoded value that should be a new `DESIGN.md` token.
 - A raw hex / inline `style` for a themable property; status color as inline hex or white-on-light.
 - A hand-built variant/recipe or class-string concatenation instead of `tailwind-variants`.
+- A `className` override (or `clsx` conditional) assumed to beat a `tailwind-variants/lite` recipe's
+  base utility — under the merge-free build it can silently lose; force it via a variant or `!important`.
 - A hand-edited `theme.css`, or a second parallel token file, instead of re-exporting from `DESIGN.md`.
 - A nested card / ornamental gradient / emoji icon; a magic z-index; a `transition` or animation on a
   layout property.

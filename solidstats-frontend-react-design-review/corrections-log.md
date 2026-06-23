@@ -215,3 +215,45 @@ rationale: >
 status: promoted
 signature: "gap|Pillar 6|check outcome/status copy vs DESIGN.md recipe + RU/EN symmetry"
 ```
+
+### SC-2026-06-23-0d07 · gap · fact · Pillar 4
+
+```yaml
+id: SC-2026-06-23-0d07
+date: 2026-06-23
+target_skill: solidstats-frontend-react-design-review
+repo: web
+source: agent-discovered
+signal: gap
+class: fact
+generalized: true
+section: "Pillar 4"
+topic: forced-state-cells-can-be-fake
+dev_change: >
+  Pillar 4 says component states must be "rendered and visually verified — not trusted from the story
+  matrix's existence", but it assumes that if you render and look, you see the truth. You may not: a
+  StateMatrix "hover/pressed/focused" cell forces the state via a hardcoded `data-state` / `className`
+  override that does NOT mirror the live recipe. It can be variant-agnostic (one grey `bg-surface-3`
+  for every variant's "hover") and, in the merge-free `tv()/lite` build, the override can even lose to
+  the base and render the RESTING style. So a forced cell can be rendered, visually distinct, and
+  still WRONG. Verified: a Button matrix rendered primary "hover" as grey, never the real cyan
+  `primary-hover`, and the 02-07 design-review passed on those fake cells. Pillar 4 (and Pillar 2's
+  "measure, don't eyeball") should require verifying each forced / `data-state` cell against the REAL
+  pseudo-state — force `:hover` / `:active` via CDP `forcePseudoState`, or hover a real control and read
+  computed styles — and treat a forced matrix as decorative until proven to mirror the recipe.
+code:
+  file: "packages/design/src/shared/uikit/Button/Button.stories.tsx"
+  line: 1
+  source: head-besteffort
+  status: positive-example
+  snippet: |
+    // HEAD shows the FIXED version (commit 4a2cddf): forced cells render the recipe's real per-variant
+    // tokens via control.ts FORCED_STATE. The pre-fix anti-pattern was a hardcoded variant-agnostic
+    // FORCED map: { hover: "bg-surface-3 text-text-primary", pressed: "translate-y-px bg-surface-2 ...", ... }.
+rationale: >
+  A review gate that reads forced cells passes on fake states — a methodology gap, verified by a real
+  missed review (fact, promote@1). Generalized: applies to any forced state matrix, not just buttons.
+  Additive: extend Pillar 4 with the forced-cell caveat + the verify-against-real-pseudo-state check.
+status: promoted
+signature: "gap|Pillar 4|forced/data-state story cells can be fake — verify each against the real rendered :hover/:active, not the cell's colour"
+```
