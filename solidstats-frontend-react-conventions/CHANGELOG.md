@@ -1,5 +1,17 @@
 # Changelog — solidstats-frontend-react-conventions
 
+## 2026-06-23 — Mandate a shared Button/Link base primitive (promoted)
+
+- `references/patterns/component-shape.md`: under *Icons & controls*, interactive controls must render
+  through the canonical `Button` / `Link` primitive — one source for the ≥44px hit area and the focus
+  ring (`focus-visible:shadow-(--shadow-ring)`) — never a hand-rolled `<button>`/`<a>` that
+  re-implements the recipe. `DESIGN.md` defines the `button-primary`/`-secondary`/`-ghost` recipes;
+  the primitive graduates them. Added the matching review flag (hand-rolled control duplicating the
+  primitive's hit area / focus ring). Without it ~7 KIT controls reinvented the control and the focus
+  treatment had already drifted (one on `focus-visible:outline-*`, the rest on the ring token).
+- Promoted from corrections-log `SC-2026-06-23-0c01` (gap, fact@1). Pairs with the design-review
+  Pillar-6 focus-ring observation.
+
 ## 2026-06-20 — Styling retargeted: vanilla-extract → Tailwind v4 (dark-only)
 
 - The brief now locks **Tailwind v4** — tokens generated from a `@google/design.md` `DESIGN.md` into the

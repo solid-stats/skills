@@ -68,6 +68,14 @@ source). The device-frame iframe lies about viewport width — assert the **cont
 
 - No layout breakage, label collisions, orphan tiles, or trailing-gap "air" (the two-mismatched-
   columns bug — see pillar 5).
+- **Structural parity with `.design/hifi/*`** (the binding semantic reference, D-11) — enumerate the
+  reference's elements, affordances, and interaction model and flag every one **dropped OR invented**,
+  not just spacing/hierarchy/density. (A nav that drops the Brand / utility cluster, a table that
+  invents a control the hi-fi derives by device, are structural divergences even when the spacing is
+  right.)
+- **Measure, don't eyeball** — assert no stray scroll (`scrollHeight ≤ clientHeight`, the loading
+  skeleton included — a skeleton must never scroll), the skeleton box equals the final box, and that
+  focus produces a visible computed change. axe-clean ≠ visible focus; box-reserved ≠ no scroll.
 - **CLS = 0** (zero layout shift, no exceptions) — every async region reserves its final height;
   skeletons match the final colgroup / header / row height; nothing reflows after first paint. Any
   measurable shift is 🔴. Animations must use only `transform`/`opacity` (never layout properties).
@@ -119,13 +127,21 @@ the `accessibility` skill for the deep audit.
 ### 4. States & data volumes — against spec §4/§5
 
 Every **scenario ending ×5** (success / system-error / user-error / loading / onboarding / empty)
-and **data-volume state ×4** (empty / few / many / limit-reached) from the surface spec is designed
-and rendered — not just the happy path. Long values truncate+tooltip or wrap (never clip); empty
-states carry actionable copy; loading uses reserved-height skeletons; SSR-warm shows no skeleton.
+and **data-volume state ×4** (empty / few / many / limit-reached) from the surface spec is **rendered
+and visually verified — not trusted from the story matrix's existence**. Render each state and confirm
+it is correct AND visually distinct (selected doesn't break the column layout; focused ≠ enabled;
+loading shows the skeleton, not real data). Render each ×4 data-volume at a **real width** — full-width
+labelled sections, not narrow `StateMatrix` grid cells that collapse wide rows so nothing renders —
+and confirm rows actually appear and the volumes read differently. Long values truncate+tooltip or
+wrap (never clip); empty states carry actionable copy; loading uses reserved-height skeletons;
+SSR-warm shows no skeleton.
 
 ### 5. Responsiveness & layout
 
 - Reflow is keyed off the **container** (`@container`), not the viewport.
+- **Intermediate breakpoints (768 / 1024), not just 360 + desktop** — review the whole documented
+  range, not only the mobile floor and a wide desktop. The dead zone is where the desktop nav has
+  switched on (`@md`) but its links + brand + utility cluster don't yet fit, so it overflows.
 - **Mobile:** no nested scroll, no horizontal scroll; secondary columns dropped; top-N + "show all".
 - **Layout:** full-width stacked sections; side-by-side only for naturally-equal things; no
   near-empty full-width strips; tables scroll inside their own card; sticky headers; fixed row slots
@@ -139,6 +155,9 @@ provenance, freshness ("updated 4 min ago"), and honest `Known` / `Unknown` / `C
 states are present and correct, every number traceable to source replays. **RU + EN** both read
 naturally — no clipped or awkward labels (sanity-check the Russian). Status vocabulary is the fixed
 set (`Pending`/`Approved`/`Rejected`; `Up to date`/`Stale`/`Offline`/`Reconnecting`; etc.).
+**Outcome / status copy matches the `DESIGN.md` recipe and is RU/EN-symmetric** — `badge-outcome-*`
+prescribes W/L; flag divergent or internally-asymmetric copy (RU `outcomeWin="П"` bare letter vs
+`outcomeLoss="пор."` abbreviation-with-period).
 
 ### 7. SEO (public pages)
 

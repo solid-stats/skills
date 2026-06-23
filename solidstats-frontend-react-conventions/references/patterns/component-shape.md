@@ -49,6 +49,12 @@ export function PlayerRowDisplay({ className, player, isActive, onSelect }: Prop
   structural icons. Decorative icons are `aria-hidden`; icon-only controls require an accessible name
   (see `a11y.md`).
 - Buttons default to `type="button"` unless a submit is intentional.
+- **Interactive controls go through the shared base primitive.** A clickable control renders via the
+  canonical `Button` / `Link` primitive — one source for the ≥44px hit area and the focus ring
+  (`focus-visible:shadow-(--shadow-ring)`) — never a hand-rolled `<button>`/`<a>` that re-implements the
+  recipe. `DESIGN.md` defines the `button-primary`/`-secondary`/`-ghost` recipes; the primitive is what
+  graduates them into a component. Hand-rolling duplicates the focus treatment and lets it drift (one
+  control on `focus-visible:outline-*` while the rest use the ring token).
 
 ## Media & layout stability
 
@@ -64,4 +70,6 @@ Review flags:
 - JSX leaking `0`/`''`/boolean from a `&&` conditional.
 - A client hook in server code (or vice versa); an over-broad client boundary.
 - An emoji used as a structural icon; an icon-only control with no accessible name.
+- A hand-rolled `<button>`/`<a>` duplicating the shared `Button`/`Link` primitive's hit area / focus
+  ring instead of consuming it.
 - Async content (image/table/skeleton) with no reserved space.

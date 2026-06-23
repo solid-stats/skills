@@ -63,6 +63,13 @@ covered:
 
 - Run **axe** (or equivalent) in Playwright on key screens; **serious/critical violations block**.
 - Assert focus management on route change, announced table sort/filter state, and visible focus.
+- **Visibility is a paint assertion, never a box-size one.** An "is it shown / revealed on focus"
+  check asserts REAL visibility — computed `clip`/`clip-path` cleared, `toBeInViewport()`, or a
+  non-empty paint — never `boundingBox()` height/width alone. A `boundingBox()` is the layout box and
+  ignores paint-time clipping: a SkipLink left at `clip: rect(0,0,0,0)` (legacy `clip` not reset by
+  `not-sr-only`) has a 44px box yet paints nothing, so a height-≥44 assertion goes green while the
+  element is invisible (a real WCAG 2.4.1 reveal failure). Use box dimensions for hit-area sizing
+  only, paired with a paint/clip check for visibility.
 
 ## CI matrix (the gate)
 

@@ -23,8 +23,20 @@ component checklist before calling a surface done; report findings in the
       viewport.
 - [ ] No label collisions, orphan tiles, clipped text, or trailing-gap "air".
 - [ ] Matches the hi-fi / `DESIGN.md` intent (spacing rhythm, hierarchy, density).
+- [ ] **Structural parity with `.design/hifi/*`** (the binding semantic reference, D-11): enumerate the
+      reference's elements, affordances, and interaction model, and flag every one **dropped OR
+      invented** — not just spacing/hierarchy/density. (Phase-2 misses: nav dropped Brand + the
+      search/lang/account cluster + the mobile account tab; the table invented a DensityToggle + a
+      Prev/Next pager the hi-fi derives by device / omits; Skeleton used an opacity pulse vs the hi-fi
+      sweep shimmer.)
 - [ ] **CLS = 0** (zero layout shift) — every async region reserves its final height; skeleton matches final colgroup +
       header + row height.
+- [ ] **Measure, don't eyeball** — assert no stray scroll (`scrollHeight ≤ clientHeight`, including the
+      loading skeleton: a skeleton must never scroll), skeleton box == final box (no CLS when content
+      loads — e.g. a StatTile skeleton must reserve the delta row), and that focus produces a **visible
+      computed change**. axe-clean ≠ visible focus; box-reserved ≠ no scroll. (Caught: a permanent
+      ~1–2px scrollbar on Table + Skeleton from per-row border widths under border-collapse; an
+      invisible/identical focus.)
 - [ ] Animations use only `transform`/`opacity` (never width/height/top/left/margin) — layout
       animations cause CLS + jank.
 - [ ] CWV measured via **Chrome DevTools MCP** (`performance_start_trace`): LCP ≤ 2.5s, INP ≤ 200ms,
@@ -58,6 +70,14 @@ component checklist before calling a surface done; report findings in the
 
 ## Pillar 4 — States & data volumes (against surface spec §4/§5)
 
+- [ ] **Render & verify each state — don't trust the matrix exists.** Render every declared component
+      state and confirm it is correct AND visually distinct: selected doesn't break the column layout;
+      focused ≠ enabled; loading shows the skeleton, not real data. A state declared in the story but
+      not exercised is not reviewed.
+- [ ] **Render each ×4 data-volume at a REAL width** — full-width labelled sections, not the shared
+      narrow `StateMatrix` grid cells (which collapse wide rows so nothing renders). Confirm rows
+      actually appear and the four volumes read differently (few vs limit-reached must be
+      distinguishable).
 - [ ] **×5 scenario endings** all designed: success · error (system: id+contact / user: by-field) ·
       loading (reserved-height skeleton) · onboarding · empty (actionable copy + total count).
 - [ ] **×4 data-volume states** for every list/table/field: empty · few · many · limit-reached.
@@ -69,6 +89,9 @@ component checklist before calling a surface done; report findings in the
 
 - [ ] Reflow keyed off the container (`container-type: inline-size` + `@container`), not viewport.
 - [ ] Verified at the **real** mobile-floor 360px column (not just the device-frame iframe).
+- [ ] **Intermediate breakpoints (768 / 1024), not just 360 + desktop** — the dead zone where the
+      desktop nav has switched on (`@md`) but its links + brand + utility cluster don't yet fit, so it
+      overflows. Review the documented project breakpoints across the whole range.
 - [ ] Mobile: no nested scroll, no horizontal scroll; secondary columns dropped; top-N + "show all".
 - [ ] Tablet (`lg` / landscape) keeps every column when there is room — don't drop data unnecessarily.
 - [ ] At **1920** (the default desktop, ~54% of the audience): the data container uses the width
@@ -93,6 +116,9 @@ component checklist before calling a surface done; report findings in the
 - [ ] Status vocabulary is the fixed set (`Pending`/`Approved`/`Rejected`/`Reopened`;
       `Queued`/`Parsing`/`Failed`/`Retried`; etc.).
 - [ ] **RU + EN both natural** — no clipped, slipping, or awkward labels; sanity-check the Russian.
+- [ ] **Outcome / status copy matches the `DESIGN.md` recipe, and RU/EN is symmetric** — `badge-outcome-*`
+      prescribes W/L; flag divergent or internally-asymmetric copy (RU `outcomeWin="П"` bare letter vs
+      `outcomeLoss="пор."` abbreviation-with-period).
 - [ ] Mock numbers obey the domain formulas (Score / K-D) and never outrank the real leaders.
 
 ## Pillar 7 — SEO (public pages)

@@ -1,5 +1,14 @@
 # Changelog — solidstats-frontend-react-tests
 
+## 2026-06-23 — Visibility assertions must prove paint, not box size (promoted)
+
+- *Accessibility in tests*: added the rule that an "is it shown / revealed on focus" check asserts REAL
+  visibility (computed `clip`/`clip-path` cleared, `toBeInViewport()`, or a non-empty paint), never
+  `boundingBox()` height/width alone — the layout box ignores paint-time clipping, so a SkipLink left
+  at `clip: rect(0,0,0,0)` has a 44px box yet paints nothing and a height-≥44 assertion goes green on
+  an invisible element (WCAG 2.4.1 reveal failure). Box dimensions are for hit-area sizing only.
+- Promoted from corrections-log `SC-2026-06-23-0701` (caused-bug, fact@1).
+
 ## 2026-06-20 — Ladle component-isolation harness + spec use-cases as the E2E source
 
 - Added the **Ladle story harness**: component/integration tests mount through the durable Ladle
