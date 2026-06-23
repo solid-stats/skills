@@ -1,5 +1,16 @@
 # Changelog — solidstats-frontend-react-conventions
 
+## 2026-06-23 — `cursor-pointer` on every interactive element (promoted)
+
+- `references/patterns/styling.md`: under *Design direction (enforced)*, every interactive control
+  (button, link, icon-button, segmented / sort member, pager, tab, show-more) carries
+  **`cursor-pointer`** — a deliberate product decision that overrides the native `<button>`
+  default-arrow convention (and Tailwind v4 preflight). The single owner is the shared `Button` /
+  `Link` `control` `tv()` recipe; cursor is never set per call-site. `disabled` keeps
+  `pointer-events-none` (no pointer on a disabled control), never `cursor-not-allowed`. Added the
+  matching review flag. Mirrors the `DESIGN.md` → Components → Buttons + Do's note.
+- Promoted from corrections-log `SC-2026-06-23-c5a1` (gap · preference · generalized — owner mandate).
+
 ## 2026-06-23 — Mandate a shared Button/Link base primitive (promoted)
 
 - `references/patterns/component-shape.md`: under *Icons & controls*, interactive controls must render

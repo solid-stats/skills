@@ -59,6 +59,12 @@ From the brief and the design system — these are style rules, not just guidanc
 - **No nested cards**, no card-heavy decorative sections, no one-note palettes, no ornamental
   gradients / blobs.
 - **Lucide** is the only icon family; no emoji as structural icons.
+- **`cursor-pointer` on every interactive element** — button, link, icon-button, segmented / sort
+  control, pager, tab, show-more. A deliberate product decision that overrides the native
+  `<button>` default-arrow convention (and Tailwind v4 preflight), recorded in `DESIGN.md`
+  → Components → Buttons. The **single owner is the shared `Button` / `Link` `control` `tv()`
+  recipe** — never add a `cursor-*` utility per call-site. `disabled` keeps `pointer-events-none`
+  (no pointer on a disabled control); never `cursor-not-allowed`.
 - Animate **`transform` / `opacity` only**, honoring `prefers-reduced-motion` (`motion-reduce:`); never
   animate layout properties — see `performance.md` and the design skill → Motion.
 - Dense but readable: tables / rankings / microcharts over large dashboard charts.
@@ -84,4 +90,7 @@ Review flags:
 - A nested card / ornamental gradient / emoji icon; a magic z-index; a `transition` or animation on a
   layout property.
 - A component with shifting dimensions (CLS) instead of reserved space.
+- An interactive element missing **`cursor-pointer`**, a `cursor-*` utility hand-added at a
+  call-site instead of inherited from the `Button` / `Link` `control` recipe, or
+  `cursor-not-allowed` on a disabled control.
 - A re-hardcoded breakpoint or container width instead of the canonical `design-system.md` tokens.

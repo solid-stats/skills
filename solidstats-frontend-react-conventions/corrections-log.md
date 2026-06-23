@@ -41,3 +41,42 @@ rationale: >
 status: promoted
 signature: "gap|component-shape|mandate a shared Button/Link base; forbid hand-rolled duplicated controls"
 ```
+
+### SC-2026-06-23-c5a1 · gap · preference · styling
+
+```yaml
+id: SC-2026-06-23-c5a1
+date: 2026-06-23
+target_skill: solidstats-frontend-react-conventions
+repo: web
+source: free-form-prose
+signal: gap
+class: preference
+generalized: true
+section: "styling"
+topic: cursor-affordance
+dev_change: >
+  styling.md has no rule about the cursor on interactive elements. Product decision (owner directive
+  during the Phase-2 Button/Link work, GAP-19): every interactive control — button, link, icon-button,
+  segmented / sort member, pager, tab, show-more — shows `cursor-pointer`, deliberately overriding the
+  native `<button>` default-arrow convention (and Tailwind v4 preflight, which resets buttons to the
+  default cursor). The cursor is single-owned by the shared Button/Link `control` tv() recipe — never
+  set per call-site. `disabled` keeps `pointer-events-none` (a disabled control shows no pointer);
+  never `cursor-not-allowed`. styling.md should carry this under "Design direction (enforced)" plus a
+  review flag; mirrored in DESIGN.md -> Components -> Buttons + Do's.
+code:
+  file: "packages/design/src/shared/uikit/Button/control.ts"
+  line: 39
+  source: agent-snippet
+  status: positive-example
+  snippet: |
+    base: "inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-sm font-body
+      font-semibold transition-colors focus-visible:outline-none focus-visible:shadow-(--shadow-ring)"
+rationale: >
+  Style/affordance choice, not objective correctness (the native default-arrow is defensible), so
+  class = preference. But it is a stated rule (generalized: true) and an explicit owner mandate, so it
+  is promotable now on the user's nod despite being below the rule-of-three. Single-source enforcement
+  via the control recipe keeps it DRY.
+status: promoted
+signature: "gap|styling|cursor-pointer on every interactive element, single-owned by the Button/Link control recipe"
+```
