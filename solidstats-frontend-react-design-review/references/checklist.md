@@ -1,131 +1,71 @@
-# Design Review Checklist
+# SolidStats Design Review Overlay Checklist
 
-The full per-pillar checklist behind `SKILL.md`. Sources: the checklist.design per-component
-checklists, the Selectel pre-handoff checklist, and the SolidStats-specific rules. Run the relevant
-component checklist before calling a surface done; report findings in the
-`solidstats-shared-review-standards` format.
+The global `design` skill owns the generic prototype review baseline, `checklist.design`, Selectel
+readiness, and production-review pillars. This checklist adds only SolidStats-specific checks.
+Report production findings in the `solidstats-shared-review-standards` format.
 
-## Pillar 1 — Tokens & contrast
+## Prototype Review
 
-- [ ] `@google/design.md lint DESIGN.md` passes (structure, `{token}` refs, **WCAG contrast**).
-- [ ] No arbitrary Tailwind values anywhere in the surface (`bg-[#…]`, `p-[7px]`, `text-[13px]`,
-      `w-[317px]`). Every value resolves to a theme token.
-- [ ] Semantic colors used per meaning (cyan = interactive only; green/red/amber/blue = win/loss/
-      unknown·conflict/info), each with the matching `-weak`/`-border` token where applicable.
-- [ ] `design.md diff` clean if the system was touched — no unintended token regression.
+Use for `web/.visual-prototypes/` and other prototype-stage mockups after the global prototype
+baseline.
 
-## Pillar 2 — Real-width visual (Playwright at the project breakpoints)
+- [ ] Density fits a stats/operations product: useful rows, columns, counts, filters, and
+      comparisons are visible without making the screen cramped.
+- [ ] First viewport spends space on identity, headline stats, and the user's next action.
+- [ ] Data trust is visible where numbers can be disputed: provenance, freshness,
+      Known/Unknown/Conflict/stale.
+- [ ] RU/EN copy, long names, numbers, and labels fit without clipping or awkward wrapping.
+- [ ] Relevant role variants are represented: signed-out visitor, player, moderator, admin.
+- [ ] Visual language follows `DESIGN.md`/UIKIT by eye: dark gunmetal, one cyan accent, Lucide-style
+      iconography, tabular numbers, known card/table density.
+- [ ] Decision is explicit: iterate, accept for `SUMMARY.md`, or reject.
 
-> Project breakpoints + content-width strategy: the single source is
-> `solidstats-frontend-react-design` → `references/design-system.md` (incl. 1920 / 2560 / ultrawide).
+## Production Review Overlay
 
-- [ ] Screenshot at each project breakpoint; assert the **container** width, not the device-frame
-      viewport.
-- [ ] No label collisions, orphan tiles, clipped text, or trailing-gap "air".
-- [ ] Matches the hi-fi / `DESIGN.md` intent (spacing rhythm, hierarchy, density).
-- [ ] **Structural parity with `.design/hifi/*`** (the binding semantic reference, D-11): enumerate the
-      reference's elements, affordances, and interaction model, and flag every one **dropped OR
-      invented** — not just spacing/hierarchy/density. (Phase-2 misses: nav dropped Brand + the
-      search/lang/account cluster + the mobile account tab; the table invented a DensityToggle + a
-      Prev/Next pager the hi-fi derives by device / omits; Skeleton used an opacity pulse vs the hi-fi
-      sweep shimmer.)
-- [ ] **CLS = 0** (zero layout shift) — every async region reserves its final height; skeleton matches final colgroup +
-      header + row height.
-- [ ] **Measure, don't eyeball** — assert no stray scroll (`scrollHeight ≤ clientHeight`, including the
-      loading skeleton: a skeleton must never scroll), skeleton box == final box (no CLS when content
-      loads — e.g. a StatTile skeleton must reserve the delta row), and that focus produces a **visible
-      computed change**. axe-clean ≠ visible focus; box-reserved ≠ no scroll. (Caught: a permanent
-      ~1–2px scrollbar on Table + Skeleton from per-row border widths under border-collapse; an
-      invisible/identical focus.)
-- [ ] Animations use only `transform`/`opacity` (never width/height/top/left/margin) — layout
-      animations cause CLS + jank.
-- [ ] CWV measured via **Chrome DevTools MCP** (`performance_start_trace`): LCP ≤ 2.5s, INP ≤ 200ms,
-      CLS = 0; `performance_analyze_insight` names the element behind any shift.
-- [ ] **Back restores** table state + scroll offset + virtualized window + Query cache, with **no**
-      blocking reload and no visible jump. (🔴 if broken — the brief's signature requirement.)
-- [ ] SSE updates do not reorder/insert above the viewport (use a "new updates" affordance instead).
+Run after the global production-review baseline.
 
-## Pillar 3 — Accessibility (axe-core + WCAG 2.2 AA, plus specific AAA)
+### Token And Visual System
 
-> AA baseline + these AAA: **2.5.5** Target Size Enhanced (44×44) · **2.4.13** Focus Appearance ·
-> **2.4.12** Focus Not Obscured (Enhanced) · **2.1.3** Keyboard (No Exception) · **2.4.10** Section
-> Headings · **2.4.8** Location · **2.3.3** Animation from Interactions · **2.2.3** No Timing ·
-> **3.3.6** Error Prevention (All) *[request flow]* · **3.2.5** Change on Request *[check]*. **Not**
-> **1.4.6** / **1.4.8** (fight the dark UI), **2.4.9**, **3.1.3–3.1.6**, **1.3.6** (cost/benefit). `axe-core` = free MPL-2.0 engine via `@axe-core/playwright`, not Deque's paid Pro.
-> **Verify every criterion** against [w3.org/TR/WCAG22](https://www.w3.org/TR/WCAG22/) + the
-> [WCAG 2.2 quick-ref](https://www.w3.org/WAI/WCAG22/quickref/), never from memory.
+- [ ] `DESIGN.md` is the source of truth; generated `theme.css` has not been hand-edited.
+- [ ] No arbitrary Tailwind values in the reviewed surface.
+- [ ] Dark-only gunmetal theme; no light-mode artifacts.
+- [ ] Cyan is the single interactive accent and is not used as generic decoration.
+- [ ] Lucide icons only; no emoji or ad-hoc Unicode glyphs as UI icons.
+- [ ] Tabular mono for all numbers; numeric columns right-aligned.
+- [ ] Semantic color is paired with icon and/or label.
 
-- [ ] axe-core reports no violations.
-- [ ] Visible focus ring on every interactive control; focus order matches visual order; no traps.
-- [ ] Keyboard-complete: every action reachable and operable without a pointer.
-- [ ] Touch targets ≥ 44×44px; click zone is the whole row where rows are clickable.
-- [ ] Never color-alone — every semantic color paired with an icon and/or label.
-- [ ] `prefers-reduced-motion` respected across interaction-triggered motion (charts, sort, expand,
-      route transitions) — `2.3.3`; essential motion (loading) exempt. No motion-/hover-only meaning.
-- [ ] Section headings are real `<h2>/<h3>` per panel (`2.4.10`); a focused control is never hidden
-      under a sticky bar or overlay (`2.4.12`).
-- [ ] Correction-request flow has error prevention — reversible / checked / confirmed (`3.3.6`); no
-      auto context-change without user action (`3.2.5`).
-- [ ] Text contrast ≥ 4.5:1 (3:1 for large/UI) — confirmed by `design.md lint`.
+### Project Widths And Structural Parity
 
-## Pillar 4 — States & data volumes (against surface spec §4/§5)
+- [ ] Rendered at the project breakpoints from `solidstats-frontend-react-design/references/design-system.md`,
+      including wide desktop and ultrawide where relevant.
+- [ ] Container width is asserted; device-frame viewport width is not trusted as content width.
+- [ ] No label collisions, orphan tiles, clipped text, fake gutters, or trailing-gap air.
+- [ ] Accepted `SUMMARY.md` structure is preserved.
+- [ ] `.design/hifi/*` parity is checked only when that historical reference is explicitly named:
+      dropped and invented elements/controls are both findings.
 
-- [ ] **Render & verify each state — don't trust the matrix exists.** Render every declared component
-      state and confirm it is correct AND visually distinct: selected doesn't break the column layout;
-      focused ≠ enabled; loading shows the skeleton, not real data. A state declared in the story but
-      not exercised is not reviewed.
-- [ ] **Render each ×4 data-volume at a REAL width** — full-width labelled sections, not the shared
-      narrow `StateMatrix` grid cells (which collapse wide rows so nothing renders). Confirm rows
-      actually appear and the four volumes read differently (few vs limit-reached must be
-      distinguishable).
-- [ ] **×5 scenario endings** all designed: success · error (system: id+contact / user: by-field) ·
-      loading (reserved-height skeleton) · onboarding · empty (actionable copy + total count).
-- [ ] **×4 data-volume states** for every list/table/field: empty · few · many · limit-reached.
-- [ ] Long values truncate+tooltip or wrap — never clip, especially in the narrowest column.
-- [ ] Capped window + sticky-header scroll on desktop; total count in the label/caption.
-- [ ] Side-by-side tables reserve fixed row slots → equal height for any data volume.
+### States, Data Volumes, And Continuity
 
-## Pillar 5 — Responsiveness & layout
+- [ ] State and data-volume variants render at real content width.
+- [ ] Forced state-matrix cells are compared to real pseudo-states before approval.
+- [ ] Loading skeletons reserve final table/card geometry and do not create scroll or CLS.
+- [ ] Back restores filters, sort, scroll offset, virtualized position, and Query cache.
+- [ ] SSE updates do not steal focus, reorder above the viewport, or shift layout.
+- [ ] Mobile has no nested scroll; desktop table scroll is inside the table/card with sticky header.
 
-- [ ] Reflow keyed off the container (`container-type: inline-size` + `@container`), not viewport.
-- [ ] Verified at the **real** mobile-floor 360px column (not just the device-frame iframe).
-- [ ] **Intermediate breakpoints (768 / 1024), not just 360 + desktop** — the dead zone where the
-      desktop nav has switched on (`@md`) but its links + brand + utility cluster don't yet fit, so it
-      overflows. Review the documented project breakpoints across the whole range.
-- [ ] Mobile: no nested scroll, no horizontal scroll; secondary columns dropped; top-N + "show all".
-- [ ] Tablet (`lg` / landscape) keeps every column when there is room — don't drop data unnecessarily.
-- [ ] At **1920** (the default desktop, ~54% of the audience): the data container uses the width
-      (≈ 1760), not a narrow ~1240 column with huge gutters.
-- [ ] At **2560 / 4K / ultrawide**: data container caps and centers; no table stretched past the
-      readable ceiling; prose stays at reading width (~720); width becomes rows/columns, not gutter.
-- [ ] Full-width stacked sections; side-by-side only for naturally-equal things (e.g. two hero
-      tiles, the two arsenal tables). No near-empty full-width strips.
-- [ ] Tables scroll inside their own card — never spill onto a neighbor.
+### Domain And Trust
 
-## Pillar 6 — System & domain adherence
+- [ ] Provenance is close to disputed numbers: source, replay count, last update.
+- [ ] Freshness states are explicit: Up to date, Stale, Offline, Reconnecting.
+- [ ] Known, Unknown, Conflict, and stale render as distinct designed states.
+- [ ] Unknown is not displayed as `0` or a plain dash when it changes meaning.
+- [ ] Mock/demo values obey Score/K-D and other SolidStats formulas.
+- [ ] Role variants affecting UI are covered: visitor, player, moderator, admin.
 
-- [ ] Dark-only gunmetal; no light-mode artifacts.
-- [ ] Cyan is the single interactive accent, used sparingly.
-- [ ] Lucide icons only — no emoji, no ad-hoc Unicode glyphs as UI icons.
-- [ ] Tabular mono for all numbers; right-aligned in numeric table columns; signed deltas.
-- [ ] **Data trust present & honest:** provenance line (computed from N replays), freshness pill
-      (Up to date / Stale / Offline / Reconnecting), and `Known` / `Unknown` / `Conflict` rendered
-      as designed components — `Unknown` is the literal word in an amber badge, never `0` or `—`.
-- [ ] Pending workflow events (e.g. SteamID merge) render as a quiet inline row, not a filled banner
-      or a box floating at the bottom of a stretched column.
-- [ ] Status vocabulary is the fixed set (`Pending`/`Approved`/`Rejected`/`Reopened`;
-      `Queued`/`Parsing`/`Failed`/`Retried`; etc.).
-- [ ] **RU + EN both natural** — no clipped, slipping, or awkward labels; sanity-check the Russian.
-- [ ] **Outcome / status copy matches the `DESIGN.md` recipe, and RU/EN is symmetric** — `badge-outcome-*`
-      prescribes W/L; flag divergent or internally-asymmetric copy (RU `outcomeWin="П"` bare letter vs
-      `outcomeLoss="пор."` abbreviation-with-period).
-- [ ] Mock numbers obey the domain formulas (Score / K-D) and never outrank the real leaders.
+### RU/EN And Public Stats
 
-## Pillar 7 — SEO (public pages)
-
-- [ ] Indexable content is in the SSR HTML (view-source), not client-only-fetched.
-- [ ] Per-route `<head>`: unique `<title>`, meta description, canonical; OG/Twitter on shareable pages.
-- [ ] Valid JSON-LD where it fits (player / squad entity).
-- [ ] One `<h1>` + logical heading hierarchy (ties to `2.4.10`).
-- [ ] No `noindex` on public pages; no self-conflicting canonical.
-- [ ] Depth: the `seo` skill.
+- [ ] RU and EN both read naturally and fit at narrow widths.
+- [ ] ICU plurals, localized numbers, and localized dates are used where relevant.
+- [ ] Status/outcome vocabulary is symmetric across languages and matches `DESIGN.md` recipes.
+- [ ] Public stats content is present in SSR HTML before client JS.
+- [ ] Public/shareable pages have correct route head metadata and canonical/noindex behavior.

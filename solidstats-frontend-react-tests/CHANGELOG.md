@@ -1,5 +1,15 @@
 # Changelog — solidstats-frontend-react-tests
 
+## 2026-07-04 — Prototype-stage artifacts are outside the test harness
+
+- Added the rule that `web/.visual-prototypes/` artifacts belong to the prototype stage, not
+  implementation. They are not Vitest/Playwright/axe/CLS targets. The generic no-tests rule lives in
+  global `design`; this skill adds the SolidStats path. Tests begin after an accepted `SUMMARY.md`
+  becomes a durable Ladle story or route.
+- Clarified that E2E journeys derive from the global implementation surface spec, with
+  `solidstats-frontend-react-design/references/implementation-surface-overlay.md` adding only the
+  SolidStats overlay.
+
 ## 2026-06-23 — Visibility assertions must prove paint, not box size (promoted)
 
 - *Accessibility in tests*: added the rule that an "is it shown / revealed on focus" check asserts REAL
@@ -16,9 +26,9 @@
   deterministic, isolated, no full-app routing/network). It is the sanctioned replacement for RTL and
   keeps the test harness and the design catalog the same artifact.
 - **Critical journeys derive from the surface spec's use-cases / product-scenarios** section (the E2E
-  source in `solidstats-frontend-react-design` → `references/spec-template.md`): one Playwright journey
-  per use-case, the spec's ×5 scenario endings as its assertions. Description updated to name the Ladle
-  harness.
+  source now split between global `implementation-surface-spec.md` and the SolidStats
+  `implementation-surface-overlay.md`): one Playwright journey per use-case, the spec's scenario
+  endings as its assertions. Description updated to name the Ladle harness.
 
 ## 2026-06-06 — Follow-up (user directives)
 - CI gate now includes `vp check` (Vite+ lint/format/type-check).

@@ -45,12 +45,22 @@ catalogued contract.
   story. Integration (a few catalogued components composed) also runs as a story before it graduates
   into a route.
 
+## Visual prototypes are not test targets
+
+Per the global `design` workflow, visual prototypes belong to the prototype stage, not
+implementation. For SolidStats, that means `web/.visual-prototypes/` is outside Vitest,
+Playwright, axe, keyboard, and CLS testing. Prototypes are approved by prototype visual review only,
+then implementation starts from the accepted `SUMMARY.md`. Testing starts once the accepted direction
+is implemented as a durable Ladle story or route.
+
 ## Critical journeys (Playwright)
 
-Journeys derive from the surface spec's **use-cases / product-scenarios** section — the E2E source in
-`solidstats-frontend-react-design` → `references/spec-template.md`: each use-case becomes a Playwright
-journey and the spec's ×5 scenario endings become its assertions. These are launch-blocking and must be
-covered:
+Journeys derive from the implementation surface spec's **use-cases / product-scenarios** section:
+the global `design/references/implementation-surface-spec.md` owns the generic contract, and
+`solidstats-frontend-react-design` -> `references/implementation-surface-overlay.md` adds the
+SolidStats overlay.
+Each use-case becomes a Playwright journey and the spec's scenario endings become assertions. These
+are launch-blocking and must be covered:
 
 - **list → filter/sort → deep scroll → detail → Back** restores table state, scroll, virtualized row
   position, and cache with **no blocking reload or CLS** (the signature requirement).

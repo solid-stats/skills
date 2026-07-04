@@ -1,5 +1,19 @@
 # Changelog — solidstats-frontend-react-design-review
 
+## 2026-07-04 — Split prototype review from implementation review
+
+- Added a dedicated **prototype review** mode for `web/.visual-prototypes/`: visual/layout only
+  (composition, density, hierarchy, first viewport, responsive layout, text fit, whitespace, data
+  readability), explicitly outside GSD and skipping production gates like `design.md lint`, axe,
+  keyboard/Ark behavior, CLS tooling, tests, SEO, and component API correctness.
+- Delegated the generic prototype checklist baseline to global `design`: `checklist.design`,
+  Selectel pre-handoff coverage, and the accept/iterate/reject decision that feeds `SUMMARY.md`.
+  This skill now adds only the SolidStats review overlay.
+- Delegated the generic implementation-stage production review baseline to global
+  `design/references/production-review.md`. This skill now adds only SolidStats production checks:
+  tokens/no arbitrary Tailwind, project widths, Ladle/UIKIT parity, data trust, roles, RU/EN, SSR,
+  and Back/cache continuity.
+
 ## 2026-06-23 — Pillar 4: a forced state cell is not the live state (promoted)
 
 - `SKILL.md` Pillar 4: a StateMatrix `hover` / `pressed` / `focused` cell that forces its state via a
@@ -50,5 +64,5 @@ All fact@1.
   pages (SSR before JS, per-route `<head>`, JSON-LD, heading hierarchy).
 - References the quality bundle (`web-design-guidelines`, `accessibility`, `core-web-vitals`,
   `seo`) and `ui-ux-pro-max` (advisory) rather than duplicating them.
-- Reference: `checklist.md` (the full per-pillar checklist — checklist.design + Selectel handoff +
-  SolidStats specifics).
+- Reference: `checklist.md` (the SolidStats-specific overlay; global `design` owns
+  checklist.design and Selectel baseline coverage).

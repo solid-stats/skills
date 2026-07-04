@@ -1,200 +1,103 @@
 ---
 name: solidstats-frontend-react-design-review
 description: >
-  Pedantic UI / visual / UX review for the SolidStats `web` frontend — the design counterpart to
-  code review. It audits a built or prototyped surface against the design system and the surface
-  spec across seven pillars: token + contrast correctness (`@google/design.md lint`), the real-width
-  visual at the project breakpoints (Playwright), accessibility (axe-core, WCAG 2.2 AA), the ×5 scenario endings
-  and ×4 data-volume states, responsiveness + layout, design-system + domain adherence, and SEO for public pages
-  (dark-only, one cyan accent, Lucide, tabular mono, NO arbitrary Tailwind values, first-class
-  freshness / provenance / Unknown / Conflict states, RU+EN). It is the SolidStats project overlay
-  for the GSD UI review (`gsd-ui-review`). It hard-requires `solidstats-shared-review-standards`
-  (severity buckets, report format, verdict rules) and enforces the rules defined by
-  `solidstats-frontend-react-design`; code-level defects (bugs, types, data flow) go to
-  `solidstats-frontend-react-code-review` instead. Use this whenever reviewing, auditing, or QA-ing
-  any web UI surface — proactively, even when the task doesn't say "design review"; trustworthy,
-  on-system UI is worth a few tokens.
-  Triggers: "review my UI", "design review", "UI audit", "visual QA", "check the screen", "does this
-  match the design", "is this accessible", "review the overview page", "check responsiveness",
-  "проверь UI/экран", "ревью дизайна", "визуальное ревью", "UI-аудит", "соответствует ли дизайну",
-  "проверь доступность", "проверь адаптивность".
+  SolidStats-specific overlay for reviewing the `web` frontend UI. Use it with the global
+  `design` skill: prototype review uses the global visual-prototype baseline plus this overlay;
+  production review uses the global production-review baseline plus this overlay and
+  solidstats-shared-review-standards. This skill adds SolidStats concerns only: DESIGN.md/theme.css
+  token adherence, no arbitrary Tailwind values, project breakpoints, Ladle/UIKIT parity, data trust,
+  replay-derived numbers, roles, RU/EN copy, public stats SSR/Back continuity, and dark stats-product
+  visual language. Code-level defects go to solidstats-frontend-react-code-review.
+  Triggers: "review SolidStats UI", "design review web", "UI audit SolidStats", "visual QA",
+  "check SolidStats screen", "проверь UI SolidStats", "ревью дизайна SolidStats",
+  "визуальное ревью web".
 ---
 
-# SolidStats Frontend Design Review — UI / Visual / UX
+# SolidStats Frontend Design Review Overlay
 
-The design counterpart to `solidstats-frontend-react-code-review`. It judges whether a surface
-**looks, behaves, reflows, and reads** correctly — against the design system and the surface spec.
-It is the SolidStats **project overlay for the GSD UI review** (`gsd-ui-review`): when GSD runs the
-UI review, follow this skill's pillars and map findings into the GSD `UI-REVIEW.md` artifact.
+This skill is not the generic UI review baseline. Read the global `design` skill first:
 
-This skill is **not** standalone in two ways:
+- prototype artifacts: `design/references/visual-prototype.md`;
+- implemented Ladle stories/routes: `design/references/production-review.md`;
+- visual evidence: `design/references/visual-evidence.md`.
 
-- **Format is delegated.** It hard-requires
-  [`solidstats-shared-review-standards`](../solidstats-shared-review-standards/SKILL.md) — read it
-  first. That owns the severity buckets (🔴🟠🟡🔵), the report shape (`file:line` → what's wrong →
-  why → fix, continuous numbering), the verdict rules (APPROVE / REQUEST CHANGES / BLOCK), scope
-  discipline, and the read-only default. This skill adds only the *visual/UX* gate.
-- **Rules are delegated.** The standard it enforces is
-  [`solidstats-frontend-react-design`](../solidstats-frontend-react-design/SKILL.md) (the design
-  system + the surface spec). A finding cites a rule there, not personal taste. Code-level defects
-  belong to `solidstats-frontend-react-code-review`; if a finding is "this state machine is wrong,"
-  that's code review — keep this review on the *design surface*.
+For production review, also read
+[`solidstats-shared-review-standards`](../solidstats-shared-review-standards/SKILL.md) for severity,
+report shape, verdict rules, and read-only default. Code-level bugs, typing, routing, state machines,
+and data flow belong to `solidstats-frontend-react-code-review`.
 
-> **Boundary:** read-only by default (per shared-review-standards §H) — report, don't edit, unless
-> the developer asks. Order findings by user impact: broken state / inaccessible → wrong at real
-> width → off-system → polish.
+## Review Modes
 
-## The seven pillars
+**Prototype review** applies to `web/.visual-prototypes/` and other disposable mockups. Run the
+global prototype review baseline, then add SolidStats checks for stats density, data trust, roles,
+RU/EN copy fit, `DESIGN.md` visual adherence, and UIKIT consistency. Skip production gates:
+`design.md lint`, axe, keyboard behavior, Ark behavior, exact Tailwind merge behavior, CLS tooling,
+tests, SEO, and component API correctness. Return one decision: iterate, accept for `SUMMARY.md`, or
+reject.
 
-Check every pillar; the full per-pillar checklist (checklist.design component checks + the Selectel
-handoff checklist + the SolidStats specifics) is in
-[`references/checklist.md`](references/checklist.md). Run the tooling first, then read against the
-spec.
+**Production review** applies to durable Ladle stories and TanStack Start routes. Run the global
+production review baseline first, then apply the SolidStats overlay below. Map findings into the
+shared review-standards format or the GSD `UI-REVIEW.md` artifact when GSD owns the phase.
 
-### 1. Tokens & contrast — `@google/design.md`
+Prototype approval is not production approval. It only accepts the visual direction for
+`SUMMARY.md`.
 
-- `npx @google/design.md lint DESIGN.md` passes: structure valid, **no broken `{token}` references,
-  WCAG contrast ratios met**. A contrast failure is 🔴.
-- `npx @google/design.md diff` shows no unintended token regression if the system changed.
-- **No arbitrary Tailwind values** in the surface (`bg-[#…]`, `p-[7px]`, `text-[13px]`) — every
-  value is a theme token. Arbitrary values bypass the token SoT and silently re-introduce drift; flag
-  each one.
+## SolidStats Production Overlay
 
-### 2. Real-width visual — Playwright at the project breakpoints
+### 1. Token And System Adherence
 
-Render the surface and screenshot at every project breakpoint (the canonical set + content-width
-strategy live in `solidstats-frontend-react-design` → `references/design-system.md` — the single
-source). The device-frame iframe lies about viewport width — assert the **container** width. Check against the hi-fi / `DESIGN.md`:
+- `DESIGN.md` is the source of truth; generated `theme.css` is build output.
+- No arbitrary Tailwind values (`bg-[#...]`, `p-[7px]`, `text-[13px]`, `w-[317px]`).
+- Dark-only gunmetal theme, one cyan interactive accent, Lucide icons only.
+- Tabular mono numbers; numeric table columns are right-aligned.
+- Semantic color is never color-alone: pair it with an icon and/or label.
 
-- No layout breakage, label collisions, orphan tiles, or trailing-gap "air" (the two-mismatched-
-  columns bug — see pillar 5).
-- **Structural parity with `.design/hifi/*`** (the binding semantic reference, D-11) — enumerate the
-  reference's elements, affordances, and interaction model and flag every one **dropped OR invented**,
-  not just spacing/hierarchy/density. (A nav that drops the Brand / utility cluster, a table that
-  invents a control the hi-fi derives by device, are structural divergences even when the spacing is
-  right.)
-- **Measure, don't eyeball** — assert no stray scroll (`scrollHeight ≤ clientHeight`, the loading
-  skeleton included — a skeleton must never scroll), the skeleton box equals the final box, and that
-  focus produces a visible computed change. axe-clean ≠ visible focus; box-reserved ≠ no scroll.
-- **CLS = 0** (zero layout shift, no exceptions) — every async region reserves its final height;
-  skeletons match the final colgroup / header / row height; nothing reflows after first paint. Any
-  measurable shift is 🔴. Animations must use only `transform`/`opacity` (never layout properties).
-- **CWV via Chrome DevTools MCP** — `performance_start_trace` measures LCP ≤ 2.5s, INP ≤ 200ms,
-  CLS = 0; `performance_analyze_insight` names the element behind any layout shift (the free,
-  official MCP — that "which element shifted" insight is how you drive CLS to 0).
-- **Back restores table state + scroll + virtualized position + cache** with no blocking reload and
-  no jump (the brief's signature continuity requirement) — this is 🔴 if broken.
+### 2. Project Widths And Accepted Visual Direction
 
-### 3. Accessibility — axe-core + WCAG 2.2 AA, plus specific AAA
+- Use the project breakpoint/content-width strategy from
+  `solidstats-frontend-react-design/references/design-system.md`, including 1920, 2560, 4K, and
+  ultrawide checks where relevant.
+- Assert the rendered container width, not only the browser/device-frame viewport.
+- Compare against accepted `SUMMARY.md`; use `.design/hifi/*` only when it is the named historical
+  reference for the surface.
+- Check structural parity: dropped or invented elements, affordances, controls, density choices, and
+  interaction model are findings even when spacing looks polished.
 
-**Target: WCAG 2.2 AA baseline, plus these AAA criteria** (adopted because they are cheap and
-high-value for this product):
+### 3. SolidStats States And Data Volumes
 
-- **2.5.5 Target Size (Enhanced)** — 44×44 touch targets (AA's `2.5.8` needs only 24×24).
-- **2.4.13 Focus Appearance** — enhanced focus-indicator size/contrast, beyond `2.4.7` Focus Visible.
-- **2.4.12 Focus Not Obscured (Enhanced)** — a focused element is never tucked under a sticky
-  header/footer or an Ark UI overlay (`scroll-margin`; verify floating layers don't cover the trigger).
-- **2.1.3 Keyboard (No Exception)** — fully keyboard-operable, no exceptions.
-- **2.4.10 Section Headings** — real `<h2>/<h3>` per section (not styled `<div>`s) on multi-panel
-  admin / moderation / request pages; heading-jump is how non-visual users traverse dense routes.
-- **2.4.8 Location** — breadcrumbs show where you are in the set.
-- **2.3.3 Animation from Interactions** — honor `prefers-reduced-motion` (Tailwind `motion-reduce:`)
-  across interaction-triggered motion (chart / sort / expand / route transitions); essential motion
-  (loading state) is exempt.
-- **2.2.3 No Timing** — no time limits on reading or interacting.
-- **3.3.6 Error Prevention (All)** — *scoped to the correction-request flow*: Reversible / Checked /
-  Confirmed (Zod + a review step). Don't bolt confirmations onto trivial filters.
-- **3.2.5 Change on Request** — *a compliance check, not a feature*: never auto-navigate or change
-  context without user action (auto-refreshing data in place is fine; auto-redirect / re-focus is not).
+- Render state/data variants at real content width, not only inside narrow matrix cells.
+- Verify forced visual-state cells against real pseudo-states when the story uses hardcoded
+  `data-state` or class overrides.
+- Loading skeletons reserve the final height and table geometry.
+- Back restores table state, sorting/filtering, scroll offset, virtualized position, and Query cache
+  without blocking reload or visible jump.
+- SSE updates do not steal focus, reorder above the viewport, or shift layout.
 
-We deliberately do **not** adopt **1.4.6 Contrast (Enhanced)** (7:1) or **1.4.8 Visual Presentation** —
-both fight the dense dark theme and wide tables; **1.4.3 Contrast (Minimum)** (4.5:1) stays the
-baseline. Also rejected on cost/benefit for a bilingual milsim-jargon app: **2.4.9** Link Purpose
-(Link Only), **3.1.3–3.1.6** (reading level / jargon), **1.3.6** Identify Purpose. (`axe-core` is the
-free MPL-2.0 engine via `@axe-core/playwright` — not Deque's paid axe Pro.)
+### 4. Domain, Trust, And Roles
 
-**Source of truth — verify, don't recall.** The criterion numbers and levels above are authoritative
-at the [W3C WCAG 2.2 Recommendation](https://www.w3.org/TR/WCAG22/) and the filterable
-[How to Meet WCAG 2.2 quick-ref](https://www.w3.org/WAI/WCAG22/quickref/) (filter by level). Confirm
-any criterion against that source, never from memory — the numbering shifted between 2.1 and 2.2
-(e.g. Target Size split into `2.5.5` Enhanced / `2.5.8` Minimum, and `2.4.13` Focus Appearance is new).
+- Data trust is present and honest: provenance, freshness, Known, Unknown, Conflict, stale.
+- Unknown is not rendered as `0` or a plain dash when the distinction matters.
+- Mock numbers obey SolidStats formulas and do not contradict known real data.
+- Role variants are visually covered where they affect layout or permissions: visitor, player,
+  moderator, admin.
+- Pending workflow events render as quiet inline state unless the action is blocking.
 
-Concrete checks beyond the named criteria: logical tab order with no keyboard traps; semantic color
-**never color-alone** (always an icon and/or label); images and icons carry text alternatives.
-(Visible focus, 44×44 targets, and reduced-motion are already covered by the criteria above.) Pull
-the `accessibility` skill for the deep audit.
+### 5. RU/EN And Status Vocabulary
 
-### 4. States & data volumes — against spec §4/§5
+- RU and EN both read naturally and fit at the narrowest relevant width.
+- ICU plurals, localized numbers, and dates are used where applicable.
+- Status vocabulary is fixed and symmetric across languages.
+- Outcome/status badges match the `DESIGN.md` recipe; flag asymmetric copy such as a bare RU win
+  letter paired with an abbreviated loss string.
 
-Every **scenario ending ×5** (success / system-error / user-error / loading / onboarding / empty)
-and **data-volume state ×4** (empty / few / many / limit-reached) from the surface spec is **rendered
-and visually verified — not trusted from the story matrix's existence**. Render each state and confirm
-it is correct AND visually distinct (selected doesn't break the column layout; focused ≠ enabled;
-loading shows the skeleton, not real data). **A forced cell is not the live state:** a StateMatrix
-`hover` / `pressed` / `focused` cell that forces its state via a hardcoded `data-state` / `className`
-override may NOT mirror the live recipe — it can be variant-agnostic (one grey `bg-surface-3` for every
-variant's "hover") and, in a merge-free `tailwind-variants/lite` build, the override can lose to the
-base and render the RESTING style. So a forced cell can be rendered, visually distinct, and still WRONG
-(a real Button matrix showed primary "hover" as grey, never the cyan `primary-hover`, and passed
-review). Verify each forced cell against the REAL pseudo-state — force `:hover` / `:active` /
-`:focus-visible` via Chrome DevTools `forcePseudoState` (or hover a real control) and read computed
-styles — and treat a forced matrix as decorative until proven to mirror the recipe. Render each ×4
-data-volume at a **real width** — full-width
-labelled sections, not narrow `StateMatrix` grid cells that collapse wide rows so nothing renders —
-and confirm rows actually appear and the volumes read differently. Long values truncate+tooltip or
-wrap (never clip); empty states carry actionable copy; loading uses reserved-height skeletons;
-SSR-warm shows no skeleton.
+### 6. Public Stats Pages
 
-### 5. Responsiveness & layout
-
-- Reflow is keyed off the **container** (`@container`), not the viewport.
-- **Intermediate breakpoints (768 / 1024), not just 360 + desktop** — review the whole documented
-  range, not only the mobile floor and a wide desktop. The dead zone is where the desktop nav has
-  switched on (`@md`) but its links + brand + utility cluster don't yet fit, so it overflows.
-- **Mobile:** no nested scroll, no horizontal scroll; secondary columns dropped; top-N + "show all".
-- **Layout:** full-width stacked sections; side-by-side only for naturally-equal things; no
-  near-empty full-width strips; tables scroll inside their own card; sticky headers; fixed row slots
-  keep paired tables equal height.
-
-### 6. System & domain adherence
-
-Dark-only gunmetal; cyan is the single interactive accent; Lucide icons only (no emoji, no ad-hoc
-glyphs); tabular mono for all numbers, right-aligned in tables. **Data trust is a designed layer:**
-provenance, freshness ("updated 4 min ago"), and honest `Known` / `Unknown` / `Conflict` / `stale`
-states are present and correct, every number traceable to source replays. **RU + EN** both read
-naturally — no clipped or awkward labels (sanity-check the Russian). Status vocabulary is the fixed
-set (`Pending`/`Approved`/`Rejected`; `Up to date`/`Stale`/`Offline`/`Reconnecting`; etc.).
-**Outcome / status copy matches the `DESIGN.md` recipe and is RU/EN-symmetric** — `badge-outcome-*`
-prescribes W/L; flag divergent or internally-asymmetric copy (RU `outcomeWin="П"` bare letter vs
-`outcomeLoss="пор."` abbreviation-with-period).
-
-### 7. SEO (public pages)
-
-SEO is the brief's #3 quality priority; public stats pages must be indexable and meaningful before
-client JS:
-
-- **SSR before JS** — indexable content (stats, names, tables) is in the server HTML, not
-  client-only-fetched. Check view-source, not just the rendered DOM.
-- **Per-route `<head>`** — a unique `<title>`, meta description, and canonical; OG/Twitter on
-  shareable pages (player / squad / replay).
-- **Structured data** — valid JSON-LD where it fits (player / squad as an entity).
-- **Heading hierarchy** — one `<h1>`, logical `<h2>/<h3>` (shares pillar 3's `2.4.10`).
-- **No blockers** — no `noindex` on public pages; canonical not self-conflicting.
-
-Depth: the `seo` skill; CWV is itself a ranking factor (pillar 2).
-
-## Running it
-
-1. Read `solidstats-shared-review-standards`, then this skill's pillars and the surface spec.
-2. Run the tools: `@google/design.md lint`/`diff`, Playwright (project breakpoints + CLS + axe-core), and
-   `ui-ux-pro-max` advisory only where a UX-rule question arises (`--domain ux`).
-3. Reference the quality bundle for depth: `web-design-guidelines` (its review checklist),
-   `accessibility`, `core-web-vitals`, `seo`.
-4. Report in the shared-review-standards format; map onto GSD `UI-REVIEW.md` when run inside
-   `gsd-ui-review`. Verdict per the shared rules.
+- Primary public stats are present in SSR HTML before client JS.
+- Public/shareable routes have route-specific head metadata.
+- JSON-LD is used only where it fits the entity.
+- Canonical/noindex choices do not contradict the page's public purpose.
 
 ## Reference
 
-- [`references/checklist.md`](references/checklist.md) — the full per-pillar checklist: the
-  checklist.design component checks, the Selectel pre-handoff checklist, and the SolidStats-specific
-  items (data-trust states, tier coloring, freshness pill, RU sanity).
+- [`references/checklist.md`](references/checklist.md) - the SolidStats overlay checklist. Global
+  `design` owns `checklist.design`, Selectel readiness, and the generic production-review pillars.
