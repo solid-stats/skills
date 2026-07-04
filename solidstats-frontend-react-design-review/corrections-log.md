@@ -257,3 +257,53 @@ rationale: >
 status: promoted
 signature: "gap|Pillar 4|forced/data-state story cells can be fake — verify each against the real rendered :hover/:active, not the cell's colour"
 ```
+
+### SC-2026-06-25-c4a1 · gap · fact · Pillar 2
+
+```yaml
+id: SC-2026-06-25-c4a1
+date: 2026-06-25
+target_skill: solidstats-frontend-react-design-review
+repo: web
+source: agent-discovered
+signal: gap
+class: fact
+generalized: true
+section: "Pillar 2"
+topic: enter-exit-animation-not-verifiable-from-source
+dev_change: >
+  Pillar 2 says "measure, don't eyeball" but does not warn that an entrance/exit ANIMATION cannot be
+  adjudicated from the recipe source. A source-only review pass REFUTED a real "no entrance animation"
+  finding for the whole overlay+toast family (Dialog/Menu/Popover/Tabs/Toast) because the recipe carried
+  `transition duration-150 data-[state=closed]:scale-95 data-[state=closed]:opacity-0
+  data-[state=open]:scale-100 …` — "the class is present, therefore it animates". The browser pass
+  overturned it: the content MOUNTS already in `data-state=open` (computed opacity 1 / transform none on
+  mount), so the closed→open frame is never rendered and nothing animates. The `data-[state=closed]:`
+  FROM-state classes are dead for a mount transition without `@starting-style` (Tailwind `starting:`) or
+  Ark's present/animation API. `prefers-reduced-motion` was false, so it was not a reduced-motion artifact.
+  Same trap for exit when the element unmounts immediately. Pillar 2 should require: motion/visual-state
+  findings are adjudicated by TRIGGERING the transition in-browser (open/close, hover, select) and
+  asserting a mid-transition computed `transform`/`opacity` change — never by the presence of a
+  `transition`/`data-[state]` utility in the recipe. A REFUTE of a motion finding from source alone is invalid.
+code:
+  file: "packages/design/src/shared/uikit/Dialog/dialog.ts"
+  line: 35
+  source: agent-snippet
+  status: negative-example
+  snippet: |
+    // recipe content slot — reads as "animated" but does NOT animate on mount (content mounts at
+    // data-state=open; no closed→open frame without @starting-style / Ark present API):
+    content: "… transition duration-150 data-[state=closed]:scale-95 data-[state=closed]:opacity-0 \
+      data-[state=open]:scale-100 data-[state=open]:opacity-100 motion-reduce:transition-none …"
+    // runtime: forcing data-state=closed left computed opacity 1 / transform none → enter frame never renders
+rationale: >
+  Following the review methodology as written (source presence ⇒ "animated") produced a wrong REFUTE that
+  would have shipped a real, user-visible defect as "not a problem" across five components — a verified
+  methodology gap (fact, promote@1). Generalized: applies to any mount/unmount enter-exit animation and any
+  `data-[state]`-driven visual state, not just these overlays. Sibling of the promoted Pillar-4 "forced
+  cells can be fake" entry, but distinct: that is about forced matrix cells rendering fake states; this is
+  about REFUTING a motion finding without rendering/triggering at all. Additive: extend Pillar 2 with the
+  enter/exit-animation caveat + the trigger-and-measure-the-transition check.
+status: open
+signature: "gap|Pillar 2|entrance/exit animation can't be adjudicated from source — a recipe's transition/data-[state] classes don't prove it animates (mount opens at data-state=open; trigger the transition in-browser and assert a mid-transition transform/opacity change)"
+```
