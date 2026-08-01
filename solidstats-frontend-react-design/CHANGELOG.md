@@ -1,5 +1,13 @@
 # Changelog — solidstats-frontend-react-design
 
+## 2026-08-01b — Correction: Ladle is mandatory for the UIKit
+
+- The same-day update below wrongly softened Ladle from a required implementation stage to
+  optional. Only the whole-page design/prototyping stage moved away from Ladle (to Claude Design);
+  the UIKit itself — components implemented, tested, and catalogued as colocated Ladle stories — is
+  still mandatory. Fixed `SKILL.md`, `pipeline.md`, and `implementation-surface-overlay.md`
+  accordingly.
+
 ## 2026-08-01 — Prototype stage moves to Claude Design
 
 - Replaced the in-repo `web/.visual-prototypes/` prototype workflow (2026-07-04) with the live

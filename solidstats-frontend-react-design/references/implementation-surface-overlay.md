@@ -70,13 +70,11 @@ Fold into acceptance for public pages:
 - SSE updates do not steal focus, reorder above the viewport, or cause CLS;
 - loading skeletons reserve final height and column geometry.
 
-## Ladle And UIKIT (if a Ladle catalog is in use)
+## Ladle And UIKIT
 
-`web` is a single-package repo with no active Ladle catalog; a component-isolation harness may
-return later but is not required (see `.legacy/ladle-design/` and `.planning/PROJECT.md`). Apply
-this section only when shared components do get durable Ladle stories; otherwise fold the same
-acceptance bars (token adherence, states, data-volume variants, icons, numeric formatting, click
-zones) directly into the component/route acceptance.
+Ladle is mandatory for the UIKit. `web` is a single-package repo with no active catalog yet — build
+one fresh under `src/shared/uikit/` (`.legacy/ladle-design/` holds the retired package-based one,
+reference only; see `.planning/PROJECT.md`).
 
 Fold into implementation acceptance:
 

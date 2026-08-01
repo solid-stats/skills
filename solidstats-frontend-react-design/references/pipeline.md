@@ -45,20 +45,21 @@ Add SolidStats-specific acceptance for:
 - public stats continuity: SSR before JS, no CLS, Back restores table state, scroll, virtualized
   position, and Query cache.
 
-## 3. Build (optionally via a Ladle catalog)
+## 3. Ladle Catalog
 
-`web` is single-package with no active Ladle catalog today; one may return later as a component
-isolation harness, but it is optional, not a required stage (`.legacy/ladle-design/` holds the
-retired package-based catalog). Build accepted directions in `src/` on the real stack either way:
+Ladle is mandatory for the UIKit. `web` is single-package with no active catalog today
+(`.legacy/ladle-design/` holds the retired package-based one, reference only) — build a fresh one
+under `src/shared/uikit/`. Implement accepted directions there:
 
 - Ark UI headless primitives;
 - Tailwind v4 utilities from generated theme tokens;
 - Lucide icons only;
 - dark-only SolidStats visual system;
-- component states, data volumes, and important variants covered by tests or stories.
+- colocated stories covering component states, data volumes, and important variants;
+- component tests alongside the story.
 
-If a Ladle catalog is in use, colocated stories are the component catalog and the Playwright
-isolation harness, and the story is the seed of the production route, not a throwaway demo.
+Colocated Ladle stories are the component catalog and the Playwright isolation harness. The story is
+the seed of the production route, not a throwaway demo.
 
 ## 4. Production Review
 
