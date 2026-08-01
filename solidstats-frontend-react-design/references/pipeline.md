@@ -5,14 +5,16 @@ generic prototype structure, implementation surface spec, or production review c
 
 ## 1. Prototype Stage
 
-Global owner: `design/references/visual-prototype.md`.
+**As of 2026-08-01, this stage runs in the live Claude Design project** ("Solid Stats — Design
+System"), not `design/references/visual-prototype.md`'s in-repo `BRIEF.md`/`ITERATIONS.md`/
+`SUMMARY.md` slice structure. That in-repo workflow at `web/.visual-prototypes/` (adopted
+2026-07-04) is itself superseded, for the same reason it replaced package-based Ladle prototyping:
+iterating on prototypes as in-repo code cost too much time and tokens. See `web/.planning/PROJECT.md`
+for the decision log.
 
-Local workspace: `web/.visual-prototypes/`.
+Bring these SolidStats concerns into each surface designed in Claude Design:
 
-Local additions for `BRIEF.md`, prototype slices, `ITERATIONS.md`, and accepted `SUMMARY.md`:
-
-- `DESIGN.md`, generated `theme.css`, accepted Ladle UIKIT decisions, and `.design/CLAUDE.md` as
-  visual inputs;
+- `DESIGN.md`, generated `theme.css`, and `.design/CLAUDE.md` as visual inputs;
 - `server-2` shapes or known OpenAPI paths that affect visible fields;
 - SolidStats roles that affect layout: signed-out visitor, player, moderator, admin;
 - representative replay-derived values and min/max data volumes;
@@ -21,8 +23,8 @@ Local additions for `BRIEF.md`, prototype slices, `ITERATIONS.md`, and accepted 
 - stats-product density: enough rows, comparisons, filters, and numeric columns to make the layout
   honest.
 
-Prototype artifacts remain disposable. Do not import production components and do not port prototype
-source into `packages/design`.
+Pull the accepted surface locally with `DesignSync` only once it's ready to spec. Do not port
+Claude Design's fake-stack mockup code directly into the app — surfaces are rebuilt natively.
 
 ## 2. Implementation Surface Spec
 
@@ -30,7 +32,7 @@ Global owner: `design/references/implementation-surface-spec.md`.
 
 SolidStats overlay: [`implementation-surface-overlay.md`](implementation-surface-overlay.md).
 
-Start only after the relevant prototype slice has an accepted `SUMMARY.md`. The spec belongs to app
+Start only after the relevant surface is accepted in Claude Design. The spec belongs to app
 development and may become GSD `CONTEXT` and `VALIDATION`; it is not a prototype artifact.
 
 Add SolidStats-specific acceptance for:
@@ -43,18 +45,20 @@ Add SolidStats-specific acceptance for:
 - public stats continuity: SSR before JS, no CLS, Back restores table state, scroll, virtualized
   position, and Query cache.
 
-## 3. Ladle Catalog
+## 3. Build (optionally via a Ladle catalog)
 
-Implement accepted directions in the durable Ladle UIKIT catalog on the real stack:
+`web` is single-package with no active Ladle catalog today; one may return later as a component
+isolation harness, but it is optional, not a required stage (`.legacy/ladle-design/` holds the
+retired package-based catalog). Build accepted directions in `src/` on the real stack either way:
 
 - Ark UI headless primitives;
 - Tailwind v4 utilities from generated theme tokens;
 - Lucide icons only;
 - dark-only SolidStats visual system;
-- colocated stories covering component states, data volumes, and important variants.
+- component states, data volumes, and important variants covered by tests or stories.
 
-Ladle is the component catalog and the Playwright isolation harness. The story is the seed of the
-production route, not a throwaway demo.
+If a Ladle catalog is in use, colocated stories are the component catalog and the Playwright
+isolation harness, and the story is the seed of the production route, not a throwaway demo.
 
 ## 4. Production Review
 
@@ -66,7 +70,7 @@ Run the global production baseline first, then add SolidStats overlay checks:
 
 - token adherence to `DESIGN.md`/`theme.css`, no arbitrary Tailwind values;
 - real-width screenshots at project breakpoints from `references/design-system.md`;
-- structural parity with accepted hi-fi or `SUMMARY.md` where relevant;
+- structural parity with the accepted Claude Design surface;
 - data-trust, freshness, role, RU/EN, and replay-formula correctness;
 - public-page SEO/SSR/cache/back-navigation behavior.
 

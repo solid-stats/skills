@@ -1,5 +1,22 @@
 # Changelog — solidstats-frontend-react-design
 
+## 2026-08-01 — Prototype stage moves to Claude Design
+
+- Replaced the in-repo `web/.visual-prototypes/` prototype workflow (2026-07-04) with the live
+  Claude Design project ("Solid Stats — Design System") as the prototype stage. Reason: iterating
+  on prototypes as in-repo code — first package-based Ladle, then `.visual-prototypes/` slices —
+  cost too much time and tokens both times. Accepted surfaces are pulled locally with `DesignSync`
+  once ready to spec.
+- Fixed stale `packages/design` paths throughout (`SKILL.md`, `pipeline.md`,
+  `implementation-surface-overlay.md`): `web` has been a single-package repo (`src/`) since the
+  2026-07-04 workspace rollback; this skill still described the retired `packages/design` layout.
+- Softened the Ladle/UIKIT catalog from a required implementation stage to optional: `web` has no
+  active Ladle catalog today (`.legacy/ladle-design/` holds the retired one); a catalog may return
+  later as a component isolation harness only.
+- See `web/.planning/PROJECT.md` and `web/.planning/v0.1-MILESTONE-AUDIT.md` for the full decision
+  history this skill now tracks (three prototyping-tool changes: Ladle -> `.visual-prototypes/` ->
+  Claude Design).
+
 ## 2026-07-04 — Separate prototype stage from implementation
 
 - Added the active `web/.visual-prototypes/` stage as a standalone design stage before app

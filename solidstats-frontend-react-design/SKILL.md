@@ -3,14 +3,15 @@ name: solidstats-frontend-react-design
 description: >
   SolidStats-specific overlay for the global `design` skill when creating, prototyping, or
   implementing UI for the `web` frontend. The global skill owns the generic workflow:
-  discussion -> non-GSD brief -> visual prototype -> accepted SUMMARY.md -> implementation
+  discussion -> non-GSD brief -> visual prototype -> accepted design -> implementation
   surface spec -> production review. This skill adds only SolidStats inputs and rules:
-  DESIGN.md/theme.css, Ladle UIKIT, .design/CLAUDE.md, server-2 OpenAPI shapes, roles, data
-  trust, replay-derived numbers, RU/EN copy fit, and the dark stats-product visual language.
-  Use this with the global `design` skill for any SolidStats web design task.
+  DESIGN.md/theme.css, the live Claude Design project as the prototype tool, .design/CLAUDE.md,
+  server-2 OpenAPI shapes, roles, data trust, replay-derived numbers, RU/EN copy fit, and the dark
+  stats-product visual language. Use this with the global `design` skill for any SolidStats web
+  design task.
   Triggers: "SolidStats UI", "web design", "new SolidStats screen", "prototype SolidStats",
-  "Ladle UIKIT", "DESIGN.md", "stats screen", "спроектируй экран SolidStats",
-  "прототип SolidStats", "UIKIT SolidStats".
+  "Claude Design", "DESIGN.md", "stats screen", "спроектируй экран SolidStats",
+  "прототип SolidStats", "дизайн SolidStats".
 ---
 
 # SolidStats Frontend Design Overlay
@@ -18,14 +19,15 @@ description: >
 This skill is not the generic design workflow. Read the global `design` skill first, then apply this
 overlay for the SolidStats `web` repo.
 
-- New or substantially recomposed UI: global `design/references/visual-prototype.md` owns the
-  prototype stage.
-- Accepted prototype moving into app development: global
+- New or substantially recomposed UI: designed in the live Claude Design project (see Stage
+  Boundary below), not via global `design/references/visual-prototype.md`'s in-repo slice structure.
+- Accepted design moving into app development: global
   `design/references/implementation-surface-spec.md` owns the base implementation contract; this
   skill's [`references/implementation-surface-overlay.md`](references/implementation-surface-overlay.md)
   adds SolidStats fields.
-- Implemented Ladle stories or routes: global `design/references/production-review.md` owns the
-  production review baseline; `solidstats-frontend-react-design-review` adds the SolidStats overlay.
+- Implemented routes (optionally via Ladle stories first): global
+  `design/references/production-review.md` owns the production review baseline;
+  `solidstats-frontend-react-design-review` adds the SolidStats overlay.
 - Code-level HOW lives in
   [`solidstats-frontend-react-conventions`](../solidstats-frontend-react-conventions/SKILL.md).
 
@@ -33,13 +35,17 @@ overlay for the SolidStats `web` repo.
 
 SolidStats UI work has two separate stages:
 
-1. **Prototype stage** - discussion -> non-GSD `BRIEF.md` -> one or more
-   `web/.visual-prototypes/` slices -> `ITERATIONS.md` -> accepted `SUMMARY.md`.
-2. **Implementation stage** - GSD may start after accepted `SUMMARY.md`: implementation surface
-   spec -> durable Ladle/UIKIT story -> production review -> TanStack Start route.
+1. **Prototype stage (2026-08-01)** - design the surface directly in the live Claude Design
+   project ("Solid Stats — Design System"), then pull the accepted result locally with
+   `DesignSync` once it's ready to spec. This replaced the in-repo `web/.visual-prototypes/`
+   workflow (2026-07-04), which itself replaced package-based Ladle prototyping (2026-06) — both
+   were dropped because iterating on prototypes as in-repo code cost too much time and tokens.
+2. **Implementation stage** - GSD may start after a surface is accepted in Claude Design:
+   implementation surface spec -> build in `src/` (optionally with a Ladle isolation harness,
+   see below) -> production review -> TanStack Start route.
 
-GSD does not participate in prototyping. A prototype can be split by page, flow, role, breakpoint
-family, or hard layout problem.
+GSD does not participate in prototyping. A design can be split by page, flow, role, breakpoint
+family, or hard layout problem, same as the in-repo slices were.
 
 ## Locked Stack And Quality Order
 
@@ -55,11 +61,14 @@ review covers the full quality bar.
 
 Use these as the local source material:
 
+- the live Claude Design project "Solid Stats — Design System" as the active design source, synced
+  locally with `DesignSync`;
 - repo-root `DESIGN.md` as the token/design-system source of truth;
-- generated `packages/design/src/styles/theme.css` as build output, never hand-edited;
-- colocated Ladle stories in `packages/design/src/shared/uikit/` as the durable UIKIT catalog;
+- generated `src/styles/theme.css` as build output, never hand-edited (`web` is single-package —
+  there is no `packages/design`);
 - `web/.design/CLAUDE.md` for live domain/design rules and learned surface notes;
-- `web/.design/hifi/*` only as frozen historical visual reference, never as portable code;
+- `web/.design/hifi/*` and `.legacy/ladle-design/` only as frozen historical visual/code reference,
+  never as portable code — see `web/.design/README.md`;
 - `server-2` OpenAPI types for real API fields;
 - SolidStats roles: signed-out visitor, player, moderator, admin;
 - replay-derived formulas and representative values;
@@ -67,9 +76,9 @@ Use these as the local source material:
 
 ## Prototype Overlay
 
-The active prototype workspace is `web/.visual-prototypes/`. The global `design` skill owns the
-standard directory structure and docs (`BRIEF.md`, `ITERATIONS.md`, `SUMMARY.md`), `checklist.design`
-intake, and the Selectel readiness baseline. Add these SolidStats concerns to each relevant slice:
+The active prototype surface is the live Claude Design project. `checklist.design` intake and the
+Selectel readiness baseline still apply. Add these SolidStats concerns to each surface designed
+there:
 
 - stats/operations density: enough rows, columns, comparisons, and counts to test the layout;
 - first-viewport priority: identity and headline stats high, secondary detail lower;
@@ -78,15 +87,15 @@ intake, and the Selectel readiness baseline. Add these SolidStats concerns to ea
 - roles that change layout or permissions;
 - RU/EN copy fit, especially long Russian labels and player/squad names;
 - replay-derived values that obey real formulas instead of decorative random data;
-- visual adherence to `DESIGN.md`, generated `theme.css`, and accepted Ladle UIKIT decisions.
+- visual adherence to `DESIGN.md` and generated `theme.css`.
 
-Do not import production components into prototypes and do not port prototype source into
-`packages/design`. The accepted `SUMMARY.md` and screenshots are the handoff, not the throwaway
-source code.
+Do not port Claude Design's fake-stack mockup code directly into the app — surfaces are rebuilt
+natively on the real stack. The accepted surface and screenshots (pulled via `DesignSync`) are the
+handoff, not the mockup source.
 
 ## Implementation Overlay
 
-After a prototype slice is accepted, start from global
+After a surface is accepted in Claude Design, start from global
 `design/references/implementation-surface-spec.md`, then fill the SolidStats additions from
 [`references/implementation-surface-overlay.md`](references/implementation-surface-overlay.md):
 
@@ -98,8 +107,9 @@ After a prototype slice is accepted, start from global
 - SolidStats public-page continuity such as SSR before JS and Back restoring table state, scroll,
   virtualized position, and Query cache.
 
-The durable implementation starts in Ladle on the real stack. Ladle stories are the UIKIT catalog,
-the component isolation harness, and the seed of production routes.
+The durable implementation is built in `src/` on the real stack. A Ladle component-isolation harness
+may return later, but it is optional, not a required stage — see `.legacy/ladle-design/` and
+`.planning/PROJECT.md` in `web`.
 
 ## Non-Negotiable SolidStats Design Rules
 

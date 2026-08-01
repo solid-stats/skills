@@ -7,13 +7,13 @@ This file adds the SolidStats-specific content that must be folded into those se
 
 ## Source
 
-- Accepted prototype `SUMMARY.md`: `<path>`
+- Accepted Claude Design surface: `<Claude Design project/card URL, pulled via DesignSync>`
 - Approval screenshots: `<paths>`
 - Global checklist items deferred to implementation: `<source URL> -> spec section`
 - SolidStats items added here: `<data trust / role / RU+EN / replay data> -> spec section`
 
-If a visual decision is missing from `SUMMARY.md`, send it back to prototype iteration instead of
-inventing it inside the implementation spec.
+If a visual decision is missing from the accepted Claude Design surface, send it back to design
+iteration instead of inventing it inside the implementation spec.
 
 ## API And Domain Data
 
@@ -70,7 +70,13 @@ Fold into acceptance for public pages:
 - SSE updates do not steal focus, reorder above the viewport, or cause CLS;
 - loading skeletons reserve final height and column geometry.
 
-## Ladle And UIKIT
+## Ladle And UIKIT (if a Ladle catalog is in use)
+
+`web` is a single-package repo with no active Ladle catalog; a component-isolation harness may
+return later but is not required (see `.legacy/ladle-design/` and `.planning/PROJECT.md`). Apply
+this section only when shared components do get durable Ladle stories; otherwise fold the same
+acceptance bars (token adherence, states, data-volume variants, icons, numeric formatting, click
+zones) directly into the component/route acceptance.
 
 Fold into implementation acceptance:
 
