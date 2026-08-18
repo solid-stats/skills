@@ -1,10 +1,12 @@
 ---
 name: solidstats-shared-project-standards
 description: >
-  Universal project standards for every SolidStats repository (server-2, replays-fetcher,
-  replay-parser-2, web, infrastructure). Covers GSD workflow obligations, session hygiene, git
-  conventions, the cross-app boundary map (what each repo owns and must not cross), the cross-app
-  compatibility protocol, security minimums, risk management, and documentation language.
+  SolidStats-specific project standards: GSD workflow obligations and skill authority, the
+  cross-app boundary map (what each repo owns and must not cross), the cross-app compatibility
+  protocol, and the org's repo taxonomy and documentation standard. Cross-repo rules that apply
+  to any team's agents regardless of stack — session hygiene, git conventions, security minimums,
+  risk management, documentation language, MemPalace, MCP/doc lookup — live in
+  `solid-stats/agent-instructions` instead; read both.
   Use this proactively — read it at the start of any task in any SolidStats repo, even when the
   task doesn't name any of these topics. It is the shared baseline every other SolidStats skill
   assumes. Over-triggering is acceptable.
@@ -21,6 +23,18 @@ description: >
 These standards apply to **every repo in the `solid-stats` org** and every session. They define
 *how work happens* across the platform, not how any single stack is written — the per-stack
 skills own the code details.
+
+**This skill and `solid-stats/agent-instructions` are companions, not alternatives.** This skill
+owns what is genuinely *SolidStats*-specific: GSD/skill workflow, the cross-app boundary map, the
+cross-app compatibility protocol, and the repo taxonomy. Session hygiene, git conventions
+(including the auto commit + push policy), security minimums, risk management, documentation
+language, MemPalace conventions, and MCP/doc-lookup rules moved to
+[`solid-stats/agent-instructions`](https://github.com/solid-stats/agent-instructions) — they
+were generic to any team's agents, not to SolidStats, and were previously hand-duplicated across
+every repo's `AGENTS.md` instead of living once. Every repo imports that fragment directly via
+`@.agent-instructions/AGENTS.md`; read it alongside this skill. (Sections §B, §C, §F, §G, §H, §I
+moved there — the remaining letters are not renumbered, so every existing "§D"/"§E"/"§J" reference
+elsewhere in the org stays valid.)
 
 The org is not one flat set of repos: there are five **platform services** that run the product,
 a few **supporting** repos, and one **legacy** repo. §J defines the three tiers and what
@@ -63,42 +77,6 @@ development is outside the process.
   skill at one occurrence, a **preference** after it recurs. This is only for *skill* divergences —
   the test is whether fixing it means editing a `solidstats-*` SKILL.md; a fact about the product or
   codebase goes to memory / MemPalace instead.
-
----
-
-## B. Session Hygiene
-
-Every completed work session must leave the repository in a clean, committed state:
-
-- Run `git status --short` at the end of every session. If there are uncommitted changes from
-  the work just done, commit them before stopping.
-- Do **not** delete or revert completed work to fake a clean status. If the intended work is
-  incomplete, ask what to do rather than silently discarding it.
-- The rule is: *commit the intended results of the session, not a reset to the previous state.*
-
----
-
-## C. Git Conventions
-
-All commits in every SolidStats repo follow **Conventional Commits**:
-
-```
-<type>(<scope>): <short description>
-```
-
-Common types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`.
-Scope: the phase number, feature area, or affected layer (e.g. `feat(17-03): …`,
-`fix(ingest): …`, `docs(planning): …`).
-
-**Absolute rules:**
-
-- Never run `git commit`, `git push`, or any destructive git operation (reset --hard, force
-  push, branch -D, rebase) without an explicit instruction from the user in the current message.
-  Authorization from a previous message does not carry forward.
-- Never skip hooks with `--no-verify` or `--no-gpg-sign` unless explicitly asked to. If a
-  pre-commit hook fails, fix the underlying issue — the hook is the signal, not the obstacle.
-- When a pre-commit hook fails, the commit did not happen. Create a new commit after fixing;
-  do not amend the previous one (amending could silently modify work that already shipped).
 
 ---
 
@@ -150,114 +128,6 @@ web consumes?* If yes, verify compatibility before writing code.
 
 ---
 
-## F. Security Minimums
-
-These rules apply to all code, commits, and logs across every SolidStats repo:
-
-- **Never log, commit, or output:** secrets, API tokens, database connection strings, S3
-  access keys, RabbitMQ credentials, raw replay bytes, or unpublished parser artifacts.
-- **Never hardcode environment-specific values.** Use environment variables validated at
-  startup (e.g. `envalid` for Node, a validated config struct for Rust). Startup should fail
-  fast if required env vars are missing or malformed.
-- **Before committing:** check that `.env`, `.env.local`, and any file containing credentials
-  is either in `.gitignore` or explicitly excluded from the commit. Never commit secrets to
-  git history — they are permanent even after deletion.
-
----
-
-## G. Risk Management Protocol
-
-When a request is risky, potentially harmful, or would expand scope beyond the current plan:
-
-1. **Explain the concrete reason** — name the specific risk, the boundary it crosses, or the
-   plan it contradicts.
-2. **Propose 1–3 safer alternatives** or a GSD plan that achieves the goal without the risk.
-3. **Ask for explicit confirmation** before proceeding with anything that falls into these
-   categories:
-   - Crosses a cross-app boundary (§D)
-   - Modifies a high-risk cross-repo contract (§E)
-   - Contradicts an accepted architecture decision in `.planning/PROJECT.md`
-   - Deletes, overwrites, or discards completed work
-   - Conflicts with current test quality, security rules, or repo structure standards
-
-Do not blindly execute instructions that conflict with architecture, accepted decisions, or
-the quality gates in this repo. Challenge, explain, propose alternatives — then wait.
-
----
-
-## H. Documentation Language
-
-Language follows the reader. The test for any doc is: who reads it — a user, or an engineer?
-
-- **Every repo README is bilingual.** A README is the repo's front door, read by users (the
-  RU-speaking Solid Games community), not an internal engineering doc. So each repo carries a
-  Russian `README.md` (primary) plus an English `README.en.md` mirror, edited together in one
-  change so they never drift. This is the same pattern the `.github` org profile already uses
-  (`profile/README.md` + `profile/README.en.md`) — the profile is just the org-level README.
-- **Everything internal is English only** — code, comments, planning docs, skill bodies and
-  references, `AGENTS.md`, and all technical `docs/`. These are read by the people and agents
-  building the platform, not by users.
-- **GSD workflow responses** (conversations within a GSD session) and replies to the user:
-  Russian.
-- **Skill trigger phrases** (`description` field in `SKILL.md`): RU + EN mandatory. Every skill
-  triggers on both languages — the team works in a RU context.
-
----
-
-## I. MCP Usage
-
-SolidStats development verifies library APIs against **current documentation, never training
-data** — training data has a cutoff and may reflect outdated or incorrect APIs. Look the docs
-up proactively; don't wait for a type error.
-
-### Library documentation — free official sources only
-
-For any library / framework / SDK / API / CLI question (current API, configuration options,
-migration guide, best practice), pull the current docs from **free sources**:
-
-- **WebFetch / WebSearch** against the library's **official docs** and its `llms.txt`.
-- The repo's `README` / `docs/` (and release notes) via the **`gh`** CLI for source-of-truth usage.
-- GitHub issues / PRs for bug reports, migrations, and error-message answers not yet in the docs.
-
-**Do NOT use Context7 or any paid documentation MCP** — free official sources are the standard
-across every SolidStats repo, not a paid lookup service.
-
-**Common lookup triggers:** adding a new dependency, upgrading a package, using a method you're
-not 100% sure about, hitting an unexpected type error, writing a new integration.
-
-**Key libraries by repo — verify these against current docs, not training data:**
-
-| Repo | Libraries to verify against current docs |
-|------|------------------------------------------|
-| **server-2** | fastify, zod, fastify-type-provider-zod, @fastify/swagger, kysely, pg, amqplib, pino, envalid, prom-client, @aws-sdk/client-s3 |
-| **replays-fetcher** | zod, commander, @aws-sdk/client-s3, pg |
-| **web** | @tanstack/start, @tanstack/router, @tanstack/react-query, @tanstack/react-table, @tanstack/react-form, @ark-ui/react, tailwindcss, tailwind-variants, openapi-typescript, openapi-fetch, openapi-react-query |
-| **replay-parser-2** | tokio, serde, serde_json, thiserror, lapin, aws-sdk-s3, axum, tracing, tracing-subscriber |
-| **infrastructure** | Kubernetes API reference, kubectl |
-
-### Loading the tools (deferred in Claude Code)
-
-`WebSearch` and `WebFetch` appear as *deferred tools* — their schemas aren't loaded until
-requested. Load them before the first lookup (the same in the main session and in spawned
-subagents like gsd-executor / gsd-planner / gsd-phase-researcher):
-
-```
-ToolSearch({ query: "select:WebSearch,WebFetch", max_results: 2 })
-```
-
-In standalone agents outside a Claude Code session (e.g. CI, remote triggers), use the agent's
-own HTTP/fetch capability or the `gh` CLI against official docs and repo sources — never add a
-paid documentation MCP.
-
-### When NOT to look it up
-
-- For SolidStats-specific code or business logic (no external library is involved).
-- For a library you've just looked up in the same session and the answer hasn't changed.
-- For stable standard library APIs (e.g. Node.js `fs`, Rust `std::collections`) that are
-  unlikely to differ from training data.
-
----
-
 ## J. Repo Taxonomy & Documentation Standard
 
 The `solid-stats` org is more than the five platform services, and not every repo owes the same
@@ -270,8 +140,9 @@ The boundary map (§D) covers only the platform tier; this covers the whole org.
 - **Platform services (5)** — `server-2`, `replays-fetcher`, `replay-parser-2`, `web`,
   `infrastructure`. They run the product; each owns a runtime boundary (§D) and is a GSD project
   with its own `.planning/`.
-- **Supporting (3)** — `plans` (cross-project planning), `skills` (this skill set), `ts-toolchain`
-  (shared TypeScript config). They support the platform but own no runtime boundary.
+- **Supporting (4)** — `plans` (cross-project planning), `skills` (this skill set), `ts-toolchain`
+  (shared TypeScript config), `agent-instructions` (shared AGENTS.md fragment + GSD config
+  commons). They support the platform but own no runtime boundary.
 - **Legacy (1)** — `sg-replay-parser`. Superseded by `replay-parser-2`; frozen.
 
 **Per-tier documentation:**
@@ -279,13 +150,15 @@ The boundary map (§D) covers only the platform tier; this covers the whole org.
 | Tier | README | AGENTS.md + CLAUDE.md stub | LICENSE | `.planning/` |
 |------|--------|---------------------------|---------|--------------|
 | Platform service | bilingual (`README.md` RU + `README.en.md` EN) | yes — shared header + repo body | yes | yes (GSD) |
-| Supporting | bilingual (RU + EN) | yes — shared header + repo body | only if it ships reusable code (`ts-toolchain`) | optional (`plans` is docs, not a GSD project) |
+| Supporting | bilingual (RU + EN) | yes — shared header + repo body | only if it ships reusable code (`ts-toolchain`, `agent-instructions`) | optional (`plans` is docs, not a GSD project) |
 | Legacy | bilingual; deprecation banner pointing forward | leave as-is | keep existing | frozen |
 
-- **AGENTS.md opens with a shared header**, then continues with repo-specific guidance: what the
-  repo is, its boundary (link to §D for platform repos), and a pointer to this skill set. The
-  header makes any repo legible to an agent landing in it cold; the body stays per-repo. Don't
-  rewrite a working body to fit a template — add the header above it.
+- **AGENTS.md opens with a repo-specific blockquote header**, then imports the shared
+  `agent-instructions` fragment (`@.agent-instructions/AGENTS.md`), then continues with
+  repo-specific guidance: what the repo is, its boundary (link to §D for platform repos), and a
+  pointer to this skill set. The header makes any repo legible to an agent landing in it cold;
+  the body stays per-repo. Don't rewrite a working body to fit a template — add the header and
+  import above it.
 - **CLAUDE.md is a two-line stub** that imports AGENTS.md (`See @AGENTS.md …`). One source of
   agent guidance per repo, not two kept in sync by hand.
 - **Governance is centralized.** `CONTRIBUTING` / `SECURITY` / `CODE_OF_CONDUCT` / issue + PR
@@ -293,7 +166,8 @@ The boundary map (§D) covers only the platform tier; this covers the whole org.
   org-default fallback. Don't copy them into individual repos — duplicates drift.
 - **The org profile reflects reality.** The `.github` `profile/README.*` repo table groups
   Platform and Supporting and keeps the legacy line. When a repo is added, moves tier, or is
-  retired, update the profile (both language files, per §H) in the same change.
+  retired, update the profile (both language files, per the documentation-language rule in
+  `agent-instructions`) in the same change.
 
 ---
 

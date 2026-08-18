@@ -1,5 +1,27 @@
 # Changelog — solidstats-shared-project-standards
 
+## 2026-08-18 — v1.6 — Move generic cross-repo rules to agent-instructions
+
+- Removed §B Session Hygiene, §C Git Conventions, §F Security Minimums, §G Risk Management
+  Protocol, §H Documentation Language, and §I MCP Usage. These were generic to any team's
+  agents, not SolidStats-specific, and were being hand-duplicated (the "Skills First" paragraph
+  was verbatim-identical across `web`/`server-2`/`replays-fetcher`/`replay-parser-2`'s own
+  `AGENTS.md`) instead of living once. They now live in the new
+  [`solid-stats/agent-instructions`](https://github.com/solid-stats/agent-instructions) repo,
+  imported by every consumer repo's `AGENTS.md` via `@.agent-instructions/AGENTS.md` and kept
+  current by a release-triggered auto-PR bot (manual merge, no auto-merge). §I's per-repo
+  library table was dropped outright, not moved — each repo's own `solidstats-*-conventions`
+  skill already names its key libraries.
+- Kept §A (GSD workflow + skill authority — genuinely about this skill set), §D (cross-app
+  boundary map), §E (cross-app compatibility protocol), and §J (repo taxonomy) — these are
+  actually SolidStats-specific, not generic process rules.
+- Letters were deliberately **not renumbered** after the removals (still A, D, E, J) — every
+  other repo's `AGENTS.md` cites "§D"/"§E" for the boundary map and compatibility protocol, and
+  renumbering would have silently broken every one of those citations across the org.
+- §J's repo taxonomy gained a 4th Supporting-tier repo: `agent-instructions`.
+- Frontmatter `description` and the file intro rewritten to describe the skill as a companion to
+  `agent-instructions`, not a superset of it.
+
 ## 2026-06-22 — v1.5 — §A active-suggestion hook for the skill-feedback loop
 
 - §A "The skill is the source of truth" gains a bullet wiring the **active-suggestion protocol**: when
