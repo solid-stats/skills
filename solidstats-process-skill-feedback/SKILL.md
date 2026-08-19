@@ -61,6 +61,7 @@ to the skill — it costs nothing to hold many entries. See `references/journal-
 
 **3. Fact vs preference decides the threshold — not a flat rule of three.** A correction is one of
 two classes, and that class is the single most important field:
+
 - **fact** — objectively right/wrong: the skill names a wrong path/method/command, contradicts
   itself, or caused a bug. One credible occurrence is enough; waiting for three repeats of a known
   falsehood just leaves the skill lying twice more. → eligible to promote at **one** occurrence.
@@ -77,7 +78,7 @@ a shared skill from an unexamined single data point.
   agent finds divergence mid-work ┐
   human edits a skill artefact    ┼─► normalize ─► journal entry ──► <skills-repo>/<target-skill>/corrections-log.md
   free-form prose                 ┘   (§ references/signal-taxonomy.md)   (+ regression-evals.jsonl when code is bound)
-                                                                                  │  (git add; commit on the user's say-so)
+                                                                                  │  (git add; standing commit + push policy)
                           CAPTURE (per discovery) ──────────────────────────────┘
                                                                                   │
                           PROMOTE (maintainer, batch) ─► cluster ─► fact@1 / pref@3 ─► route ─► propose SKILL.md + CHANGELOG diff ─► apply
@@ -100,6 +101,7 @@ capturing first and promoting later.
 ## C. Scope — which skills this loop covers
 
 **In scope (artefactual — they have a capturable signal):**
+
 - per-stack conventions — `solidstats-server-ts-conventions`, `solidstats-fetcher-ts-conventions`,
   `solidstats-parser-rust-conventions`, `solidstats-frontend-react-conventions`;
 - per-stack code-review — `solidstats-*-code-review` (and `solidstats-frontend-react-design-review`);
@@ -159,7 +161,7 @@ together decide capture and threshold. Full definitions and class-assignment rul
 `references/signal-taxonomy.md`.
 
 | Signal | What happened | Class default | Code needed? | Routes to |
-|--------|---------------|---------------|--------------|-----------|
+| -------- | --------------- | --------------- | -------------- | ----------- |
 | **divergence** | Skill states X; the real code / correct practice is Y | **fact** | the proof (file:line or the true fact) | fix/correct the rule in the target skill |
 | **gap** | A real pattern exists in code that no rule covers | fact if canonical, else preference | yes — the pattern | a new/extended rule in the target skill |
 | **caused-bug** | Following the rule produced a defect | **fact** | yes — the offending code + the bug | qualify/fix the rule; add a guardrail |
@@ -179,6 +181,7 @@ A `gap` or `caused-bug` is only learnable with the code it points at. Bind code 
 because the branch is often deleted post-merge.
 
 Source priority, most trustworthy first:
+
 1. **The exact snippet the agent was looking at** when it found the divergence — paste it into the
    entry. This is the SolidStats norm (the witness is the working agent, §A.1).
 2. **Best-effort from local `HEAD`** by `file:line` in the consuming repo. **Caveat:** because the
@@ -213,6 +216,7 @@ divergence is almost always found while working in a *consuming* repo (server-2,
 replay-parser-2, web), and the copy of this skill running there is the **vendored** `.agents/skills/**`
 copy — which is overwritten on the next `npx skills update`. Never write the journal into the vendored
 copy or into the consuming repo. Resolve the real `solid-stats/skills` checkout, in order:
+
 1. If the cwd (or an ancestor) is a git repo whose remote is `solid-stats/skills`, use it.
 2. Else look for a local clone — a sibling of the consuming repo (`../skills`) or another checkout
    under `~/Projects/**` whose remote is `solid-stats/skills`. Confirm the remote before writing.
@@ -228,8 +232,8 @@ mandates for any skill edit: changes go to `solid-stats/skills`, never the vendo
 
 ## I. Promotion gate and edit discipline
 
-PROMOTE may **apply** the edit in this same repo (no separate checkout to propose against), but never
-silently and never auto-committed:
+PROMOTE may **apply** the edit in this same repo (no separate checkout to propose against), but only
+after the user approves the proposed skill change:
 
 - Promote only a cluster that clears its threshold — **fact at one**, **preference at three** (§A.3).
   A `generalized: true` principle may surface below three but still needs the user's nod.
@@ -237,9 +241,9 @@ silently and never auto-committed:
   section style, plus the matching `CHANGELOG.md` entry (AGENTS.md requires a changelog entry on
   every skill change). Follow the additive-change preference — extend or narrow a rule, don't
   silently delete; note deprecations with a reason.
-- **Show it, apply on the user's approval, and leave the commit to the user** (AGENTS.md: never
-  commit/push without explicit instruction). For SolidStats the norm is direct-to-master; still, a
-  skill is shared truth — the human decides when it lands.
+- **Show it and apply on the user's approval.** After approval, follow the standing SolidStats
+  commit-and-push policy from the imported `.agent-instructions/AGENTS.md`; do not ask separately
+  whether to commit or push the completed change.
 - After it lands, mark the cluster's entries `status: promoted` in the journal so the same pattern
   doesn't re-surface.
 
@@ -252,7 +256,7 @@ running, without forcing it.
 ## J. Workflows and references
 
 | File | When to read |
-|------|--------------|
+| ------ | -------------- |
 | `workflows/capture.md` | Running CAPTURE — classify signal+class, bind code, normalize, append, emit regression case, nudge |
 | `workflows/promote.md` | Running PROMOTE — cluster, apply fact@1/pref@3, route, draft SKILL.md + CHANGELOG edit, apply on approval |
 | `references/signal-taxonomy.md` | The five signals, the fact/preference class rules, and how each routes |

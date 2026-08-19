@@ -3,10 +3,11 @@
 Run this manually, in batch, when a target's journal has built up (the capture nudge tells you when).
 Goal: find what has earned a rule change — a **fact at one occurrence**, a **preference at three** —
 route each to the right home, draft the edit to the target skill plus its CHANGELOG, and apply on the
-user's approval. PROMOTE runs in **this skills repo**, so it can apply the edit directly — but never
-silently and never auto-committed.
+user's approval. PROMOTE runs in **this skills repo**, so it can apply the edit directly — but only
+after the user approves the proposed skill change.
 
 ## Required reading
+
 - `references/journal-schema.md` — the entry schema and cluster signature
 - `references/signal-taxonomy.md` — routing per signal
 - The **target skill's SKILL.md** (and the relevant `references/*`) — you are editing it, so read its
@@ -47,9 +48,9 @@ silently and never auto-committed.
    changelog justification.
 
 7. **Apply on approval.** Show the diff; on the user's go, apply it to the skill and the CHANGELOG in
-   this repo. **Leave the commit to the user** (AGENTS.md: never commit/push without explicit
-   instruction) — even though SolidStats pushes direct-to-master, a skill is shared truth and the
-   human decides when it lands.
+   this repo. Then follow the standing SolidStats commit-and-push policy from the imported
+   `.agent-instructions/AGENTS.md`; do not ask separately whether to commit or push the completed
+   promotion.
 
 8. **Close the loop.** After the edit lands, mark the promoted cluster's entries `status: promoted` in
    `corrections-log.md` so the pattern doesn't re-surface. Optionally graduate a proven regression case
@@ -61,4 +62,4 @@ silently and never auto-committed.
 A promotion report: facts ready (each with its source `id` + proposed edit), preference clusters
 ready (member ids + routing + diff), preference clusters warming (count vs. three), and any
 `needs-code-context` entries blocking otherwise-good patterns. End with the list of skill edits
-applied or awaiting the user's hand, and a reminder that committing is the user's call.
+applied or awaiting the user's approval.

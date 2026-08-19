@@ -213,9 +213,8 @@ Common scopes: `skills`, `conventions`, `docs`.
 
 Example: `feat(skills): add solidstats-shared-review-standards`
 
-**Never commit or push without explicit user instruction.** AI assistants must not
-run `git commit`, `git push`, or any destructive git operation unless the user
-directly asks for it in the current message.
+Commit and push policy comes from the imported `.agent-instructions/AGENTS.md`.
+Do not restate it here; the shared rule is the single source of truth.
 
 ## Scripts
 
@@ -230,4 +229,3 @@ Maintenance scripts live in `scripts/`. They are **not** skills — they are loc
 - Do not store project source code, migrations, or configuration here.
 - Do not add skills that are specific to a single developer's workflow — only team-wide skills.
 - Do not commit secrets, tokens, or environment-specific values.
-- Do not commit or push autonomously — always wait for explicit user instruction.

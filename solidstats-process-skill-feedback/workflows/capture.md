@@ -7,6 +7,7 @@ repo**, emit a regression case when code is bound, and stage it for commit. It n
 skill — that is PROMOTE's job.
 
 ## Required reading
+
 - `references/signal-taxonomy.md` — the five signals and the fact/preference class rules
 - `references/journal-schema.md` — the entry schema and signature
 - `templates/correction-entry.md` — the block to append
@@ -51,9 +52,10 @@ skill — that is PROMOTE's job.
    entry with bound code, append one JSONL line to `<target-skill>/regression-evals.jsonl`
    (journal-schema §4). Skip `needs-code-context` entries.
 
-7. **Stage for commit.** `git add` the journal files (`corrections-log.md`, and
-   `regression-evals.jsonl` if written). **Do not commit or push** unless the user asks — AGENTS.md
-   forbids autonomous commits, and this repo is shared truth. Tell the user the entry is staged.
+7. **Finish the repository change.** Stage the journal files (`corrections-log.md`, and
+   `regression-evals.jsonl` if written), then follow the standing SolidStats commit-and-push policy
+   from the imported `.agent-instructions/AGENTS.md`. Do not ask separately whether to commit or
+   push a completed capture.
 
 8. **Print the soft nudge.** For this target, count `open` entries, `fact` entries ready to promote
    (each promotable at one), and preference clusters at/over three. Report, e.g.:

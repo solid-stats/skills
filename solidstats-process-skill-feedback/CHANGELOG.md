@@ -1,5 +1,11 @@
 # Changelog — solidstats-process-skill-feedback
 
+## v1.1 — 2026-08-20 — align with standing commit and push policy
+
+- Removed stale instructions that required a separate commit/push confirmation
+  after an approved capture or promotion. Completed SolidStats changes now
+  follow the standing policy imported from `.agent-instructions/AGENTS.md`.
+
 ## v1.0 — 2026-06-22 — initial skill
 
 - New direct-invoke (`disable-model-invocation`) process skill: the SolidStats self-improvement loop
