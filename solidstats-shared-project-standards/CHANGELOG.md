@@ -1,5 +1,12 @@
 # Changelog — solidstats-shared-project-standards
 
+## 2026-08-20 — v1.7 — Correct the authentication boundary
+
+- Corrected §D to name Discord OAuth for request authors, moderators, and
+  admins. Steam login and SteamID-based player ownership were superseded by
+  the active identity/auth decision pack because replays contain no persistent
+  player identifier. Promotes correction `SC-2026-08-20-d4c7`.
+
 ## 2026-08-18 — v1.6 — Move generic cross-repo rules to agent-instructions
 
 - Removed §B Session Hygiene, §C Git Conventions, §F Security Minimums, §G Risk Management

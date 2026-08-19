@@ -86,8 +86,8 @@ The platform tier is five services (§J); each has a strict ownership boundary. 
 introduces hidden coupling that is hard to untangle later.
 
 | Repo | Owns | Must NOT |
-|------|------|----------|
-| **server-2** | Canonical business state: replays, parse_jobs, parse_results, stats, identity, moderation. HTTP API. RabbitMQ orchestration. Auth (Steam OpenID). | Parse OCAP replay content. Crawl/fetch external replay sources. |
+| ------ | ------ | ---------- |
+| **server-2** | Canonical business state: replays, parse_jobs, parse_results, stats, identity, moderation. HTTP API. RabbitMQ orchestration. Auth (Discord OAuth for request authors, moderators, and admins). | Parse OCAP replay content. Crawl/fetch external replay sources. |
 | **replays-fetcher** | Raw replay object storage (S3). Ingest staging/outbox records. Source metadata (URL, checksums, fetch timestamps). | Parse replay contents. Mutate server-2 business tables (replays, parse_jobs, parse_results, stats, identity, moderation). Publish RabbitMQ messages. Calculate stats. |
 | **replay-parser-2** | OCAP parsing. Versioned parser artifacts. RabbitMQ worker. Health probes. | Write parser results directly into server-2 business tables. Own or assign canonical player identity (server-2 owns player matching). |
 | **web** | Frontend. Typed API client (generated from server-2 OpenAPI schema). UI state. | Directly access the database or S3. Bypass the typed API client with raw fetch. |
@@ -148,7 +148,7 @@ The boundary map (§D) covers only the platform tier; this covers the whole org.
 **Per-tier documentation:**
 
 | Tier | README | AGENTS.md + CLAUDE.md stub | LICENSE | `.planning/` |
-|------|--------|---------------------------|---------|--------------|
+| ------ | -------- | --------------------------- | --------- | -------------- |
 | Platform service | bilingual (`README.md` RU + `README.en.md` EN) | yes — shared header + repo body | yes | yes (GSD) |
 | Supporting | bilingual (RU + EN) | yes — shared header + repo body | only if it ships reusable code (`ts-toolchain`, `agent-instructions`) | optional (`plans` is docs, not a GSD project) |
 | Legacy | bilingual; deprecation banner pointing forward | leave as-is | keep existing | frozen |
