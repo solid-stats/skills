@@ -10,12 +10,8 @@ description: >
   Use this proactively — read it at the start of any task in any SolidStats repo, even when the
   task doesn't name any of these topics. It is the shared baseline every other SolidStats skill
   assumes. Over-triggering is acceptable.
-  Triggers: any task in a SolidStats repo, start of a work session, git commits, cross-repo
-  changes, architecture decisions, session planning, before any implementation, Kubernetes,
-  deploy, staging, infrastructure.
-  Триггеры: любая задача в репо SolidStats, начало рабочей сессии, git коммиты, изменения с
-  влиянием на другие репо, архитектурные решения, планирование, перед любой реализацией,
-  Kubernetes, деплой, стейджинг, инфраструктура.
+  Triggers: any SolidStats task; cross-repo changes; architecture; Kubernetes; deploy.
+  Триггеры: любая задача SolidStats; межрепозиторные изменения; архитектура; Kubernetes; деплой.
 ---
 
 <!-- markdownlint-disable MD013 -->
@@ -149,8 +145,8 @@ The boundary map (§D) covers only the platform tier; this covers the whole org.
 
 **Per-tier documentation:**
 
-| Tier | README | AGENTS.md + CLAUDE.md stub | LICENSE | `.planning/` |
-| ------ | -------- | --------------------------- | --------- | -------------- |
+| Tier | README | AGENTS.md | LICENSE | `.planning/` |
+| ------ | -------- | ----------- | --------- | -------------- |
 | Platform service | bilingual (`README.md` RU + `README.en.md` EN) | yes — shared header + repo body | yes | yes (GSD) |
 | Supporting | bilingual (RU + EN) | yes — shared header + repo body | only if it ships reusable code (`ts-toolchain`, `agent-instructions`) | optional (`plans` is docs, not a GSD project) |
 | Legacy | bilingual; deprecation banner pointing forward | leave as-is | keep existing | frozen |
@@ -161,8 +157,8 @@ The boundary map (§D) covers only the platform tier; this covers the whole org.
   landing in it cold; the body stays per-repo. Don't edit the managed block or rewrite a working
   body to fit a template — update shared rules in `solid-stats/agent-instructions` and keep local
   guidance outside the markers.
-- **CLAUDE.md is a two-line stub** that imports AGENTS.md (`See @AGENTS.md …`). One source of
-  agent guidance per repo, not two kept in sync by hand.
+- **AGENTS.md is the only required agent-instruction file.** Do not create, restore, or validate
+  `CLAUDE.md`; repositories may remove it. This keeps one source of agent guidance per repo.
 - **Governance is centralized.** `CONTRIBUTING` / `SECURITY` / `CODE_OF_CONDUCT` / issue + PR
   templates live once in the `.github` org repo and apply to every repo through GitHub's
   org-default fallback. Don't copy them into individual repos — duplicates drift.

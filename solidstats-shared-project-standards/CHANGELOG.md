@@ -2,6 +2,12 @@
 
 <!-- markdownlint-disable MD013 -->
 
+## 2026-08-20 — v1.9 — Retire the CLAUDE.md stub
+
+- Removed `CLAUDE.md` from the repository documentation contract. `AGENTS.md` is now the only
+  required agent-instruction file; agents must not recreate or validate deleted `CLAUDE.md` files.
+  Promotes correction `SC-2026-08-20-6e21` after explicit maintainer approval.
+
 ## 2026-08-20 — v1.8 — Embed shared instructions for Codex
 
 - Replaced the Claude-only nested `AGENTS.md` import convention with a release-managed block at
