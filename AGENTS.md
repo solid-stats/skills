@@ -11,6 +11,8 @@
 > `solidstats-shared-project-standards` (taxonomy, boundary map, doc language) is the baseline every
 > repo assumes. See `solid-stats/skills`.
 
+@.agent-instructions/AGENTS.md
+
 ---
 
 # AGENTS.md — SolidStats Skills Repository
