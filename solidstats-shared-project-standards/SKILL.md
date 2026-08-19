@@ -18,6 +18,8 @@ description: >
   Kubernetes, деплой, стейджинг, инфраструктура.
 ---
 
+<!-- markdownlint-disable MD013 -->
+
 # SolidStats Project Standards — Universal Baseline
 
 These standards apply to **every repo in the `solid-stats` org** and every session. They define
@@ -31,10 +33,10 @@ cross-app compatibility protocol, and the repo taxonomy. Session hygiene, git co
 language, MemPalace conventions, and MCP/doc-lookup rules moved to
 [`solid-stats/agent-instructions`](https://github.com/solid-stats/agent-instructions) — they
 were generic to any team's agents, not to SolidStats, and were previously hand-duplicated across
-every repo's `AGENTS.md` instead of living once. Every repo imports that fragment directly via
-`@.agent-instructions/AGENTS.md`; read it alongside this skill. (Sections §B, §C, §F, §G, §H, §I
-moved there — the remaining letters are not renumbered, so every existing "§D"/"§E"/"§J" reference
-elsewhere in the org stays valid.)
+every repo's `AGENTS.md` instead of living once. A release-managed block embeds that shared source
+at the start of every root `AGENTS.md`; read it alongside this skill. (Sections §B, §C, §F, §G,
+§H, §I moved there — the remaining letters are not renumbered, so every existing
+"§D"/"§E"/"§J" reference elsewhere in the org stays valid.)
 
 The org is not one flat set of repos: there are five **platform services** that run the product,
 a few **supporting** repos, and one **legacy** repo. §J defines the three tiers and what
@@ -153,12 +155,12 @@ The boundary map (§D) covers only the platform tier; this covers the whole org.
 | Supporting | bilingual (RU + EN) | yes — shared header + repo body | only if it ships reusable code (`ts-toolchain`, `agent-instructions`) | optional (`plans` is docs, not a GSD project) |
 | Legacy | bilingual; deprecation banner pointing forward | leave as-is | keep existing | frozen |
 
-- **AGENTS.md opens with a repo-specific blockquote header**, then imports the shared
-  `agent-instructions` fragment (`@.agent-instructions/AGENTS.md`), then continues with
-  repo-specific guidance: what the repo is, its boundary (link to §D for platform repos), and a
-  pointer to this skill set. The header makes any repo legible to an agent landing in it cold;
-  the body stays per-repo. Don't rewrite a working body to fit a template — add the header and
-  import above it.
+- **AGENTS.md starts with the release-managed `agent-instructions` block**, followed by
+  repo-specific guidance: a blockquote header, what the repo is, its boundary (link to §D for
+  platform repos), and a pointer to this skill set. The header makes any repo legible to an agent
+  landing in it cold; the body stays per-repo. Don't edit the managed block or rewrite a working
+  body to fit a template — update shared rules in `solid-stats/agent-instructions` and keep local
+  guidance outside the markers.
 - **CLAUDE.md is a two-line stub** that imports AGENTS.md (`See @AGENTS.md …`). One source of
   agent guidance per repo, not two kept in sync by hand.
 - **Governance is centralized.** `CONTRIBUTING` / `SECURITY` / `CODE_OF_CONDUCT` / issue + PR
