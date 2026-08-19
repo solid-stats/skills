@@ -7,13 +7,14 @@ This file adds the SolidStats-specific content that must be folded into those se
 
 ## Source
 
-- Accepted Claude Design surface: `<Claude Design project/card URL, pulled via DesignSync>`
-- Approval screenshots: `<paths>`
+- Accepted local summary: `<web/.visual-prototypes/<slice>/SUMMARY.md>`
+- Accepted Penpot surface: `<App Design page and board names>`
+- MemPalace recall entry: `<SolidStats/design drawer or fact reference>`
 - Global checklist items deferred to implementation: `<source URL> -> spec section`
 - SolidStats items added here: `<data trust / role / RU+EN / replay data> -> spec section`
 
-If a visual decision is missing from the accepted Claude Design surface, send it back to design
-iteration instead of inventing it inside the implementation spec.
+If a visual decision is missing from the local summary or accepted Penpot boards, send it back to
+design iteration instead of inventing it inside the implementation spec.
 
 ## API And Domain Data
 

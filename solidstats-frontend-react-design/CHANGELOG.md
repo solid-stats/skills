@@ -1,5 +1,16 @@
 # Changelog — solidstats-frontend-react-design
 
+## 2026-08-19 — Prototype stage moves to Penpot
+
+- Restored the global local-document contract: each slice keeps `BRIEF.md`, `ITERATIONS.md`, and
+  the accepted `SUMMARY.md` under `web/.visual-prototypes/`.
+- Moved the visual artifact to Penpot `App Design`, with one Penpot page per application page and
+  screens composed from connected `SolidStats UIKit` instances and token references.
+- Added the SolidStats MemPalace `design` room as the cross-session recall copy for accepted
+  summaries. The local `SUMMARY.md` remains the complete implementation handoff.
+- Retired `DesignSync` and active `.design/CLAUDE.md` guidance. `web/.design/` remains a frozen
+  historical archive.
+
 ## 2026-08-01b — Correction: Ladle is mandatory for the UIKit
 
 - The same-day update below wrongly softened Ladle from a required implementation stage to
