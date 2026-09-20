@@ -1,0 +1,21 @@
+{
+  "skill_name": "solidstats-server-swagger-spec-write",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write the bounded desired contract from evals/brief.md and prepare its handoff. Produce the YAML and iteration documents in the assigned output directory. Do not implement the backend, fabricate approval, or dispatch nested reviewers; independent review follows this run. Validate the draft using the available Python runtime. Save the handoff as handoff.md.",
+      "expected_output": "A validated, self-contained draft iteration, explicit target/baseline migration, and a handoff that preserves independent review and human approval before the separate implementation phase.",
+      "files": [
+        "evals/brief.md"
+      ],
+      "expectations": [
+        "The delivered stage passes the bundled OpenAPI 3.0.3 validator.",
+        "The target has UUID string IDs, a complete cursor envelope, and a 201 creation response.",
+        "Each error response constrains its own statusCode and error code combination.",
+        "The actual swagger/changes/001_example-items tree contains YAML, CONTEXT.md, INDEX.md, CHANGES.md, plus swagger/CATALOG.md.",
+        "The handoff accounts for the accepted integer/offset/200 replacement and client transition.",
+        "Independent review and explicit human approval remain pending before the separate implementation phase."
+      ]
+    }
+  ]
+}

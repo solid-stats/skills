@@ -5,3 +5,7 @@ __pycache__/
 
 # graphify knowledge-graph output — regenerated locally, never committed
 graphify-out/
+
+# Local behavioral runs and isolated validator dependencies.
+solidstats-server-swagger-spec-write-workspace/
+solidstats-server-swagger-spec-review-workspace/

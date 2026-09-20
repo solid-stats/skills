@@ -17,7 +17,8 @@ Rust-парсера OCAP (`replay-parser-2`) и фронтенда на React /
 правила, по которым пишут код остальные репозитории.
 
 > Solid Stats от и до строят AI-агенты по процессу
-> [GSD](https://github.com/open-gsd/gsd-core). Разработка вне GSD — вне процесса.
+> [GSD](https://github.com/open-gsd/gsd-core). Разработка вне GSD — вне
+> процесса.
 
 ## Быстрый старт
 
@@ -43,8 +44,16 @@ bash ./scripts/update-all-skills.sh   # обновить всё везде (гл
 ## Каталог навыков
 
 Полный перечень навыков с описаниями ведётся в английском
-[README.en.md](README.en.md#available-skills) — это авторитетный список того, что
+[README.en.md](README.en.md#available-skills) — это авторитетный список того,
+что
 есть в репозитории и за что отвечает каждый навык.
+
+Для спецификаций бэкенда доступны
+[`solidstats-server-swagger-spec-write`](solidstats-server-swagger-spec-write/SKILL.md)
+и [`solidstats-server-swagger-spec-review`](solidstats-server-swagger-spec-review/SKILL.md).
+Они ведут спеки в `server-2/swagger`: отдельная фаза GSD для написания
+и согласования небольшого блока, затем фаза реализации. Утверждённая человеком
+спека задаёт целевой контракт, под который можно рефакторить бэкенд.
 
 ## Документация
 

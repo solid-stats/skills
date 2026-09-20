@@ -1,0 +1,180 @@
+openapi: 3.0.3
+info:
+  title: Solid Stats example catalog
+  version: 0.1.0
+  description: Synthetic bounded contract illustrating the authoring conventions.
+paths:
+  /example-items:
+    get:
+      operationId: listExampleItems
+      summary: List example items
+      description: "Returns items ordered by immutable creation time descending, then\
+        \ UUID\ndescending. The opaque cursor binds the ordering and any active filters.\n\
+        New items ahead of the cursor appear after a refresh, not on later pages.\n\
+        Deleted items are omitted. No snapshot or total count is promised.\n The cursor\
+        \ carries ordering values and survives deletion of its anchor. No alternative\
+        \ ordering or filters exist.\n"
+      security: []
+      parameters:
+      - name: cursor
+        in: query
+        description: Omit for the first page. A malformed cursor returns 400.
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 1024
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 25
+      responses:
+        '200':
+          description: A page, including an empty terminal page.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamplePage'
+        '400':
+          description: The cursor is malformed or belongs to another query.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidCursorError'
+        '422':
+          description: A query parameter fails its declared schema constraints.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidQueryError'
+    post:
+      operationId: createExampleItem
+      summary: Create an example item
+      description: Public synchronous creation for this synthetic fixture. Duplicate
+        names are allowed. The server assigns id and createdAt. Unknown body fields
+        are rejected.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExample'
+      responses:
+        '201':
+          description: Created item.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExampleItem'
+        '422':
+          description: Invalid body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidBodyError'
+components:
+  schemas:
+    ExampleItem:
+      type: object
+      required:
+      - id
+      - name
+      - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+        createdAt:
+          type: string
+          format: date-time
+        moderatorNote:
+          type: string
+        kind:
+          type: string
+          const: example
+    ExamplePage:
+      type: object
+      required:
+      - items
+      - hasMore
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/ExampleItem'
+        hasMore:
+          type: boolean
+          description: Whether another page is available at evaluation time.
+        nextCursor:
+          type: string
+          nullable: true
+          description: Null when hasMore is false; otherwise a continuation token.
+    CreateExample:
+      type: object
+      required:
+      - name
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+    InvalidCursorError:
+      type: object
+      required:
+      - statusCode
+      - error
+      - message
+      properties:
+        statusCode:
+          type: integer
+          enum:
+          - 400
+        error:
+          type: string
+          enum:
+          - invalid_cursor
+        message:
+          type: string
+    InvalidQueryError:
+      type: object
+      required:
+      - statusCode
+      - error
+      - message
+      properties:
+        statusCode:
+          type: integer
+          enum:
+          - 422
+        error:
+          type: string
+          enum:
+          - invalid_query
+        message:
+          type: string
+    InvalidBodyError:
+      type: object
+      required:
+      - statusCode
+      - error
+      - message
+      properties:
+        statusCode:
+          type: integer
+          enum:
+          - 422
+        error:
+          type: string
+          enum:
+          - invalid_body
+        message:
+          type: string

@@ -1,0 +1,21 @@
+{
+  "skill_name": "solidstats-server-swagger-spec-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review the synthetic draft in evals/fixture against its brief. Save a read-only review report as review.md in the assigned output directory. Check the actual YAML with the available validator. Run all relevant review passes serially, without nested subagents. Judge the intended change against the approved product requirements, and state whether implementation may begin.",
+      "expected_output": "A traceable blocking review catches invalid OpenAPI, incomplete cursor envelope, and public exposure of a forbidden internal field without rejecting the deliberate UUID/cursor/201 migration or inventing human approval.",
+      "files": [
+        "evals/fixture"
+      ],
+      "expectations": [
+        "The review reports the invalid OpenAPI const keyword and failed mandatory validation.",
+        "The review finds the missing required nextCursor field.",
+        "The review finds public exposure of the forbidden moderatorNote field.",
+        "The accepted UUID/cursor/201 migration and intentional public POST are not rejected.",
+        "The review denies implementation start until fixes, validation, review, and human approval.",
+        "Findings have concrete path:line evidence and use the shared severity/verdict report shape."
+      ]
+    }
+  ]
+}
