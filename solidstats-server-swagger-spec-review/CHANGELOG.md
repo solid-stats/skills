@@ -1,5 +1,12 @@
 # Changelog — solidstats-server-swagger-spec-review
 
+## 2026-10-04 — Distinguish union coverage and error closure
+
+- Make specialist prompts distinguish exclusive `oneOf` from overlapping
+  `anyOf`, including evidence for nested unions.
+- Check closed error envelopes separately from typed dictionaries in details;
+  consume the repaired validator and shared contract rules.
+
 ## 2026-10-04 — Strict public HTTP contract
 
 - Require the shared HTTP profile in every specialist context.

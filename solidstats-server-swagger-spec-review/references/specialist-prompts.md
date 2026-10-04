@@ -72,7 +72,9 @@ Read in full and report these read files:
 plus CONTEXT.md, INDEX.md, and CHANGES.md when present.
 
 Check exact errors and stable public errorCode, scoped collision evidence,
-precise details per variant, plus cursor pagination, UUID strings, OpenAPI 3.0.3, supported validation
+closed top-level error envelopes and precise details per variant. An intentional
+typed dictionary inside details does not permit extra envelope fields.
+Check cursor pagination, UUID strings, OpenAPI 3.0.3, supported validation
 fields and required
 semantics, appropriate 201 creation responses, errors, request/response shapes,
 Steam OpenID,
@@ -89,8 +91,11 @@ workflow. Output read-files then the required findings table.
 You review schema design, $ref, composition, required/optional meaning, reusable
 components, and
 description placement for solidstats-server-swagger-spec-review.
-Check required literal tags, explicit mappings, exact branch schemas and
-positive/negative payload evidence; discriminator syntax alone is insufficient.
+For oneOf, check required literal tags, explicit mappings, exact branch schemas
+and exclusive positive/negative cases; discriminator syntax is insufficient.
+For anyOf, check coverage of every branch, intended overlap and a negative
+matching no branch. Do not require exclusive samples or distinct tags for it.
+Check nested unions too; cases for a parent do not replace nested case coverage.
 
 Project: <PROJECT_ROOT>;
 YAML: <YAML_FILES>;

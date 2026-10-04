@@ -1,5 +1,13 @@
 # Changelog — solidstats-server-swagger-spec-write
 
+## 2026-10-04 — Close validator review gaps
+
+- Distinguish exclusive `oneOf` cases from intentional `anyOf` overlap and
+  require branch, overlap and no-match evidence for root and nested `anyOf`.
+- Require closed error envelopes while preserving typed dictionaries in details.
+- Reject noncanonical JSON Pointer array indices in both validation modes.
+- Add regression cases for the reported false passes and valid controls.
+
 ## 2026-10-04 — Strict public HTTP contract
 
 - Replace legacy-style preservation with the shared explicit API naming profile.

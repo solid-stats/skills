@@ -90,11 +90,11 @@ def union_cases():
 
 
 class ValidatorTests(unittest.TestCase):
-    def validate(self, document):
+    def validate(self, document, **options):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "spec.yaml"
             path.write_text(json.dumps(document), encoding="utf-8")
-            return MODULE.validate_file(path, YAML, VALIDATOR)
+            return MODULE.validate_file(path, YAML, VALIDATOR, **options)
 
     def test_checked_template_and_exact_digest(self):
         result = MODULE.validate_file(
@@ -129,6 +129,30 @@ class ValidatorTests(unittest.TestCase):
         }
         with self.assertRaisesRegex(ValueError, "Unresolved internal"):
             self.validate(document)
+
+    def test_array_reference_indices_require_canonical_ascii_digits(self):
+        for profile in (False, True):
+            for index in ("00", "01", "+0", "-1", "-", "\u0660", "\uff10", "", "2"):
+                with self.subTest(profile=profile, index=index):
+                    document = profile_document()
+                    document["components"] = {"schemas": {
+                        "Count": {"allOf": [{"type": "integer"}, {"type": "integer"}]},
+                        "Alias": {"$ref": "#/components/schemas/Count/allOf/" + index},
+                    }}
+                    with self.assertRaisesRegex(ValueError, "Unresolved internal"):
+                        self.validate(document, profile=profile)
+
+    def test_canonical_array_indices_and_numeric_object_keys_still_resolve(self):
+        for index in ("0", "1"):
+            document = profile_document()
+            document["components"] = {"schemas": {
+                "Count": {"allOf": [{"type": "integer"}, {"type": "integer"}]},
+                "Alias": {"$ref": "#/components/schemas/Count/allOf/" + index},
+            }}
+            self.assertTrue(self.validate(document, profile=True)["valid"])
+        document = {"00": "leading zero key", "\u0660": "unicode key"}
+        self.assertEqual(MODULE.resolve_pointer(document, "#/00"), "leading zero key")
+        self.assertEqual(MODULE.resolve_pointer(document, "#/%D9%A0"), "unicode key")
 
     def test_unused_component_reference_is_still_checked(self):
         document = minimal_document()
@@ -292,6 +316,159 @@ class ProfileTests(unittest.TestCase):
         document = profile_document()
         document["components"] = {"schemas": {"Labels": {"type": "object", "additionalProperties": {"type": "string"}}}}
         self.assertTrue(self.validate(document)["valid"])
+
+    def test_error_envelope_rejects_typed_additional_properties(self):
+        for location in ("component", "inline", "reference"):
+            with self.subTest(location=location):
+                document = profile_document()
+                schema = error_schema()
+                schema["additionalProperties"] = {"type": "string"}
+                if location != "inline":
+                    document["components"] = {"schemas": {"MissingItem": schema}}
+                if location != "component":
+                    response_schema = schema if location == "inline" else {
+                        "$ref": "#/components/schemas/MissingItem",
+                    }
+                    document["paths"]["/items"]["get"]["responses"]["404"] = {
+                        "description": "Item absent",
+                        "content": {"application/json": {"schema": response_schema}},
+                    }
+                with self.assertRaisesRegex(ValueError, "error envelope must.*closed"):
+                    self.validate(document)
+
+    def test_closed_error_envelope_allows_typed_dictionary_only_inside_details(self):
+        document = profile_document()
+        schema = error_schema()
+        schema["properties"]["details"] = {"type": "object", "additionalProperties": {"type": "string"}}
+        document["components"] = {"schemas": {"MissingItem": schema}}
+        payload = {"statusCode": 404, "error": "Not Found", "errorCode": "item_not_found",
+                   "message": "Item absent", "details": {"dynamicKey": "value"}}
+        cases = [{"schema": "#/components/schemas/MissingItem", "valid": valid, "value": value}
+                 for valid, value in (
+                     (True, payload), (False, {**payload, "unexpected": "value"}),
+                     (False, {**payload, "details": {"dynamicKey": 42}}),
+                 )]
+        self.assertTrue(self.validate(document, cases)["valid"])
+
+    def test_anyof_requires_cases_at_root_and_nested_schema_locations(self):
+        union = {"anyOf": [{"type": "number"}, {"type": "integer"}]}
+        schemas = (
+            union,
+            {"type": "object", "additionalProperties": False, "properties": {"value": union}},
+            {"type": "array", "items": union},
+            {"type": "object", "additionalProperties": union},
+        )
+        for schema in schemas:
+            with self.subTest(schema=schema):
+                document = profile_document()
+                document["components"] = {"schemas": {"Value": schema}}
+                with self.assertRaisesRegex(ValueError, "anyOf case coverage"):
+                    self.validate(document)
+
+    def test_anyof_overlap_is_valid_for_inline_and_referenced_branches(self):
+        for referenced in (False, True):
+            with self.subTest(referenced=referenced):
+                document = profile_document()
+                schemas = {"Number": {"type": "number"}, "Integer": {"type": "integer"}}
+                branches = [{"$ref": "#/components/schemas/" + name} if referenced else schema
+                            for name, schema in schemas.items()]
+                schemas["Value"] = {"anyOf": branches}
+                document["components"] = {"schemas": schemas}
+                cases = [{"schema": "#/components/schemas/Value", "valid": valid,
+                          "value": value, "category": category} for valid, value, category in (
+                              (True, 1.5, ""), (True, 1, ""),
+                              (False, "wrong", "no-matching-branch"),
+                          )]
+                self.assertTrue(self.validate(document, cases)["valid"])
+                # A non-integer misses the integer branch; one overlapping value
+                # may cover both branches, but positive-only evidence is incomplete.
+                for incomplete in (cases[::2], cases[:2]):
+                    with self.assertRaisesRegex(ValueError, "anyOf case coverage"):
+                        self.validate(document, incomplete)
+
+    def test_anyof_nested_cases_target_the_union_itself(self):
+        document = profile_document()
+        document["components"] = {"schemas": {"Result": {
+            "type": "object", "additionalProperties": False, "required": ["value"],
+            "properties": {"value": {"anyOf": [{"type": "number"}, {"type": "integer"}]}},
+        }}}
+        cases = [{"schema": "#/components/schemas/Result/properties/value", "valid": valid,
+                  "value": value, "category": category} for valid, value, category in (
+                      (True, 1, ""), (False, "wrong", "no-matching-branch"),
+                  )]
+        self.assertTrue(self.validate(document, cases)["valid"])
+        with self.assertRaisesRegex(ValueError, "anyOf case coverage"):
+            self.validate(document, [{"schema": "#/components/schemas/Result", "valid": True,
+                                      "value": {"value": 1}}])
+
+    def test_anyof_negative_case_must_fail_every_branch(self):
+        document = profile_document()
+        document["components"] = {"schemas": {"Value": {
+            "enum": [1], "anyOf": [{"type": "number"}, {"type": "integer"}],
+        }}}
+        cases = [{"schema": "#/components/schemas/Value", "valid": valid,
+                  "value": value, "category": category} for valid, value, category in (
+                      (True, 1, ""), (False, 2, "no-matching-branch"),
+                  )]
+        with self.assertRaisesRegex(ValueError, "not evidenced"):
+            self.validate(document, cases)
+
+    def test_anyof_cannot_skip_evidence_of_the_intended_overlap(self):
+        document = profile_document()
+        document["components"] = {"schemas": {"Value": {
+            "anyOf": [{"type": "integer", "minimum": 0}, {"type": "integer", "maximum": 0}],
+        }}}
+        cases = [{"schema": "#/components/schemas/Value", "valid": valid,
+                  "value": value, "category": category} for valid, value, category in (
+                      (True, 1, ""), (True, -1, ""), (False, "wrong", "no-matching-branch"),
+                  )]
+        with self.assertRaisesRegex(ValueError, "anyOf case coverage.*overlap"):
+            self.validate(document, cases)
+        cases.append({"schema": "#/components/schemas/Value", "valid": True, "value": 0})
+        self.assertTrue(self.validate(document, cases)["valid"])
+
+    def test_anyof_object_branches_do_not_need_exclusive_tags(self):
+        document = profile_document()
+        document["components"] = {"schemas": {"Value": {"anyOf": [
+            {"type": "object", "additionalProperties": False, "required": ["count"],
+             "properties": {"count": {"type": "integer", bound: 0}}}
+            for bound in ("minimum", "maximum")
+        ]}}}
+        cases = [{"schema": "#/components/schemas/Value", "valid": valid,
+                  "value": value, "category": category} for valid, value, category in (
+                      (True, {"count": 0}, ""), (False, {"count": "wrong"}, "no-matching-branch"),
+                  )]
+        self.assertTrue(self.validate(document, cases)["valid"])
+
+    def test_combined_oneof_anyof_cannot_silently_skip_one_union(self):
+        document = union_document()
+        document["components"]["schemas"]["Result"]["anyOf"] = [
+            {"$ref": "#/components/schemas/Ready"}, {"$ref": "#/components/schemas/Failed"},
+        ]
+        with self.assertRaisesRegex(ValueError, "Verification gap: combined oneOf/anyOf"):
+            self.validate(document, union_cases())
+
+    def test_cli_anyof_requires_sidecar_and_accepts_complete_cases(self):
+        with tempfile.TemporaryDirectory() as folder:
+            stage, sidecar = Path(folder) / "stage.json", Path(folder) / "cases.json"
+            document = profile_document()
+            document["paths"]["/items"]["get"]["responses"]["200"]["content"] = {
+                "application/json": {"schema": {"anyOf": [{"type": "number"}, {"type": "integer"}]}},
+            }
+            stage.write_text(json.dumps(document), encoding="utf-8")
+            command = [sys.executable, str(SCRIPT), "--profile", "solidstats", str(stage)]
+            completed = subprocess.run(command, capture_output=True, text=True, check=False, timeout=30)
+            self.assertEqual(completed.returncode, 1)
+            self.assertFalse(json.loads(completed.stdout)["valid"])
+            self.assertIn("anyOf case coverage", completed.stderr)
+            cases = [{"file": "stage.json", "schema": "#/paths/~1items/get/responses/200/content/application~1json/schema",
+                      "valid": valid, "value": value, "category": category}
+                     for valid, value, category in ((True, 1, ""), (False, "wrong", "no-matching-branch"))]
+            sidecar.write_text(json.dumps({"cases": cases}), encoding="utf-8")
+            completed = subprocess.run([*command, "--cases", str(sidecar)], capture_output=True,
+                                       text=True, check=False, timeout=30)
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            self.assertTrue(json.loads(completed.stdout)["valid"])
 
     def test_union_positive_and_negative_cases(self):
         report = self.validate(union_document(), union_cases())

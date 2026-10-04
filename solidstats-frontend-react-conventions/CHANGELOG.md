@@ -1,5 +1,10 @@
 # Changelog — solidstats-frontend-react-conventions
 
+## 2026-10-04 — Preserve intentional anyOf overlap
+
+- Scope exclusive tags and narrowing to `oneOf`; keep intentional `anyOf`
+  overlap in generated types under the shared HTTP contract.
+
 ## 2026-10-04 — Consume the strict public HTTP contract
 
 - Make the shared `http-api-contract.md` a required read for API-bound frontend

@@ -154,7 +154,8 @@ review of the active contract inventory beyond the supplied-file checks.
    Do not perform unauthorized nested fan-out.
 4. **Apply contract rules.** Check only applicable patterns. In particular,
    enforce the shared naming profile, exact types and required/null semantics,
-   discriminated exclusive object unions with case evidence, and stable
+   tagged object `oneOf`, intentional `anyOf` overlap and their case evidence,
+   plus stable
    globally unambiguous `errorCode` with exact per-code `details`. Check the
    active error inventory and generated-client narrowing; no text-based domain
    branching or unconstrained generic error schema is acceptable. Also

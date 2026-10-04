@@ -60,9 +60,12 @@ preserve it.
   the exact `details` schema. Do not split correlated tags and payloads into
   independent types or
   merge all variants into one object with optional fields. Verify the approved
-  OpenAPI 3.0.3 union
+  OpenAPI 3.0.3 `oneOf`
   has distinct singleton tag enums and explicit discriminator mapping if
   generation cannot narrow.
+- Intentional `anyOf` alternatives may overlap. Preserve their generated types
+  without inventing distinct tags or assuming exactly one branch matches;
+  follow the shared HTTP profile's branch and overlap evidence.
 - **Model (server shape) → Data (app shape):** process a backend model into its
   app shape at the
   boundary; `*Model` stays in business/processors, not in UI/components

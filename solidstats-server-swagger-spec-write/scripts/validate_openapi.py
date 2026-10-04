@@ -79,7 +79,9 @@ def resolve_pointer(document, reference: str):
         try:
             if isinstance(target, dict):
                 target = target[token]
-            elif isinstance(target, list) and token.isdecimal():
+            # RFC 6901 section 4: ASCII digits, with no leading zeros.
+            # Numeric-looking object keys above are not array indices.
+            elif isinstance(target, list) and re.fullmatch(r"0|[1-9][0-9]*", token):
                 target = target[int(token)]
             else:
                 raise KeyError(token)
@@ -290,7 +292,7 @@ def check_union(document, pointer, schema):
         shapes.append(shape)
     if mapping != literals:
         raise ValueError(f"{pointer}: discriminator mapping must match branch literal/ref pairs exactly.")
-    return {"tag": tag, "mapping": literals, "refs": refs, "shapes": shapes}
+    return {"kind": "oneOf", "tag": tag, "mapping": literals, "refs": refs, "shapes": shapes}
 
 
 def register_error(document, schema, location, registry, status=None):
@@ -303,6 +305,8 @@ def register_error(document, schema, location, registry, status=None):
         return
     if shape.get("type") != "object" or any(key in shape for key in ("anyOf", "not")):
         raise ValueError(f"{location}: Verification gap: error must be a concrete object or tagged oneOf.")
+    if shape.get("additionalProperties") is not False:
+        raise ValueError(f"{location}: error envelope must be closed with additionalProperties: false.")
     fields = shape.get("properties", {})
     required = {"statusCode", "error", "errorCode", "message"}
     if not required <= set(shape.get("required", [])) or not required <= set(fields):
@@ -356,8 +360,16 @@ def check_profile(document, source, error_registry, operation_ids):
             raise ValueError(f"{pointer}: arrays require an item schema.")
         if shape.get("type") == "object" and shape.get("additionalProperties") is not False and not isinstance(shape.get("additionalProperties"), dict):
             raise ValueError(f"{pointer}: object must be closed or declare a typed dictionary.")
+        if "oneOf" in shape and "anyOf" in shape:
+            raise ValueError(f"{pointer}: Verification gap: combined oneOf/anyOf constraints are unsupported.")
         if "oneOf" in shape:
             unions[pointer] = check_union(document, pointer, shape)
+        elif "anyOf" in shape:
+            unions[pointer] = {
+                "kind": "anyOf",
+                "refs": [pointer_child(pointer_child(pointer, "anyOf"), index)
+                         for index in range(len(shape["anyOf"]))],
+            }
         if {"statusCode", "errorCode"} <= set(shape.get("properties", {})):
             register_error(document, shape, f"{source}:{pointer}", error_registry)
     methods = {"get", "put", "post", "delete", "options", "head", "patch", "trace"}
@@ -427,14 +439,14 @@ def load_cases(path, raw=None):
 
 
 def check_cases(document, cases, unions, validator_class):
-    # The library dispatches oneOf through discriminator. Remove annotations to
+    # The library dispatches unions through discriminator. Remove annotations to
     # exercise actual branch constraints/exclusivity instead of that shortcut.
     validation_root = copy.deepcopy(document)
     known_schemas = {pointer for pointer, _ in schema_nodes(document)}
     for _, schema in schema_nodes(validation_root):
         schema.pop("discriminator", None)
     validator = validator_class(validation_root, format_checker=validator_class.FORMAT_CHECKER)
-    results, coverage = [], {pointer: {"branches": set(), "negative": set()} for pointer in unions}
+    results, coverage = [], {pointer: {"branches": set(), "negative": set(), "overlap": False} for pointer in unions}
     for index, case in enumerate(cases):
         pointer = case["schema"]
         if pointer not in known_schemas:
@@ -447,12 +459,19 @@ def check_cases(document, cases, unions, validator_class):
         if pointer in unions:
             union = unions[pointer]
             matches = [reference for reference in union["refs"] if validator.evolve(schema={"$ref": reference}).is_valid(case["value"])]
-            if actual and len(matches) != 1:
+            if actual and union["kind"] == "oneOf" and len(matches) != 1:
                 raise ValueError(f"Case {index}: oneOf payload must match exactly one branch.")
             coverage[pointer]["branches"].update(matches if actual else [])
             category = case.get("category")
             value = case["value"]
-            if not actual and isinstance(value, dict):
+            if union["kind"] == "anyOf":
+                if actual and len(matches) > 1:
+                    coverage[pointer]["overlap"] = True
+                if not actual and category == "no-matching-branch":
+                    if matches:
+                        raise ValueError(f"Case {index}: negative category {category!r} is not evidenced by this payload.")
+                    coverage[pointer]["negative"].add(category)
+            elif not actual and isinstance(value, dict):
                 tag = union["tag"]
                 leaves = []
                 def leaf_errors(items):
@@ -479,6 +498,13 @@ def check_cases(document, cases, unions, validator_class):
                     coverage[pointer]["negative"].add(category)
         results.append({"schema": pointer, "expectedValid": case["valid"], "actualValid": actual, "category": case.get("category")})
     for pointer, union in unions.items():
+        missing_branches = set(union["refs"]) - coverage[pointer]["branches"]
+        if union["kind"] == "anyOf":
+            missing_negative = {"no-matching-branch"} - coverage[pointer]["negative"]
+            missing_overlap = not coverage[pointer]["overlap"]
+            if missing_branches or missing_negative or missing_overlap:
+                raise ValueError(f"{pointer}: anyOf case coverage missing branches {sorted(missing_branches)}; negatives {sorted(missing_negative)}; overlap {missing_overlap}.")
+            continue
         required_negative = {"missing-discriminator", "unknown-discriminator", "invalid-field-type"}
         shapes = union["shapes"]
         all_fields = set.union(*(set(shape.get("properties", {})) for shape in shapes))
@@ -486,7 +512,6 @@ def check_cases(document, cases, unions, validator_class):
             required_negative.add("mixed-variant-fields")
         if any(name != union["tag"] and not effective_schema(document, field).get("nullable") for shape in shapes for name, field in shape.get("properties", {}).items()):
             required_negative.add("forbidden-null")
-        missing_branches = set(union["refs"]) - coverage[pointer]["branches"]
         missing_negative = required_negative - coverage[pointer]["negative"]
         if missing_branches or missing_negative:
             raise ValueError(f"{pointer}: oneOf case coverage missing branches {sorted(missing_branches)}; negatives {sorted(missing_negative)}.")

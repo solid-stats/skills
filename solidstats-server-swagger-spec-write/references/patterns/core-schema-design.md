@@ -307,7 +307,7 @@ related: [schema-nullability-30, schema-const-vs-enum]
 ### Rule — schema-polymorphism
 
 Use `oneOf` when exactly one variant is valid and `anyOf` only when overlapping
-alternatives are intended. For object unions, use named component references,
+alternatives are intended. For object `oneOf`, use named component references,
 a common required string tag with distinct singleton enums in each branch,
 and an explicit discriminator mapping. A discriminator alone does not make
 overlapping branches exclusive. Follow the shared
@@ -315,12 +315,17 @@ overlapping branches exclusive. Follow the shared
 
 Each branch owns its precise fields and requiredness; close DTOs against
 mixed-variant fields. Error variants use `errorCode` and narrow `details`
-together. Validate a positive payload for each branch and negative payloads
+together. For `oneOf`, validate a positive payload for each branch and negatives
 for missing/unknown tags, mixed fields, wrong types and forbidden nulls.
-Check that each valid payload matches exactly one branch. Primitive unions
-need their own exclusivity evidence rather than a fabricated discriminator.
-Do not use unions for nullability or cosmetic annotation, or weaken oneOf to
-anyOf to hide a failing case.
+Check that each valid payload matches exactly one branch. Primitive `oneOf`
+alternatives need exclusivity evidence rather than a fabricated discriminator.
+
+For `anyOf`, require positive coverage of every branch, an example of the
+intended overlap, and a negative payload matching no branch. A valid sample
+may cover several branches; never require it to match exactly one or add
+distinct tags that remove the intended overlap. Review type/null/field edge
+cases where applicable. Do not use unions for nullability or cosmetic
+annotation, or weaken `oneOf` to `anyOf` to hide a failing case.
 
 ### Rationale — schema-polymorphism
 
@@ -332,9 +337,11 @@ Event payloads and genuinely variant replay-source representations.
 
 ### Detection — schema-polymorphism
 
-Flag overlapping branches, optional/loose tags, missing mapping, variant
-fields collapsed into independent optional properties, or missing payload
-case evidence. Preserve exact unions in generated TypeScript clients.
+For `oneOf`, flag overlapping branches, optional/loose tags, missing mapping
+or variant fields collapsed into independent optional properties. For `anyOf`,
+flag missing overlap intent/evidence, not overlap itself. Flag missing branch
+and negative payload coverage for either kind. Preserve exact unions in
+generated TypeScript clients.
 
 ### Severity — schema-polymorphism
 

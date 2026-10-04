@@ -28,6 +28,9 @@ Use concrete error components following the shared
 Require `statusCode`, `error`, `errorCode`, and `message`; type `details`
 precisely per code, with explicit requiredness. Fix the status and error code
 to singleton enums. `error` is the HTTP label, not the domain code.
+Close each concrete envelope with `additionalProperties: false`. A typed
+dictionary inside `details` is allowed when intentional; arbitrary top-level
+error fields are not.
 
 Codes are stable snake_case and globally unambiguous by condition and details
 contract. Identical conditions may reuse a code; different meanings may not.
@@ -51,8 +54,9 @@ Every route that can reject an authenticated, validated, or domain request.
 ### Detection — errors-shared-shape
 
 Flag missing/loose `errorCode`, incompatible reuse across modules, free-form
-details, broad generic error schemas, mismatched status/code combinations,
-client branching on text, or unexplained migration from legacy envelopes.
+details, open top-level envelopes, broad generic error schemas, mismatched
+status/code combinations, client branching on text, or unexplained migration
+from legacy envelopes.
 
 ### Severity — errors-shared-shape
 

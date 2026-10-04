@@ -70,7 +70,7 @@ inferred from property casing. Existing enum changes need migration evidence.
 
 ## Exclusive variants
 
-For alternative object payloads use `oneOf` with named component references.
+For mutually exclusive object payloads use `oneOf` with named component refs.
 Each branch declares the same required string discriminator property, with a
 distinct single-value `enum`. Declare the parent's discriminator and explicit
 mapping. For errors the discriminator is `errorCode`; other payloads use their
@@ -95,12 +95,18 @@ ReplayResult:
 This is a synthetic naming example, not a product state-machine decision.
 
 A discriminator is not a substitute for constraints on each branch. For every
-union, validate a representative payload for every branch and verify it matches
-exactly one branch. Negative cases cover missing/unknown tags, mixed variant
-fields, wrong primitive types and forbidden nulls. Primitive alternatives need
-their own exclusivity proof; do not add a fake object tag to them. Use `anyOf`
-only when overlapping alternatives are intended, never to silence a failing
-`oneOf`. In 3.0.3, fixed literals use single-value `enum`, not `const`.
+`oneOf`, validate a representative payload for every branch and verify it
+matches exactly one branch. Negative cases cover missing/unknown tags, mixed
+variant fields, wrong primitive types and forbidden nulls. Primitive `oneOf`
+alternatives need their own exclusivity evidence; do not add a fake object tag.
+
+Use `anyOf` only when overlapping alternatives are intended, never to silence
+a failing `oneOf`. Validate positive payloads covering every branch, including
+the intended overlap, and a negative payload that matches no branch. A valid
+payload may match several branches and count toward each one's coverage;
+neither exclusive samples nor distinct tags are required for `anyOf`. Review
+additional type/null/field edge cases where applicable. In 3.0.3, fixed literals
+use single-value `enum`, not `const`.
 
 ## Public errors
 
@@ -123,8 +129,11 @@ meaning or incompatible details shape requires a new code or an explicitly
 versioned migration. HTTP-status policy remains semantically documented.
 
 Each concrete error component fixes `errorCode` and `statusCode` with singleton
-enums. An operation lists only its possible errors. Several errors with the
-same HTTP status use a `oneOf` discriminated by `errorCode`, not independent
+enums and closes the top-level envelope with `additionalProperties: false`.
+An intentional typed dictionary may live inside `details`; it does not open
+the envelope to arbitrary extra fields. An operation lists only its possible
+errors. Several errors with the same HTTP status use a `oneOf` discriminated
+by `errorCode`, not independent
 enums that allow mismatched code/details combinations. An unconstrained
 generic error schema is insufficient as an operation's only declared shape.
 

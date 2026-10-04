@@ -2,6 +2,13 @@
 
 <!-- markdownlint-disable MD013 -->
 
+## 2026-10-04 — Clarify union evidence and error closure
+
+- Scope exclusive payload matching to `oneOf`; require branch, overlap and
+  no-match evidence for intentional `anyOf` alternatives.
+- Make top-level error closure explicit while retaining typed details maps.
+  Server and web consumers continue to read this single shared profile.
+
 ## 2026-10-04 — Strict public HTTP contract
 
 - Own the shared public HTTP profile: API naming, exact schemas, exclusive variants and globally unambiguous public errorCode.

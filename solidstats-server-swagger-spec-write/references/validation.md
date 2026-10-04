@@ -27,9 +27,9 @@ self-contained documents and does not fetch external references.
 The helper always checks UTF-8 YAML/JSON parsing, duplicate keys,
 JSON-compatible values, OpenAPI 3.0.3, local references and structural validity.
 The required `--profile solidstats` adds the supported mechanical checks for
-public naming, object-union tags/mappings, precise error variants and conflicting
-error-code definitions across the supplied documents. The plain command without
-the profile remains a structural diagnostic, not the authoring acceptance gate.
+public naming, object `oneOf` tags/mappings, precise closed error variants and
+conflicting error-code definitions across the supplied documents. Without the
+profile, the command is a structural diagnostic, not the acceptance gate.
 
 Pass the current compatible contract scope, including the proposed slice and
 related active definitions. Do not combine superseded historical stages as if
@@ -43,6 +43,9 @@ identity when supplied. Failure returns a nonzero status; missing dependencies
 return status 2. Unsupported composite forms in the strict checks are a
 verification gap, not an implied pass. Local refs and supported straightforward
 composition remain self-contained; validation never retrieves remote schemas.
+Array indices in local JSON Pointers use canonical ASCII decimal digits, with
+no leading zeros except the single index `0`. Numeric-looking object keys keep
+their literal spelling.
 
 ## Payload cases
 
@@ -72,17 +75,31 @@ pointers, independently of any schema-level example annotations:
 
 This is a format illustration; complete it for the real schema. Paths resolve
 relative to the sidecar and must identify documents also passed to the command.
-Every encountered union needs a valid payload matching each branch exactly
-once, plus negative payloads for missing/unknown discriminator and wrong field
-types. Add mixed-variant fields when variants have different fields, and
-forbidden-null cases where nonnullable fields exist. Category labels alone are
-not evidence: the payload must exhibit the claimed condition. Primitive unions
-need appropriate case evidence without fake object discriminators; unsupported
-forms must be resolved with a verified checker before acceptance.
+Every encountered `oneOf` or `anyOf` needs cases targeting that Schema Object's
+pointer, including nested unions under properties, array items or dictionaries.
+A case for its containing object does not replace cases for the nested union.
 
-The strict helper currently reports gaps for primitive unions, callback
-operations, recursive error-shape comparisons and unsupported `allOf`
-intersections. JSON error responses need concrete HTTP statuses; `default`,
+- `oneOf`: cover each branch with a valid payload matching exactly one branch.
+  Add negative payloads for missing/unknown discriminator and wrong field
+  types, mixed-variant fields when variants have different fields, and
+  forbidden-null cases where nonnullable fields exist.
+- `anyOf`: cover each branch with a valid payload, show the intended overlap
+  with a payload matching multiple branches, and add a negative payload with
+  category `no-matching-branch` that fails every branch. One overlapping sample
+  may cover multiple branches; no exclusive sample or discriminator is needed.
+  Inline and referenced primitive/object alternatives are supported. Review
+  additional type/null/field edge cases where applicable.
+
+Category labels alone are not evidence: the payload must exhibit the claimed
+condition. For example, failure of an outer constraint does not establish
+`no-matching-branch` when a branch still accepts that payload. Branch matching
+uses the constraints themselves, independently of discriminator dispatch.
+
+The strict helper currently reports gaps for primitive `oneOf`, combined
+`oneOf`/`anyOf` constraints on one Schema Object, callback operations, recursive
+error-shape comparisons and unsupported `allOf` intersections. Unsupported
+forms need a verified checker before acceptance, not fake object tags. JSON
+error responses need concrete HTTP statuses; `default`,
 `4XX` and `5XX` cannot establish a fixed status/code contract. Protocol-owned
 names that fall outside the supported casing checks need explicit verification
 of that exception, not a false claim that the standard profile passed.
@@ -92,9 +109,7 @@ must not silently redefine that wire vocabulary.
 The bundled `templates/openapi-skeleton.cases.json` demonstrates complete
 positive/negative coverage for its synthetic `CursorError` union. Omit
 `--cases` only if no union requires case coverage; still verify ordinary
-request/response examples and optional/null semantics in review. The helper
-tests branch truth independently of discriminator dispatch so a mapping cannot
-hide overlapping schemas.
+request/response examples and optional/null semantics in review.
 
 Record the exact command, result and schema/case content digests in the
 existing phase
@@ -124,6 +139,7 @@ are recorded as implementation work, not copied into a new authored contract.
 ## Primary documentation
 
 - [OpenAPI 3.0.3](https://spec.openapis.org/oas/v3.0.3.html).
+- [JSON Pointer evaluation](https://www.rfc-editor.org/rfc/rfc6901.html#section-4).
 - [Validator Python
   API](https://openapi-spec-validator.readthedocs.io/en/latest/python.html).
 - [OpenAPI payload validator](https://openapi-schema-validator.readthedocs.io/en/latest/validation.html).
