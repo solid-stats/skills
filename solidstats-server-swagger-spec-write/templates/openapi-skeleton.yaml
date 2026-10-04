@@ -1,6 +1,4 @@
-# Synthetic teaching example, not a promise of existing server-2 endpoints.
-# Replace the feature, bounds and behavior with the agreed slice before use.
-# Public example: add a verified auth scheme only for operations that need it.
+# Synthetic teaching contract, not existing endpoints. Replace domain decisions before use.
 openapi: 3.0.3
 info:
   title: Solid Stats example catalog
@@ -11,27 +9,32 @@ paths:
     get:
       operationId: listExampleItems
       summary: List example items
-      description: |
-        Returns items ordered by immutable creation time descending, then UUID
+      description: 'Returns items ordered by immutable creation time descending, then
+        UUID
+
         descending. The opaque cursor binds the ordering and any active filters.
+
         New items ahead of the cursor appear after a refresh, not on later pages.
+
         Deleted items are omitted. No snapshot or total count is promised.
+
+        '
       security: []
       parameters:
-        - name: cursor
-          in: query
-          description: Omit for the first page. A malformed cursor returns 400.
-          schema:
-            type: string
-            minLength: 1
-            maxLength: 1024
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 25
+      - name: cursor
+        in: query
+        description: Omit for the first page. A malformed cursor returns 400.
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 1024
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 25
       responses:
         '200':
           description: A page, including an empty terminal page.
@@ -44,7 +47,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InvalidCursorError'
+                $ref: '#/components/schemas/CursorError'
         '422':
           description: A query parameter fails its declared schema constraints.
           content:
@@ -55,7 +58,10 @@ components:
   schemas:
     ExampleItem:
       type: object
-      required: [id, name, createdAt]
+      required:
+      - id
+      - name
+      - createdAt
       properties:
         id:
           type: string
@@ -67,9 +73,13 @@ components:
         createdAt:
           type: string
           format: date-time
+      additionalProperties: false
     ExamplePage:
       type: object
-      required: [items, hasMore, nextCursor]
+      required:
+      - items
+      - hasMore
+      - nextCursor
       properties:
         items:
           type: array
@@ -85,32 +95,96 @@ components:
           minLength: 1
           maxLength: 1024
           description: Null when hasMore is false; otherwise a continuation token.
+      additionalProperties: false
     InvalidCursorError:
       type: object
-      required: [statusCode, error, message]
+      required:
+      - statusCode
+      - error
+      - errorCode
+      - message
       properties:
         statusCode:
           type: integer
-          enum: [400]
+          enum:
+          - 400
         error:
           type: string
-          enum: [invalid_cursor]
-          description: Synthetic example codes; resolve real codes in the slice.
+          enum:
+          - Bad Request
+        message:
+          type: string
+        errorCode:
+          type: string
+          enum:
+          - invalid_cursor
+      additionalProperties: false
+      description: 'Synthetic condition: the cursor cannot be decoded.'
+    InvalidQueryError:
+      type: object
+      required:
+      - statusCode
+      - error
+      - errorCode
+      - message
+      properties:
+        statusCode:
+          type: integer
+          enum:
+          - 422
+        error:
+          type: string
+          enum:
+          - Unprocessable Entity
+        message:
+          type: string
+        errorCode:
+          type: string
+          enum:
+          - invalid_query
+      additionalProperties: false
+      description: 'Synthetic condition: query parameters fail their declared schema.'
+    CursorScopeMismatchError:
+      type: object
+      additionalProperties: false
+      description: 'Synthetic condition: the cursor belongs to a different query scope.'
+      required:
+      - statusCode
+      - error
+      - errorCode
+      - message
+      - details
+      properties:
+        statusCode:
+          type: integer
+          enum:
+          - 400
+        error:
+          type: string
+          enum:
+          - Bad Request
+        errorCode:
+          type: string
+          enum:
+          - cursor_scope_mismatch
         message:
           type: string
         details:
           type: object
-          additionalProperties: true
-    InvalidQueryError:
-      type: object
-      required: [statusCode, error, message]
-      properties:
-        statusCode:
-          type: integer
-          enum: [422]
-        error:
-          type: string
-          enum: [invalid_query]
-          description: Synthetic example code; resolve real codes in the slice.
-        message:
-          type: string
+          additionalProperties: false
+          required:
+          - parameter
+          properties:
+            parameter:
+              type: string
+              enum:
+              - cursor
+    CursorError:
+      oneOf:
+      - $ref: '#/components/schemas/InvalidCursorError'
+      - $ref: '#/components/schemas/CursorScopeMismatchError'
+      discriminator:
+        propertyName: errorCode
+        mapping:
+          invalid_cursor: '#/components/schemas/InvalidCursorError'
+          cursor_scope_mismatch: '#/components/schemas/CursorScopeMismatchError'

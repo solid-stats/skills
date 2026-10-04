@@ -4,6 +4,10 @@ This profile configures the writer and reviewer. It retains the Estesis
 iteration procedure while replacing its product and framework assumptions.
 Detailed rules live in the named pattern references, shared by both skills.
 
+Read the shared [HTTP contract](../../solidstats-shared-project-standards/references/http-api-contract.md)
+before designing paths, operations, schemas or errors. It is the common source
+for server and web skills; the existing implementation does not override it.
+
 ## Output language and links
 
 Repository artifacts, YAML descriptions, comments and formal review reports are
@@ -53,28 +57,49 @@ implementation. Preserve unrelated surface by default.
 
 ## Error contract
 
-The prescribed SolidStats envelope is:
+The prescribed envelope is `{statusCode, error, errorCode, message, details?}`.
+`errorCode` is a stable snake_case public condition identifier, globally
+unambiguous across the API. `error` is the HTTP status label. Neither `error`
+nor `message` is a client branching key. `details` is exactly typed per code,
+never an unrestricted object. For example (synthetic):
 
 ```yaml
 type: object
-required: [statusCode, error, message]
+additionalProperties: false
+required: [statusCode, error, errorCode, message, details]
 properties:
   statusCode:
     type: integer
+    enum: [404]
   error:
     type: string
+    enum: [Not Found]
+  errorCode:
+    type: string
+    enum: [replay_not_found]
   message:
     type: string
   details:
     type: object
-    additionalProperties: true
+    additionalProperties: false
+    required: [replayId]
+    properties:
+      replayId:
+        type: string
+        format: uuid
 ```
 
-Source: `solidstats-server-ts-conventions/references/schemas-and-data.md`.
-Resolve the meaning and permitted values of `error`, client branching and
-operation-specific `details` from the intended error policy; never invent an
-`errorCode` field or guess whether a string is a status label or domain code.
-Expose any unresolved distinction before declaring the contract complete.
+Use a concrete component per error condition. Multiple errors at one status
+are a `oneOf` discriminated by required literal `errorCode`, with an explicit
+mapping and positive/negative payload cases. Same-meaning reuse is allowed;
+different conditions or incompatible details under one code are findings.
+Inventory the active API and related approved slices for collisions, naming
+the exact scope checked. Keep the definitions in OpenAPI rather than creating
+a second manually maintained registry.
+
+The former ban on introducing `errorCode` and unresolved meaning of `error`
+are deprecated by the accepted shared profile. Backend conventions own typed
+error-to-HTTP mapping; web conventions own generated decoding and recovery.
 Validation errors use `422`; invalid business input/state may use `400`,
 permission failures `403`, missing entities `404`, conflicts `409`, upstream
 failures `502`, and unexpected failures `500`, according to actual semantics.

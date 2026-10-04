@@ -5,6 +5,12 @@ load `solidstats-profile.md`, `wording-registry.md`, `pattern-index.md` and the
 pattern groups matching the contract. No separate consumer profile repository
 or per-developer service registry is required.
 
+Both skills also read
+`solidstats-shared-project-standards/references/http-api-contract.md` from the
+sibling skills root. This common contract is required for server/web agreement;
+do not substitute a stale local copy or skip it when only an entry point was
+injected into a specialist prompt.
+
 ## Resolve the consumer
 
 The consumer is `server-2`; specification paths are relative to its root even

@@ -1,0 +1,91 @@
+{
+  "cases": [
+    {
+      "file": "openapi-skeleton.yaml",
+      "schema": "#/components/schemas/CursorError",
+      "valid": true,
+      "value": {
+        "statusCode": 400,
+        "error": "Bad Request",
+        "errorCode": "invalid_cursor",
+        "message": "The cursor is malformed."
+      }
+    },
+    {
+      "file": "openapi-skeleton.yaml",
+      "schema": "#/components/schemas/CursorError",
+      "valid": true,
+      "value": {
+        "statusCode": 400,
+        "error": "Bad Request",
+        "errorCode": "cursor_scope_mismatch",
+        "message": "The cursor is malformed.",
+        "details": {
+          "parameter": "cursor"
+        }
+      }
+    },
+    {
+      "file": "openapi-skeleton.yaml",
+      "schema": "#/components/schemas/CursorError",
+      "valid": false,
+      "value": {
+        "statusCode": 400,
+        "error": "Bad Request",
+        "message": "The cursor is malformed."
+      },
+      "category": "missing-discriminator"
+    },
+    {
+      "file": "openapi-skeleton.yaml",
+      "schema": "#/components/schemas/CursorError",
+      "valid": false,
+      "value": {
+        "statusCode": 400,
+        "error": "Bad Request",
+        "errorCode": "unknown_cursor",
+        "message": "The cursor is malformed."
+      },
+      "category": "unknown-discriminator"
+    },
+    {
+      "file": "openapi-skeleton.yaml",
+      "schema": "#/components/schemas/CursorError",
+      "valid": false,
+      "value": {
+        "statusCode": "400",
+        "error": "Bad Request",
+        "errorCode": "invalid_cursor",
+        "message": "The cursor is malformed."
+      },
+      "category": "invalid-field-type"
+    },
+    {
+      "file": "openapi-skeleton.yaml",
+      "schema": "#/components/schemas/CursorError",
+      "valid": false,
+      "value": {
+        "statusCode": 400,
+        "error": "Bad Request",
+        "errorCode": "invalid_cursor",
+        "message": "The cursor is malformed.",
+        "details": {
+          "parameter": "cursor"
+        }
+      },
+      "category": "mixed-variant-fields"
+    },
+    {
+      "file": "openapi-skeleton.yaml",
+      "schema": "#/components/schemas/CursorError",
+      "valid": false,
+      "value": {
+        "statusCode": 400,
+        "error": "Bad Request",
+        "errorCode": "invalid_cursor",
+        "message": null
+      },
+      "category": "forbidden-null"
+    }
+  ]
+}

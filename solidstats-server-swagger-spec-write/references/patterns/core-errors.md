@@ -17,17 +17,28 @@ title: Declared errors use the shared envelope
 category: error
 kind: core
 severity_when_violated: BLOCKER
-applies_to: [all non-2xx responses]
+applies_to: [JSON error responses]
 related: [errors-declared-statuses-only, schema-ref-and-reuse]
 ```
 
 ### Rule — errors-shared-shape
 
-Reference one error schema with required `statusCode`, `error`, and `message`,
-plus optional structured
-`details`. Each declared non-2xx response describes the condition and aligns
-its status with the
-envelope's `statusCode`.
+Use concrete error components following the shared
+[HTTP contract](../../../solidstats-shared-project-standards/references/http-api-contract.md).
+Require `statusCode`, `error`, `errorCode`, and `message`; type `details`
+precisely per code, with explicit requiredness. Fix the status and error code
+to singleton enums. `error` is the HTTP label, not the domain code.
+
+Codes are stable snake_case and globally unambiguous by condition and details
+contract. Identical conditions may reuse a code; different meanings may not.
+Review the active API inventory, not only the changed module. Multiple errors
+under one status use an exclusive `oneOf` tagged by `errorCode`; do not permit
+arbitrary status/code/details cross-products. JSON 4xx/5xx errors follow this
+envelope; redirects are not errors and keep their documented HTTP semantics.
+
+The former broad ErrorResponse and module-only uniqueness policy are deprecated
+at the public boundary. The backend maps internal errors to registered public
+variants, and the web client branches on `errorCode`, never error/message text.
 
 ### Rationale — errors-shared-shape
 
@@ -39,9 +50,9 @@ Every route that can reject an authenticated, validated, or domain request.
 
 ### Detection — errors-shared-shape
 
-Flag raw strings, `{ message }` one-offs, different error field names, or
-status-specific bodies with
-no migration note.
+Flag missing/loose `errorCode`, incompatible reuse across modules, free-form
+details, broad generic error schemas, mismatched status/code combinations,
+client branching on text, or unexplained migration from legacy envelopes.
 
 ### Severity — errors-shared-shape
 
@@ -57,9 +68,13 @@ _Synthetic SolidStats example:_
   description: The requested replay is not visible or does not exist.
   content:
     application/json:
-      schema: { $ref: '#/components/schemas/ErrorResponse' }
+      schema: { $ref: '#/components/schemas/ReplayNotFoundError' }
 ```
 <!-- markdownlint-enable MD013 -->
+
+`ReplayNotFoundError` fixes `errorCode: replay_not_found`, `statusCode: 404`
+and `error: Not Found`, and declares the safe details shape. Reuse that
+component only for the same public condition and details contract.
 
 ### Bad example — errors-shared-shape
 

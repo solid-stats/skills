@@ -14,99 +14,211 @@ description: >
 
 # Frontend Tests — TanStack Start / React
 
-**This skill builds on [`solidstats-shared-testing-standards`](../solidstats-shared-testing-standards/SKILL.md) — read it first.**
-That skill owns the philosophy (RITE, AAA, the unit-vs-integration boundary, determinism, doubles,
-oracle strength, the coverage mindset, TDD). This skill adds the **frontend HOW** and assumes
+**This skill builds on
+[`solidstats-shared-testing-standards`](../solidstats-shared-testing-standards/SKILL.md)
+— read it first.**
+That skill owns the philosophy (RITE, AAA, the unit-vs-integration boundary,
+determinism, doubles,
+oracle strength, the coverage mindset, TDD). This skill adds the **frontend
+HOW** and assumes
 [`solidstats-frontend-react-conventions`](../solidstats-frontend-react-conventions/SKILL.md).
+
+For API client, mapping, form-variant, pagination, or error tests, **read the
+canonical
+[public HTTP
+contract](../solidstats-shared-project-standards/references/http-api-contract.md)**
+and the conventions' `data-flow.md`, `typescript.md`, and `errors.md` patterns
+first. Fixtures derive
+from the approved schema and generated types; the implemented export must match
+the approved target.
 
 ## The runner split
 
-- **Vitest** — hooks and **pure logic**: mappers, the Model→Data boundary, query-key/`queryOptions`
-  factories, formatters, `zod/v4-mini` schemas, Nano store logic, reducers/derivations.
-- **Playwright** — **components and critical journeys** end to end, against a real rendered app.
-- **Do not** write an RTL test that renders a component and asserts on its DOM — component behavior is
-  Playwright's job (this is the estesis rule, kept). Don't unit-test the localization object.
+- **Vitest** — hooks and **pure logic**: mappers, the Model→Data boundary,
+  query-key/`queryOptions`
+  factories, formatters, `zod/v4-mini` schemas, Nano store logic,
+  reducers/derivations.
+  For API-bound logic, assert decoded outcomes, exact transformations, or
+  recovery decisions; a mock
+  asserting that a hook called a client/factory with arguments is not a
+  behavioral oracle.
+- **Playwright** — **components and critical journeys** end to end, against a
+  real rendered app.
+- **Do not** write an RTL test that renders a component and asserts on its DOM —
+  component behavior is
+  Playwright's job (this is the estesis rule, kept). Don't unit-test the
+  localization object.
 
-The unit-vs-integration boundary (testing-standards §B) maps here as: logic → Vitest unit; anything
-whose correctness depends on the real DOM, routing, the Query cache, SSR, or the network → Playwright.
+The unit-vs-integration boundary (testing-standards §B) maps here as: logic →
+Vitest unit; anything
+whose correctness depends on the real DOM, routing, the Query cache, SSR, or the
+network → Playwright.
 
 ## Component isolation harness (Ladle)
 
-Component and integration tests mount through **Ladle stories** — the durable UIKit catalog built by
-[`solidstats-frontend-react-design`](../solidstats-frontend-react-design/SKILL.md), not a throwaway
-fixture. Each shared component keeps a permanent story covering its states (the surface spec's
-component-state and ×4 data-volume matrix); Playwright drives **one story at a time** for a
-deterministic, isolated mount with no full-app routing or network. This is the sanctioned way to "test
-a component in isolation" — it **replaces RTL** (still banned: no render-and-assert-DOM) and keeps the
-test harness and the design catalog the *same artifact*, so a component cannot drift from its
+Component and integration tests mount through **Ladle stories** — the durable
+UIKit catalog built by
+[`solidstats-frontend-react-design`](../solidstats-frontend-react-design/SKILL.md),
+not a throwaway
+fixture. Each shared component keeps a permanent story covering its states (the
+surface spec's
+component-state and ×4 data-volume matrix); Playwright drives **one story at a
+time** for a
+deterministic, isolated mount with no full-app routing or network. This is the
+sanctioned way to "test
+a component in isolation" — it **replaces RTL** (still banned: no
+render-and-assert-DOM) and keeps the
+test harness and the design catalog the *same artifact*, so a component cannot
+drift from its
 catalogued contract.
 
-- The **story is the unit**: assert the rendered states, keyboard interaction, and axe-cleanliness per
-  story. Integration (a few catalogued components composed) also runs as a story before it graduates
+- The **story is the unit**: assert the rendered states, keyboard interaction,
+  and axe-cleanliness per
+  story. Integration (a few catalogued components composed) also runs as a story
+  before it graduates
   into a route.
 
 ## Visual prototypes are not test targets
 
-Per the global `design` workflow, visual prototypes belong to the prototype stage, not
-implementation. For SolidStats, that means `web/.visual-prototypes/` is outside Vitest,
-Playwright, axe, keyboard, and CLS testing. Prototypes are approved by prototype visual review only,
-then implementation starts from the accepted `SUMMARY.md`. Testing starts once the accepted direction
+Per the global `design` workflow, visual prototypes belong to the prototype
+stage, not
+implementation. For SolidStats, that means `web/.visual-prototypes/` is outside
+Vitest,
+Playwright, axe, keyboard, and CLS testing. Prototypes are approved by prototype
+visual review only,
+then implementation starts from the accepted `SUMMARY.md`. Testing starts once
+the accepted direction
 is implemented as a durable Ladle story or route.
 
 ## Critical journeys (Playwright)
 
-Journeys derive from the implementation surface spec's **use-cases / product-scenarios** section:
-the global `design/references/implementation-surface-spec.md` owns the generic contract, and
-`solidstats-frontend-react-design` -> `references/implementation-surface-overlay.md` adds the
+Journeys derive from the implementation surface spec's **use-cases /
+product-scenarios** section:
+the global `design/references/implementation-surface-spec.md` owns the generic
+contract, and
+`solidstats-frontend-react-design` ->
+`references/implementation-surface-overlay.md` adds the
 SolidStats overlay.
-Each use-case becomes a Playwright journey and the spec's scenario endings become assertions. These
+Each use-case becomes a Playwright journey and the spec's scenario endings
+become assertions. These
 are launch-blocking and must be covered:
 
-- **list → filter/sort → deep scroll → detail → Back** restores table state, scroll, virtualized row
-  position, and cache with **no blocking reload or CLS** (the signature requirement).
-- **SSE** update behavior: no viewport shift / focus steal; per-page merge (auto vs confirm).
-- **Loading / error / empty / offline / reconnecting / stale-data** states on critical screens.
-- **Keyboard navigation** through menus, tables, dialogs, filters, pagination, moderation actions.
+- **list → filter/sort → deep scroll → detail → Back** restores table state,
+  scroll, virtualized row
+  position, and cache with **no blocking reload or CLS** (the signature
+  requirement).
+- **SSE** update behavior: no viewport shift / focus steal; per-page merge (auto
+  vs confirm).
+- **Loading / error / empty / offline / reconnecting / stale-data** states on
+  critical screens.
+- **Keyboard navigation** through menus, tables, dialogs, filters, pagination,
+  moderation actions.
 - **Responsive** smoke flows (mobile + desktop).
+
+## HTTP contract behavior
+
+- **Same status, different cause:** choose two declared API `errorCode` variants
+  with the same HTTP
+  status and different recovery semantics. Assert their distinct localized
+  guidance/actions or field
+  errors. Changing human `message`/HTTP `error` label text must not change the
+  domain branch.
+- **Exact variants:** use a generated-type fixture for each relevant
+  payload/error branch. Verify
+  tag narrowing exposes only that branch's fields and per-code details;
+  compile-time negative cases
+  reject mixed variants, missing required tags, and wrong details without casts
+  or duplicate DTOs.
+  At the decoder boundary, malformed/mixed runtime payloads must fail safely.
+- **Safe fallback:** exercise unknown `errorCode`, absent/malformed envelope,
+  empty response, and
+  network failure. Assert usable fallback recovery, preserved available
+  HTTP/debug context, and no
+  known-domain action/field error falsely inferred. A successful known-code case
+  does not establish
+  this behavior.
+- **Preserved wire semantics:** cover relevant absent-vs-null values, finite
+  enums, UUID strings,
+  declared `201` creation results, and live cursor traversal/reset after
+  filter/sort changes.
+  Assert returned data or user behavior, not that a generated method was called.
+- **Two boundaries:** Vitest checks focused decoding/mapping/recovery logic;
+  Playwright verifies
+  visible flow outcomes against deterministic seeded `server-2` responses. A
+  controlled network
+  failure/malformed-response fixture can exercise fallback, but does not prove
+  backend conformance.
+  Verify the actual export and generated-client freshness separately; mocks
+  cannot establish those.
 
 ## Accessibility in tests
 
-- Run **axe** (or equivalent) in Playwright on key screens; **serious/critical violations block**.
-- Assert focus management on route change, announced table sort/filter state, and visible focus.
-- **Visibility is a paint assertion, never a box-size one.** An "is it shown / revealed on focus"
-  check asserts REAL visibility — computed `clip`/`clip-path` cleared, `toBeInViewport()`, or a
-  non-empty paint — never `boundingBox()` height/width alone. A `boundingBox()` is the layout box and
-  ignores paint-time clipping: a SkipLink left at `clip: rect(0,0,0,0)` (legacy `clip` not reset by
-  `not-sr-only`) has a 44px box yet paints nothing, so a height-≥44 assertion goes green while the
-  element is invisible (a real WCAG 2.4.1 reveal failure). Use box dimensions for hit-area sizing
+- Run **axe** (or equivalent) in Playwright on key screens; **serious/critical
+  violations block**.
+- Assert focus management on route change, announced table sort/filter state,
+  and visible focus.
+- **Visibility is a paint assertion, never a box-size one.** An "is it shown /
+  revealed on focus"
+  check asserts REAL visibility — computed `clip`/`clip-path` cleared,
+  `toBeInViewport()`, or a
+  non-empty paint — never `boundingBox()` height/width alone. A `boundingBox()`
+  is the layout box and
+  ignores paint-time clipping: a SkipLink left at `clip: rect(0,0,0,0)` (legacy
+  `clip` not reset by
+  `not-sr-only`) has a 44px box yet paints nothing, so a height-≥44 assertion
+  goes green while the
+  element is invisible (a real WCAG 2.4.1 reveal failure). Use box dimensions
+  for hit-area sizing
   only, paired with a paint/clip check for visibility.
 
 ## CI matrix (the gate)
 
 From the brief — these block merge:
 
-- Full **Playwright browser matrix** on every PR: Chromium, Firefox, WebKit, a mobile Chrome-like
-  viewport, a mobile WebKit viewport, reduced-motion, and forced-colors where feasible.
-- **axe** a11y (serious/critical block); **console errors** on critical journeys block; **scroll
+- Full **Playwright browser matrix** on every PR: Chromium, Firefox, WebKit, a
+  mobile Chrome-like
+  viewport, a mobile WebKit viewport, reduced-motion, and forced-colors where
+  feasible.
+- **axe** a11y (serious/critical block); **console errors** on critical journeys
+  block; **scroll
   restoration / cache restoration / CLS** regressions block.
-- **Lighthouse / budgets** (performance, a11y, SEO) and **bundle budgets** block for critical pages.
-- **`vp check`** (Vite+: Oxlint + Oxfmt + tsgo) — lint/format/type-check — blocks.
-- **Smoke screenshot** regression for key desktop/mobile states (not a high-maintenance full visual gate).
+- **Lighthouse / budgets** (performance, a11y, SEO) and **bundle budgets** block
+  for critical pages.
+- **`vp check`** (Vite+: Oxlint + Oxfmt + tsgo) — lint/format/type-check —
+  blocks.
+- **Contract freshness** — approved OpenAPI schema, implemented export, and
+  regenerated types agree;
+  type checks preserve exact variants and do not hide mismatch through
+  widening/casts.
+- **Smoke screenshot** regression for key desktop/mobile states (not a
+  high-maintenance full visual gate).
 
 ## E2E data & doubles
 
-- E2E runs against a **deterministic seeded `server-2`** backend; local frontend dev requires a
-  reachable `server-2` API — **mocks are not the primary development mode** (brief).
-- In Vitest unit tests, stub the dependencies of the unit directly (the typed client / a query hook);
-  don't reach the network. Mock only true boundaries (network, time, storage) per testing-standards.
+- E2E runs against a **deterministic seeded `server-2`** backend; local
+  frontend dev requires a
+  reachable `server-2` API — **mocks are not the primary development mode**
+  (brief).
+- In Vitest unit tests, stub the dependencies of the unit directly (the typed
+  client / a query hook);
+  don't reach the network. Mock only true boundaries (network, time, storage)
+  per testing-standards.
+  For API recovery tests, supply contract-shaped responses and assert the
+  observable result; do not
+  substitute assertions about mocked hook/client wiring for behavior or contract
+  verification.
 
 ## Determinism
 
-- Seeded backend data; deterministic time where behavior depends on it; never real `sleep`/wall-clock
-  waiting (testing-standards §E). Reset mocks/timers/state between tests; no shared mutable fixtures.
+- Seeded backend data; deterministic time where behavior depends on it; never
+  real `sleep`/wall-clock
+  waiting (testing-standards §E). Reset mocks/timers/state between tests; no
+  shared mutable fixtures.
 
 ## Not owned here
 
-The philosophy lives in `solidstats-shared-testing-standards`; the severity of a test-quality problem
-in review lives in `solidstats-shared-review-standards` §F (test quality is never a standalone BLOCK
+The philosophy lives in `solidstats-shared-testing-standards`; the severity of
+a test-quality problem
+in review lives in `solidstats-shared-review-standards` §F (test quality is
+never a standalone BLOCK
 unless a test actively masks a real bug).

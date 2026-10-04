@@ -306,11 +306,21 @@ related: [schema-nullability-30, schema-const-vs-enum]
 
 ### Rule — schema-polymorphism
 
-Use `oneOf` when exactly one variant is valid and `anyOf` when combinations
-are valid. Give variants
-distinguishing required properties or a documented discriminator compatible
-with the 3.0.3 toolchain.
-Do not use either construct for nullability or cosmetic annotation.
+Use `oneOf` when exactly one variant is valid and `anyOf` only when overlapping
+alternatives are intended. For object unions, use named component references,
+a common required string tag with distinct singleton enums in each branch,
+and an explicit discriminator mapping. A discriminator alone does not make
+overlapping branches exclusive. Follow the shared
+[HTTP contract](../../../solidstats-shared-project-standards/references/http-api-contract.md).
+
+Each branch owns its precise fields and requiredness; close DTOs against
+mixed-variant fields. Error variants use `errorCode` and narrow `details`
+together. Validate a positive payload for each branch and negative payloads
+for missing/unknown tags, mixed fields, wrong types and forbidden nulls.
+Check that each valid payload matches exactly one branch. Primitive unions
+need their own exclusivity evidence rather than a fabricated discriminator.
+Do not use unions for nullability or cosmetic annotation, or weaken oneOf to
+anyOf to hide a failing case.
 
 ### Rationale — schema-polymorphism
 
@@ -322,8 +332,9 @@ Event payloads and genuinely variant replay-source representations.
 
 ### Detection — schema-polymorphism
 
-Flag overlapping oneOf branches, no discriminator strategy, or null as an
-alternative.
+Flag overlapping branches, optional/loose tags, missing mapping, variant
+fields collapsed into independent optional properties, or missing payload
+case evidence. Preserve exact unions in generated TypeScript clients.
 
 ### Severity — schema-polymorphism
 
@@ -405,6 +416,12 @@ related: [schema-additional-properties, ids-string-uuid]
 ```
 
 ### Rule — schema-validation-keywords
+
+Every request and response field has an exact type or resolvable schema;
+arrays have typed items, finite states have closed enums, and absence is
+distinct from null. Closed DTOs use `additionalProperties: false`; intentional
+maps have a concrete value schema. Bare objects, untyped maps and casts that
+hide generated-type drift are not precise contracts.
 
 Declare applicable bounds and formats: string
 `minLength`/`maxLength`/`pattern`, array `minItems`/

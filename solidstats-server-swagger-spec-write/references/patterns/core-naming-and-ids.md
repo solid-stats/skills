@@ -4,20 +4,23 @@
 
 ```yaml
 name: naming-preserve-contract-field-style
-title: Field names follow the established API contract style
+title: Public API names follow the shared target profile
 category: naming
 kind: core
 severity_when_violated: HIGH
-applies_to: [all public fields]
+applies_to: [paths, operations, schema names, all public fields]
 related: [naming-preserve-baseline-enums, ids-string-uuid]
 ```
 
 ### Rule — naming-preserve-contract-field-style
 
-Follow the established route-family and generated-client field naming style.
-Do not impose a foreign
-camelCase or snake_case rule; a naming change is a versioned migration with
-caller impact.
+Apply the shared [HTTP contract](../../../solidstats-shared-project-standards/references/http-api-contract.md):
+plural kebab-case resource paths, camelCase fields and query/path parameters,
+PascalCase component schemas, and unique camelCase verb/resource operation IDs.
+For example: `/replay-requests/{requestId}`, `createdAt`, `ReplayRequest`,
+`listReplayRequests`. Document protocol/singleton exceptions where applicable.
+The former instruction to preserve arbitrary existing casing is deprecated.
+Existing names inform migration and caller impact, not the desired convention.
 
 ### Rationale — naming-preserve-contract-field-style
 
@@ -25,12 +28,12 @@ Names are serialized API surface, not internal implementation taste.
 
 ### Applicable situations — naming-preserve-contract-field-style
 
-New properties, query parameters, and response envelopes.
+New or changed paths, operations, schemas, properties and parameters.
 
 ### Detection — naming-preserve-contract-field-style
 
-Flag mixed style in one contract or a proposed rename without compatibility
-notes.
+Flag casing violations, singular resource collections, CRUD verbs in resource
+paths, duplicate operation IDs, or renames without compatibility notes.
 
 ### Severity — naming-preserve-contract-field-style
 
@@ -38,12 +41,14 @@ HIGH — clients break at deserialisation boundaries.
 
 ### Good example — naming-preserve-contract-field-style
 
-_Synthetic SolidStats example:_ a new `steamId64` field follows the verified
-identity model convention.
+_Synthetic SolidStats example:_ `/replay-requests/{requestId}` returns
+`ReplayRequest` with `createdAt`; legacy snake_case fields have an explicit
+client transition to the approved camelCase target.
 
 ### Bad example — naming-preserve-contract-field-style
 
-Adding `steam_id_64` only because another platform used snake_case.
+Keeping `steam_id_64` in a new public DTO merely because a database column or
+legacy endpoint uses it.
 
 ### Related rules — naming-preserve-contract-field-style
 

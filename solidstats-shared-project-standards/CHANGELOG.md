@@ -2,6 +2,11 @@
 
 <!-- markdownlint-disable MD013 -->
 
+## 2026-10-04 — Strict public HTTP contract
+
+- Own the shared public HTTP profile: API naming, exact schemas, exclusive variants and globally unambiguous public errorCode.
+- Route specification, server and web workflows to one stateless reference.
+
 ## 2026-08-20 — v1.9 — Retire the CLAUDE.md stub
 
 - Removed `CLAUDE.md` from the repository documentation contract. `AGENTS.md` is now the only

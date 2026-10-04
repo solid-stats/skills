@@ -16,16 +16,36 @@ description: >
 
 # Frontend Code Review — TanStack Start / React
 
-**This skill builds on [`solidstats-shared-review-standards`](../solidstats-shared-review-standards/SKILL.md) — read it first.**
-That skill owns the review philosophy, scope resolution (read every changed file in full), the severity
-buckets (🔴🟠🟡🔵), continuous-numbering output, verdict rules, the test-file rule, and the noise filter.
+**This skill builds on
+[`solidstats-shared-review-standards`](../solidstats-shared-review-standards/SKILL.md)
+— read it first.**
+That skill owns the review philosophy, scope resolution (read every changed file
+in full), the severity
+buckets (🔴🟠🟡🔵), continuous-numbering output, verdict rules, the test-file rule,
+and the noise filter.
 
-**The rule library is [`solidstats-frontend-react-conventions`](../solidstats-frontend-react-conventions/SKILL.md)** —
-this skill enforces it, it does not restate it. Every finding cites the convention it breaks
-(`[conv: a11y]`, `[conv: data-flow]`, `[conv: styling]`, …) and takes its severity from the
-**Severity reference** table below — the `[conv: …]` citation identifies *which* rule, not its severity
-(the conventions pattern files carry rules, not severity tags). Use `../solidstats-frontend-react-conventions/references/project-patterns.md` to find the right
+**The rule library is
+[`solidstats-frontend-react-conventions`](../solidstats-frontend-react-conventions/SKILL.md)**
+—
+this skill enforces it, it does not restate it. Every finding cites the
+convention it breaks
+(`[conv: a11y]`, `[conv: data-flow]`, `[conv: styling]`, …) and takes its
+severity from the
+**Severity reference** table below — the `[conv: …]` citation identifies *which*
+rule, not its severity
+(the conventions pattern files carry rules, not severity tags). Use
+`../solidstats-frontend-react-conventions/references/project-patterns.md` to
+find the right
 pattern file for the change.
+
+For API-bound reviews, also **read the canonical
+[public HTTP
+contract](../solidstats-shared-project-standards/references/http-api-contract.md)**
+and the conventions' `data-flow.md`, `typescript.md`, and `errors.md`
+patterns. Check the approved
+schema, implemented export, and generated client together; existing backend
+behavior does not exempt
+a migration from the approved target profile.
 
 Review happens in two phases, in order.
 
@@ -33,35 +53,56 @@ Review happens in two phases, in order.
 
 ## Phase 1 — Quality gate (blocking)
 
-The frontend's "contract" is the user experience and the product quality bar. The brief's CI gates are
+The frontend's "contract" is the user experience and the product quality bar.
+The brief's CI gates are
 the gate; verify the change doesn't breach them.
 
-- **Accessibility** — axe **serious/critical violations block**; keyboard reachability, visible focus,
-  contrast (4.5:1 / 3:1), accessible names, no traps (WCAG 2.2 AA). `[conv: a11y]`
-- **Core Web Vitals** — no avoidable **CLS** on a critical journey (budget 0.02, hard 0.05); LCP in
-  initial HTML; INP-heavy handlers off the main thread. Lighthouse/budgets must pass. `[conv: performance]`
-- **Bundle budgets** — the change must not breach the CI bundle budget (no heavy dep into a shared
+- **Accessibility** — axe **serious/critical violations block**; keyboard
+  reachability, visible focus,
+  contrast (4.5:1 / 3:1), accessible names, no traps (WCAG 2.2 AA).
+  `[conv: a11y]`
+- **Core Web Vitals** — no avoidable **CLS** on a critical journey (budget 0.02,
+  hard 0.05); LCP in
+  initial HTML; INP-heavy handlers off the main thread. Lighthouse/budgets must
+  pass. `[conv: performance]`
+- **Bundle budgets** — the change must not breach the CI bundle budget (no heavy
+  dep into a shared
   path; route-split heavy code). `[conv: performance]`
-- **Console errors** — none on critical journeys (the CI blocks them). `[conv: errors]`
-- **Generated types freshness** — `openapi-typescript` types are current vs the `server-2` schema; a
-  change consuming a stale/hand-written shape is a gate failure. `[conv: typescript]`
-- **Lint / format / type-check** — `vp check` (Vite+: Oxlint + Oxfmt + tsgo) passes; warnings are
+- **Console errors** — none on critical journeys (the CI blocks them).
+  `[conv: errors]`
+- **HTTP contract / generated types freshness** — the approved OpenAPI schema,
+  implemented
+  `server-2` export, and generated types agree. Preserve exact literals,
+  requiredness/nullability,
+  UUID strings, exclusive tagged variants, declared `201` success responses, and
+  live cursors.
+  A stale/hand-written or widened shape hiding a contract mismatch is a gate
+  failure.
+  `[conv: http-api-contract / data-flow / typescript]`
+- **Lint / format / type-check** — `vp check` (Vite+: Oxlint + Oxfmt + tsgo)
+  passes; warnings are
   errors. `[conv: typescript]`
-- **The list→detail→back contract** — preserved: scroll/virtualization/cache restored, no blocking
-  reload, no CLS. A change that breaks it is a gate failure. `[conv: data-flow / routing / state]`
-- **SEO (public indexable pages)** — SEO-critical content is server-rendered in initial HTML, not
+- **The list→detail→back contract** — preserved: scroll/virtualization/cache
+  restored, no blocking
+  reload, no CLS. A change that breaks it is a gate failure.
+  `[conv: data-flow / routing / state]`
+- **SEO (public indexable pages)** — SEO-critical content is server-rendered in
+  initial HTML, not
   client-only. `[conv: seo]`
-- **Security headers** — the SSR server sets a CSP + security headers, and no secret is reachable from
+- **Security headers** — the SSR server sets a CSP + security headers, and no
+  secret is reachable from
   client code. `[conv: security]`
 
 Render the gate at the top of the report:
 
-```
+```markdown
 ## Quality gate
-✅ axe clean · CWV budgets ok · bundle within budget · no console errors · types fresh · back-nav restores.
+✅ axe clean · CWV budgets ok · bundle within budget · no console errors ·
+types fresh · back-nav restores.
 ⚠️ New chart route adds 40kb — within budget but watch; lazy-loaded.
 ❌ Player list now fetches client-only → SEO content not in SSR HTML → gate fail
-❌ Filter state moved to a Nano store → Back no longer restores it → list→detail→back broken → gate fail
+❌ Filter state moved to a Nano store → Back no longer restores it →
+list→detail→back broken → gate fail
 ```
 
 A failing gate is a **BLOCK**, in addition to the standard "any 🔴 → BLOCK" rule.
@@ -70,51 +111,84 @@ A failing gate is a **BLOCK**, in addition to the standard "any 🔴 → BLOCK" 
 
 ## Phase 2 — Convention & correctness sweep
 
-Read every changed file in full, then sweep against `solidstats-frontend-react-conventions` in **risk
-order** (UX continuity is the top product priority, then a11y, then SEO — mirror that):
+Read every changed file in full, then sweep against
+`solidstats-frontend-react-conventions` in **risk
+order** (UX continuity is the top product priority, then a11y, then SEO — mirror
+that):
 
-1. **UX continuity** — list→detail→back, state boundaries (URL vs Query vs Nano), no blocking reloads.
+1. **UX continuity** — list→detail→back, state boundaries (URL vs Query vs
+   Nano), no blocking reloads.
    `[conv: data-flow / state / routing]`
-2. **Accessibility** — labels, keyboard, focus, contrast, live regions, targets. `[conv: a11y]`
-3. **Data correctness** — loader-prefetch + `useQuery` on the same `queryOptions`; openapi-fetch /
-   openapi-react-query typed client; **no raw `fetch`, no hand-written DTO**; optimistic only where
-   safe. `[conv: data-flow / typescript]`
-4. **Performance / CWV** — reserved space (no CLS), render-stable props, virtualization, route
+2. **Accessibility** — labels, keyboard, focus, contrast, live regions, targets.
+   `[conv: a11y]`
+3. **Data correctness** — loader-prefetch + `useQuery` on the same
+   `queryOptions`; openapi-fetch /
+   openapi-react-query typed client; **no raw `fetch`, no hand-written DTO**;
+   optimistic only where
+   safe. Check the canonical naming profile, exact variant narrowing, cursor
+   handling, and declared
+   success responses. `[conv: http-api-contract / data-flow / typescript]`
+4. **Performance / CWV** — reserved space (no CLS), render-stable props,
+   virtualization, route
    splitting, INP. `[conv: performance]`
-5. **SEO / SSR** — meaningful server HTML, titles/meta/canonical, `/ru` `/en` hreflang, no crawl traps.
+5. **SEO / SSR** — meaningful server HTML, titles/meta/canonical, `/ru` `/en`
+   hreflang, no crawl traps.
    `[conv: seo]`
-6. **Realtime** — SSE no-CLS / no-focus-steal, per-page merge discipline, stale/offline labeling.
+6. **Realtime** — SSE no-CLS / no-focus-steal, per-page merge discipline,
+   stale/offline labeling.
    `[conv: realtime]`
-7. **Architecture & layers** — correct layer/slice placement, slice `index.ts` public surface, uikit
+7. **Architecture & layers** — correct layer/slice placement, slice `index.ts`
+   public surface, uikit
    boundary, thin `src/routes`. `[conv: architecture]`
-8. **Component shape** — named function (no `observer`), props order, server/client boundary, Lucide
+8. **Component shape** — named function (no `observer`), props order,
+   server/client boundary, Lucide
    icons. `[conv: component-shape]`
-9. **Styling** — Tailwind utilities resolving to `@theme` tokens, **no arbitrary values** (`bg-[#…]`,
-   `p-[7px]`), `tailwind-variants` for variants, stable dimensions, no nested cards. `[conv: styling]`
-10. **TypeScript** — generated types as source of truth, backend-enum `Record<Enum,…>` safety,
-    Model/Data boundary, `zod/v4-mini`, `noUncheckedIndexedAccess`. `[conv: typescript]`
-11. **Localization** — typed ICU, `/ru` `/en`, `const ln`, no hardcoded strings, RU/EN parity.
+9. **Styling** — Tailwind utilities resolving to `@theme` tokens, **no arbitrary
+   values** (`bg-[#…]`,
+   `p-[7px]`), `tailwind-variants` for variants, stable dimensions, no nested
+   cards. `[conv: styling]`
+10. **TypeScript** — generated types as source of truth, backend-enum
+    `Record<Enum,…>` safety,
+    Model/Data boundary, `zod/v4-mini`, `noUncheckedIndexedAccess`.
+    `[conv: typescript]`
+11. **Localization** — typed ICU, `/ru` `/en`, `const ln`, no hardcoded
+    strings, RU/EN parity.
     `[conv: localization]`
-12. **Errors** — stable codes, recovery copy, user-vs-app distinction. `[conv: errors]`
-13. **Domain rules** — slug/owner model, provenance/unknown/conflict, masked SteamID, request/
+12. **Errors** — domain recovery branches on required `errorCode`, with exact
+    details narrowed from
+    the same generated variant. HTTP status remains available; `error` remains
+    the HTTP label and
+    `message` remains display text. Check
+    unknown-code/network/malformed-response fallback without
+    a false cast, and distinct recovery for different same-status causes.
+    `[conv: errors]`
+13. **Domain rules** — slug/owner model, provenance/unknown/conflict, masked
+    SteamID, request/
     moderation flows. `[conv: domain-rules]`
-14. **Security (SSR)** — CSP / security headers on the Node server, no client-reachable secrets,
+14. **Security (SSR)** — CSP / security headers on the Node server, no
+    client-reachable secrets,
     upload content-validation. `[conv: security]`
 
-Each finding lands in one severity bucket, carries a `[topic]` tag, and cites `[conv: …]`.
+Each finding lands in one severity bucket, carries a `[topic]` tag, and cites
+`[conv: …]`.
 
 ---
 
 ## Severity reference
 
+<!-- markdownlint-disable MD013 -->
+
 | Finding | Severity |
-|---------|----------|
+| --------- | ---------- |
 | Broken list→detail→back (state/scroll/cache not restored) | 🔴 |
 | a11y serious/critical (axe), keyboard trap, no accessible name on a control | 🔴 (gate) |
 | Avoidable CLS on a critical journey | 🔴 (gate) |
 | Role-sensitive data fetched/rendered before the auth/role gate | 🔴 |
 | SEO-critical content client-only (not in SSR HTML) | 🔴 (gate) |
 | Raw `fetch` / hand-written DTO instead of the typed generated client | 🟠 |
+| Approved schema / implemented export / generated client mismatch hidden by stale types, widening, or casts | 🔴 (gate) |
+| Domain recovery branches on status/message/`error`; exact variant/details correlation lost | 🟠 (🔴 if it permits an unsafe action) |
+| Unknown code, malformed response, or network error treated as a known domain variant | 🟠 |
 | Shareable state not in the URL (in Nano/component instead) | 🟠 |
 | Optimistic update on a moderation/correction action | 🟠 |
 | SSE update that shifts viewport / steals focus | 🟠 |
@@ -127,40 +201,62 @@ Each finding lands in one severity bucket, carries a `[topic]` tag, and cites `[
 | Arbitrary Tailwind value (`bg-[#…]`, `p-[7px]`) or raw hex instead of a token utility; magic z-index | 🔵 |
 | Naming, comments, import order | 🔵 |
 
+<!-- markdownlint-enable MD013 -->
+
 ---
 
 ## Review lenses
 
-For a deep phase/milestone review, run the change through the three adversarial lenses from
-`solidstats-shared-review-standards` §J — many lenses, one report (all findings share the §C buckets,
-§D numbering, one §E verdict). First run §I discovery: locate the plan and **map the change onto the
-codebase** (`.planning/codebase/` for slice/layer placement; the knowledge graph for the blast radius
-— which routes, loaders, and shared uikit consumers the change ripples into). The lenses map onto this
+For a deep phase/milestone review, run the change through the three adversarial
+lenses from
+`solidstats-shared-review-standards` §J — many lenses, one report (all findings
+share the §C buckets,
+§D numbering, one §E verdict). First run §I discovery: locate the plan and **map
+the change onto the
+codebase** (`.planning/codebase/` for slice/layer placement; the knowledge graph
+for the blast radius
+— which routes, loaders, and shared uikit consumers the change ripples into).
+The lenses map onto this
 reviewer's two phases as:
 
-| Lens | Frontend mandate |
-|------|------------------|
-| **Contract Adversary** | Assume the change breaks the typed generated client (stale `openapi-typescript` vs the `server-2` schema) or the list→detail→back contract. Drive **Phase 1** — generated-types freshness, the back-nav state/scroll/cache restore, SSR HTML for indexable content — and trace the §I.2 blast radius across routes that share the touched loader/query. |
-| **Edge / Failure Hunter** | The happy render works. Hunt the broken state path: loading-vs-empty-vs-error ordering (loader must win before "empty"), an optimistic update on a moderation action, a raw `fetch` / hand-written DTO, avoidable CLS, an SSE update that shifts viewport or steals focus — Phase 2 topics 3, 4, and 6. |
-| **Acceptance Auditor** | The task is marked done. Prove the tests prove the plan's `must_haves.truths` (§I.3). UI truths (a visual state, a real-browser behavior) are usually **not** confirmable by static read — record them under **Validation Gaps** as needing the verify/browser pass, never imply they were verified; §F + the discovered PLAN contract. |
+<!-- markdownlint-disable MD013 -->
 
-Each lens records what it attacked and ruled out under **Non-Findings Checked** (§D); a lens that
-finds nothing real reports nothing — no forced findings. The parallel-subagent fan-out (one per lens)
-is driven from the invocation layer by the `solidstats-process-review-lenses` skill/Workflow — never by
-editing the vendored `gsd-code-review`/`gsd-verifier` (see `solidstats-shared-review-standards` §J); a
+| Lens | Frontend mandate |
+| ------ | ------------------ |
+| **Contract Adversary** | Assume the change breaks the approved HTTP profile, implemented export, generated type precision, or the list→detail→back contract. Drive **Phase 1**, verify tagged payload/error narrowing and preserved success/cursor semantics, and trace the §I.2 blast radius across shared loaders/queries. |
+| **Edge / Failure Hunter** | Hunt loading-vs-empty-vs-error ordering, distinct same-status `errorCode` recovery, unknown/malformed/network fallback, unsafe optimistic moderation, a raw `fetch` / duplicate DTO, avoidable CLS, and SSE viewport/focus shifts — Phase 2 topics 3, 4, 6, and 12. |
+| **Acceptance Auditor** | Prove tests establish the plan's `must_haves.truths` (§I.3), including observable API recovery and variant behavior rather than mocked client/hook plumbing. UI/browser truths unconfirmed by static read belong in **Validation Gaps**; §F + the discovered PLAN contract. |
+
+<!-- markdownlint-enable MD013 -->
+
+Each lens records what it attacked and ruled out under **Non-Findings Checked**
+(§D); a lens that
+finds nothing real reports nothing — no forced findings. The parallel-subagent
+fan-out (one per lens)
+is driven from the invocation layer by the `solidstats-process-review-lenses`
+skill/Workflow — never by
+editing the vendored `gsd-code-review`/`gsd-verifier` (see
+`solidstats-shared-review-standards` §J); a
 `/gsd-quick` review collapses the lenses into the single Phase-1→Phase-2 pass.
 
 ---
 
 ## Output
 
-Follow the output format, continuous numbering, severity buckets, and verdict rules from
-`solidstats-shared-review-standards` (§D–§E). Open the report with the **Quality gate** result (above
-the buckets); there is no "Good" section. Cite the broken convention on each finding. The test-file rule
+Follow the output format, continuous numbering, severity buckets, and verdict
+rules from
+`solidstats-shared-review-standards` (§D–§E). Open the report with the **Quality
+gate** result (above
+the buckets); there is no "Good" section. Cite the broken convention on each
+finding. The test-file rule
 lives in review-standards §F; defer detailed test-quality judgement to
-[`solidstats-frontend-react-tests`](../solidstats-frontend-react-tests/SKILL.md). Visual, UX, and
-design-system conformance (token / contrast fidelity, real-width layout, motion, the rendered-state
+[`solidstats-frontend-react-tests`](../solidstats-frontend-react-tests/SKILL.md).
+Visual, UX, and
+design-system conformance (token / contrast fidelity, real-width layout, motion,
+the rendered-state
 matrix) is the counterpart skill
-[`solidstats-frontend-react-design-review`](../solidstats-frontend-react-design-review/SKILL.md) — this
-skill reviews the code, that one reviews the rendered UI; route a finding that needs a real-browser or
+[`solidstats-frontend-react-design-review`](../solidstats-frontend-react-design-review/SKILL.md)
+— this
+skill reviews the code, that one reviews the rendered UI; route a finding that
+needs a real-browser or
 visual pass there.

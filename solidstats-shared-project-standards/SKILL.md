@@ -171,6 +171,11 @@ The boundary map (§D) covers only the platform tier; this covers the whole org.
 
 ## References
 
+For HTTP API authoring, implementation, generated clients, review or tests, read
+[`references/http-api-contract.md`](references/http-api-contract.md). It owns
+public naming, exact schemas, exclusive variants and the stable `errorCode`
+contract shared by server and web skills. Existing code is migration evidence.
+
 For the standard CI/CD pipeline pattern used across SolidStats repos (GitHub Actions structure,
 concurrency, job layout, Docker build), see
 [`references/ci-cd-pattern.md`](references/ci-cd-pattern.md). Read it when setting up or

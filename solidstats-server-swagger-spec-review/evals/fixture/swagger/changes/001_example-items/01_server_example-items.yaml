@@ -99,6 +99,7 @@ components:
         kind:
           type: string
           const: example
+      additionalProperties: false
     ExamplePage:
       type: object
       required:
@@ -117,6 +118,7 @@ components:
           type: string
           nullable: true
           description: Null when hasMore is false; otherwise a continuation token.
+      additionalProperties: false
     CreateExample:
       type: object
       required:
@@ -133,6 +135,7 @@ components:
       - statusCode
       - error
       - message
+      - errorCode
       properties:
         statusCode:
           type: integer
@@ -141,15 +144,21 @@ components:
         error:
           type: string
           enum:
-          - invalid_cursor
+          - Bad Request
         message:
           type: string
+        errorCode:
+          type: string
+          enum:
+          - invalid_cursor
+      additionalProperties: false
     InvalidQueryError:
       type: object
       required:
       - statusCode
       - error
       - message
+      - errorCode
       properties:
         statusCode:
           type: integer
@@ -158,15 +167,21 @@ components:
         error:
           type: string
           enum:
-          - invalid_query
+          - Unprocessable Entity
         message:
           type: string
+        errorCode:
+          type: string
+          enum:
+          - invalid_query
+      additionalProperties: false
     InvalidBodyError:
       type: object
       required:
       - statusCode
       - error
       - message
+      - errorCode
       properties:
         statusCode:
           type: integer
@@ -175,6 +190,11 @@ components:
         error:
           type: string
           enum:
-          - invalid_body
+          - Unprocessable Entity
         message:
           type: string
+        errorCode:
+          type: string
+          enum:
+          - invalid_body
+      additionalProperties: false

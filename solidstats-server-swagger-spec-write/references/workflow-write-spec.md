@@ -48,6 +48,11 @@ self-contained and describe every in-scope acceptance condition. Use local
 references to avoid duplication inside the file. Model presence/nullability,
 live cursor behavior, errors, roles and state transitions explicitly.
 
+Apply the shared HTTP naming and exact-schema profile. Build the error-code
+inventory from the effective active contract, including related approved
+slices; distinguish legitimate reuse from conflicting meanings or details.
+Keep concrete error definitions in OpenAPI components, not a second registry.
+
 Record intended changes to existing behavior and their migration, persistence,
 frontend/client or operational consequences. A deliberate difference is not a
 defect merely because the current backend lacks it. An unacknowledged break,
@@ -70,8 +75,9 @@ do not rewrite an old iteration to make it look compatible with a new one.
 
 ## Step 7. Validate and self-review
 
-Run the bundled validator as described in `validation.md`. Fix structural
-errors and rerun it on the final bytes. Read the companion reviewer and run its
+Run the bundled validator with the strict profile and payload cases described
+in `validation.md`. Check every union branch and negative cases; fix failures
+and rerun on the final bytes. Read the companion reviewer and run its
 applicable checks, including acceptance coverage and cross-stage dependencies.
 Validation does not prove semantics or implementation conformance.
 

@@ -31,6 +31,7 @@ Read the following files in full and list the files actually read in **Checked
 context**:
 
 1. `solidstats-shared-project-standards/SKILL.md`.
+   Also read `solidstats-shared-project-standards/references/http-api-contract.md`.
 2. `solidstats-shared-review-standards/SKILL.md`.
 3. `solidstats-server-swagger-spec-write/SKILL.md`.
 4. `solidstats-server-swagger-spec-write/references/core-conventions.md`.
@@ -103,9 +104,13 @@ behavior.
 Run the writer's validator over every reviewed stage YAML before delivering a
 verdict:
 
+<!-- markdownlint-disable MD013 -->
+
 ```text
-<python> <writer>/scripts/validate_openapi.py <stage.yaml> [more-stage.yaml ...]
+<python> <writer>/scripts/validate_openapi.py --profile solidstats --cases <cases.json> <stage.yaml> [more-stage.yaml ...]
 ```
+
+<!-- markdownlint-enable MD013 -->
 
 `<writer>` is the installed `solidstats-server-swagger-spec-write` directory.
 The command accepts one or more YAML paths, writes JSON to stdout for every
@@ -119,6 +124,12 @@ install a validator
 without current project context; report the gap and its effect. Do not
 substitute a manual parse
 or a generated contract check for this gate.
+
+Follow `validation.md` for payload cases and scope; `--cases` may be omitted
+only when no union requires case coverage. Check positive payloads per branch
+and negative payloads, not only the schema document. Structural-only success
+does not satisfy this profile. Global semantic error-code uniqueness needs a
+review of the active contract inventory beyond the supplied-file checks.
 
 ## Review workflow
 
@@ -142,6 +153,11 @@ or a generated contract check for this gate.
    coverage explicitly.
    Do not perform unauthorized nested fan-out.
 4. **Apply contract rules.** Check only applicable patterns. In particular,
+   enforce the shared naming profile, exact types and required/null semantics,
+   discriminated exclusive object unions with case evidence, and stable
+   globally unambiguous `errorCode` with exact per-code `details`. Check the
+   active error inventory and generated-client narrowing; no text-based domain
+   branching or unconstrained generic error schema is acceptable. Also
    check cursor-based live
    pagination by default; UUID identifiers as strings; OpenAPI 3.0.3; supported
    validation fields

@@ -1,5 +1,13 @@
 # Changelog — solidstats-server-swagger-spec-write
 
+## 2026-10-04 — Strict public HTTP contract
+
+- Replace legacy-style preservation with the shared explicit API naming profile.
+- Require exact schemas, tagged exclusive variants, global errorCode semantics
+  and precise details.
+- Add strict profile and payload validation, a checked union template and
+  targeted regression cases.
+
 ## 2026-09-21 — Port the Estesis Swagger authoring procedure
 
 - Preserve the detailed authoring patterns, iteration documents and paired

@@ -30,8 +30,10 @@ not been given. Independent review will occur after the exercise.
   and synchronously creates and returns one item with `201`. Duplicate names
   are allowed. No auth, cookie, ownership, or idempotency requirement exists.
 - Schema-invalid inputs return `422`. An invalid or query-mismatched cursor
-  returns `400`. The error envelope is `{statusCode, error, message}` where
-  `error` is `invalid_query`, `invalid_body`, or `invalid_cursor` as applicable.
+  returns `400`. The envelope is `{statusCode, error, errorCode, message}`.
+  `error` is the HTTP label (`Bad Request` or `Unprocessable Entity`);
+  `errorCode` is `invalid_query`, `invalid_body`, or `invalid_cursor` as applicable.
+  Each code has one stable meaning across the API; no details are needed here.
   Define per-response status/code combinations, not arbitrary cross-products.
 - Author OpenAPI 3.0.3. The target is prescriptive and must be reviewable
   without

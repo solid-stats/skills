@@ -37,6 +37,8 @@ The four profile files are explicit requirements.
 
 ## Contract checker
 
+<!-- markdownlint-disable MD013 -->
+
 ```text
 You review REQUEST / RESPONSE / ERROR / SECURITY contracts for
 solidstats-server-swagger-spec-review.
@@ -51,6 +53,7 @@ Read in full and report these read files:
 <WRITER>/references/workflow-write-spec.md;
 <WRITER>/references/gsd-phase-workflow.md;
 <SKILLS>/solidstats-shared-project-standards/SKILL.md;
+<SKILLS>/solidstats-shared-project-standards/references/http-api-contract.md;
 <SKILLS>/solidstats-shared-review-standards/SKILL.md;
 <WRITER>/SKILL.md;
 <WRITER>/references/core-conventions.md;
@@ -68,7 +71,8 @@ Read in full and report these read files:
 <WRITER>/references/patterns/profile-security-auth.md;
 plus CONTEXT.md, INDEX.md, and CHANGES.md when present.
 
-Check cursor pagination, UUID strings, OpenAPI 3.0.3, supported validation
+Check exact errors and stable public errorCode, scoped collision evidence,
+precise details per variant, plus cursor pagination, UUID strings, OpenAPI 3.0.3, supported validation
 fields and required
 semantics, appropriate 201 creation responses, errors, request/response shapes,
 Steam OpenID,
@@ -77,12 +81,16 @@ wording, or folder
 workflow. Output read-files then the required findings table.
 ```
 
+<!-- markdownlint-enable MD013 -->
+
 ## Structure checker
 
 ```text
 You review schema design, $ref, composition, required/optional meaning, reusable
 components, and
 description placement for solidstats-server-swagger-spec-review.
+Check required literal tags, explicit mappings, exact branch schemas and
+positive/negative payload evidence; discriminator syntax alone is insufficient.
 
 Project: <PROJECT_ROOT>;
 YAML: <YAML_FILES>;
@@ -94,6 +102,7 @@ Read in full and report these read files:
 <WRITER>/references/workflow-write-spec.md;
 <WRITER>/references/gsd-phase-workflow.md;
 <SKILLS>/solidstats-shared-project-standards/SKILL.md;
+<SKILLS>/solidstats-shared-project-standards/references/http-api-contract.md;
 <SKILLS>/solidstats-shared-review-standards/SKILL.md;
 <WRITER>/SKILL.md;
 <WRITER>/references/core-conventions.md;
@@ -117,6 +126,9 @@ required findings table.
 ## Naming checker
 
 ```text
+Apply plural kebab-case resource paths, camelCase fields/parameters and
+unique verb/resource operation IDs, PascalCase schemas and snake_case error
+codes from the shared HTTP profile. Judge protocol/singleton exceptions.
 You review operation, path, schema, property, enum, and identifier naming for
 solidstats-server-swagger-spec-review.
 
@@ -130,6 +142,7 @@ Read in full and report these read files:
 <WRITER>/references/gsd-phase-workflow.md;
 <WRITER>/references/validation.md;
 <SKILLS>/solidstats-shared-project-standards/SKILL.md;
+<SKILLS>/solidstats-shared-project-standards/references/http-api-contract.md;
 <SKILLS>/solidstats-shared-review-standards/SKILL.md;
 <WRITER>/SKILL.md;
 <WRITER>/references/core-conventions.md;
@@ -166,6 +179,7 @@ Read in full and report these read files:
 <WRITER>/references/gsd-phase-workflow.md;
 <WRITER>/references/validation.md;
 <SKILLS>/solidstats-shared-project-standards/SKILL.md;
+<SKILLS>/solidstats-shared-project-standards/references/http-api-contract.md;
 <SKILLS>/solidstats-shared-review-standards/SKILL.md;
 <WRITER>/SKILL.md;
 <WRITER>/references/core-conventions.md;
@@ -200,6 +214,7 @@ Read in full and report these read files:
 <WRITER>/references/wording-registry.md;
 <WRITER>/references/validation.md;
 <SKILLS>/solidstats-shared-project-standards/SKILL.md;
+<SKILLS>/solidstats-shared-project-standards/references/http-api-contract.md;
 <SKILLS>/solidstats-shared-review-standards/SKILL.md;
 <WRITER>/SKILL.md;
 <WRITER>/references/core-conventions.md;
@@ -238,6 +253,7 @@ Read in full and report these read files:
 <WRITER>/references/workflow-write-spec.md;
 <WRITER>/references/gsd-phase-workflow.md;
 <SKILLS>/solidstats-shared-project-standards/SKILL.md;
+<SKILLS>/solidstats-shared-project-standards/references/http-api-contract.md;
 <SKILLS>/solidstats-shared-review-standards/SKILL.md;
 <WRITER>/SKILL.md;
 <WRITER>/references/core-conventions.md;
@@ -270,6 +286,7 @@ Read in full and report these read files:
 <WRITER>/references/workflow-write-spec.md;
 <WRITER>/references/validation.md;
 <SKILLS>/solidstats-shared-project-standards/SKILL.md;
+<SKILLS>/solidstats-shared-project-standards/references/http-api-contract.md;
 <SKILLS>/solidstats-shared-review-standards/SKILL.md;
 <WRITER>/SKILL.md;
 <WRITER>/references/core-conventions.md;

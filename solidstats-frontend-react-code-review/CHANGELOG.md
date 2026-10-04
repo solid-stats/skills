@@ -1,42 +1,82 @@
 # Changelog — solidstats-frontend-react-code-review
 
+## 2026-10-04 — Review approved HTTP contracts and error recovery
+
+- Require the shared HTTP profile for API-bound review. The generated-types gate
+  now compares
+  approved schema, implemented export, and client precision, including variants,
+  UUID strings,
+  optional-vs-nullable fields, success statuses, and cursor semantics.
+- Add explicit review checks and severity guidance for `errorCode` branching,
+  exact details
+  narrowing, and safe unknown/malformed/network fallback. Map the review lenses
+  to these checks
+  and require behavior evidence rather than mocked client/hook plumbing.
+- Preserve the shared review and coordinator-owned memory lifecycle; no
+  independent memory calls
+  or duplicated wire specification are introduced.
+
 ## 2026-06-20 — Tailwind styling refs + design-review cross-ref
 
-- Phase-2 styling sweep and the styling severity row retargeted from vanilla-extract
-  (`*Style.css.ts` / `transition: all`) to **Tailwind v4** — an arbitrary value (`bg-[#…]`, `p-[7px]`)
-  instead of a token utility is the new 🔵 styling flag; `[conv: styling]` still delegates the full
+- Phase-2 styling sweep and the styling severity row retargeted from
+  vanilla-extract
+  (`*Style.css.ts` / `transition: all`) to **Tailwind v4** — an arbitrary value
+  (`bg-[#…]`, `p-[7px]`)
+  instead of a token utility is the new 🔵 styling flag; `[conv: styling]` still
+  delegates the full
   ruleset to `solidstats-frontend-react-conventions`.
 - Output now routes **visual / UX / design-system** judgement to the counterpart
-  `solidstats-frontend-react-design-review` (this skill reviews the code, that one reviews the rendered
+  `solidstats-frontend-react-design-review` (this skill reviews the code, that
+  one reviews the rendered
   UI).
 
 ## 2026-06-16 — Review-lens mapping (BMAD Improvement 2)
-- Added a **Review lenses** section mapping the three generic adversarial lenses from
-  `solidstats-shared-review-standards` §J onto this reviewer's two phases: **Contract Adversary** →
-  Phase 1 quality gate (generated-types freshness, list→detail→back) + the §I.2 blast radius across
-  shared loaders/routes; **Edge / Failure Hunter** → Phase 2 data-correctness/CWV/realtime topics;
-  **Acceptance Auditor** → §F + the discovered PLAN `must_haves.truths` (§I.3), with UI truths routed
-  to Validation Gaps for the browser pass. Notes the no-forced-finding rule and the depth-tied fan-out.
+
+- Added a **Review lenses** section mapping the three generic adversarial lenses
+  from
+  `solidstats-shared-review-standards` §J onto this reviewer's two phases:
+  **Contract Adversary** →
+  Phase 1 quality gate (generated-types freshness, list→detail→back) + the §I.2
+  blast radius across
+  shared loaders/routes; **Edge / Failure Hunter** → Phase 2
+  data-correctness/CWV/realtime topics;
+  **Acceptance Auditor** → §F + the discovered PLAN `must_haves.truths` (§I.3),
+  with UI truths routed
+  to Validation Gaps for the browser pass. Notes the no-forced-finding rule and
+  the depth-tied fan-out.
 - Provenance: ADR `decisions/0007-bmad-borrowed-improvements.md`.
 
 ## 2026-06-06 — Follow-up (user directives)
+
 - Phase-1 gate now includes `vp check` (Vite+ lint/format/type-check).
 
 ## 2026-06-06 — Analysis fixes (see .planning/SKILLS-ANALYSIS.md)
-- Severity now comes from the in-skill Severity reference table (the conventions pattern files carry
+
+- Severity now comes from the in-skill Severity reference table (the conventions
+  pattern files carry
   no severity tags); dropped "uses the severity that rule is tagged with."
-- Added a Security gate line, a Security (SSR) sweep step, and a CSP/secret-leak severity row
+- Added a Security gate line, a Security (SSR) sweep step, and a CSP/secret-leak
+  severity row
   (`[conv: security]`); fixed the loose `project-patterns.md` link path.
 
 ## 2026-06-06 — Initial
-- Operational frontend reviewer: hard-requires `solidstats-shared-review-standards` and enforces
-  `solidstats-frontend-react-conventions` as its rule library (cites pattern files, doesn't restate).
-- **Phase 1 — quality gate** (the frontend analog of the API/contract gate): axe a11y serious/critical,
-  Core Web Vitals (CLS/LCP/INP + Lighthouse), bundle budgets, console errors, generated-types
-  freshness, the list→detail→back contract, and SSR for SEO-critical pages. A breach is a BLOCK.
-- **Phase 2 — convention/correctness sweep** in risk order (UX continuity → a11y → data correctness →
-  performance → SEO → realtime → architecture → component shape → styling → TS → i18n → errors →
+
+- Operational frontend reviewer: hard-requires
+  `solidstats-shared-review-standards` and enforces
+  `solidstats-frontend-react-conventions` as its rule library (cites pattern
+  files, doesn't restate).
+- **Phase 1 — quality gate** (the frontend analog of the API/contract gate): axe
+  a11y serious/critical,
+  Core Web Vitals (CLS/LCP/INP + Lighthouse), bundle budgets, console errors,
+  generated-types
+  freshness, the list→detail→back contract, and SSR for SEO-critical pages. A
+  breach is a BLOCK.
+- **Phase 2 — convention/correctness sweep** in risk order (UX continuity → a11y
+  → data correctness →
+  performance → SEO → realtime → architecture → component shape → styling → TS →
+  i18n → errors →
   domain), each finding citing `[conv: …]` and using the tagged severity.
 - Frontend-specific severity table for a mechanical verdict.
-- Output delegates to review-standards (§D–§E), opening with the gate result; test quality deferred to
+- Output delegates to review-standards (§D–§E), opening with the gate result;
+  test quality deferred to
   `solidstats-frontend-react-tests` + review-standards §F.

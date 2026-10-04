@@ -1,10 +1,20 @@
 # Data flow — TanStack Query + Router
 
-How server data moves through the app. The headline rule (ratified): **route loaders prefetch into
-the Query cache; components read the same key with `useQuery`.** This is what gives SSR, stale-while-
-revalidate, and instant restore on Back. All server access goes through **`openapi-fetch` +
-`openapi-react-query`** typed by the generated OpenAPI `paths` — never raw `fetch`, never a
+How server data moves through the app. The headline rule (ratified): **route
+loaders prefetch into
+the Query cache; components read the same key with `useQuery`.** This is what
+gives SSR, stale-while-
+revalidate, and instant restore on Back. All server access goes through
+**`openapi-fetch` +
+`openapi-react-query`** typed by the generated OpenAPI `paths` — never raw
+`fetch`, never a
 hand-written DTO.
+
+For API-bound work, first read the
+[public HTTP
+contract](../../../solidstats-shared-project-standards/references/http-api-contract.md).
+Its approved wire profile governs the client; this file adds frontend
+consumption rules.
 
 ## The typed client
 
@@ -15,23 +25,47 @@ import createClient from 'openapi-react-query';
 import type { paths } from '@/shared/api/generated';   // openapi-typescript output
 
 const fetchClient = createFetchClient<paths>({ baseUrl: env.API_URL });
-fetchClient.use(authMiddleware, errorNormalizeMiddleware);   // session headers, stable error codes
+// Session headers and safe errorCode decoding.
+fetchClient.use(authMiddleware, errorNormalizeMiddleware);
 export const $api = createClient(fetchClient);
 ```
 
-- `openapi-fetch` is the thin typed client (centralizes base URL, auth/session headers via middleware,
-  and error normalization); **SSE is wired in the surrounding client module**, not by openapi-fetch
-  itself (it has no SSE feature). `openapi-react-query` wraps it with TanStack Query, typed by
+- `openapi-fetch` is the thin typed client (centralizes base URL, auth/session
+  headers via middleware,
+  and error normalization); **SSE is wired in the surrounding client module**,
+  not by openapi-fetch
+  itself (it has no SSE feature). `openapi-react-query` wraps it with TanStack
+  Query, typed by
   `paths` — method + path + params are checked against the generated schema.
-- **No raw `fetch` in components/hooks; no hand-written request/response DTOs.** Path/query params go
+- **No raw `fetch` in components/hooks; no hand-written request/response DTOs.**
+  Path/query params go
   through the typed `params` arg, never string interpolation.
-- The generated `paths` come from `openapi-typescript` against the live `server-2` schema; CI fails on
-  stale generated types (brief).
+- Generate `paths` from the approved OpenAPI revision, verify the implemented
+  `server-2` export
+  matches it, and fail CI on stale generated types. During a migration, an
+  existing live export is
+  evidence to compare with the approved target, not authority to overwrite it
+  silently. Resolve
+  mismatches through the approved backend/client rollout; do not compensate with
+  duplicate DTOs,
+  widening, or casts (see `typescript.md`).
+- Use the declared resource paths and camelCase parameter keys exactly, e.g.
+  `/replay-requests/{requestId}` with `params.path.requestId`. Keep
+  database/parser spellings behind
+  the server API boundary; do not add a second wire convention in the client.
+- The shared client preserves HTTP status and decodes known error variants
+  safely. It must not
+  replace `error` with a domain code, use `message` as a key, or assert an
+  unknown response to a known
+  generated union. Domain recovery uses `errorCode` and its exact details (see
+  `errors.md`).
 
 ## queryOptions as the shared unit
 
-Wrap `$api.queryOptions(...)` in a thin **per-domain factory**, and share the result between the loader
-and the component — `openapi-react-query` derives the query key (method + path + params), so there is
+Wrap `$api.queryOptions(...)` in a thin **per-domain factory**, and share the
+result between the loader
+and the component — `openapi-react-query` derives the query key (method + path +
+params), so there is
 no hand-written key or `queryFn`.
 
 ```ts
@@ -56,47 +90,92 @@ const { data } = useQuery(playerQueries.list(search));
 
 Rules:
 
-- Components/loaders call the **domain factory** (`playerQueries.*`), not raw `$api.queryOptions('get',
+- Components/loaders call the **domain factory** (`playerQueries.*`), not raw
+  `$api.queryOptions('get',
   '/players', …)` sprinkled around — one place owns each resource's options.
-- The loader uses `ensureQueryData` (prefetch + return cached) or `prefetchQuery` (fire-and-forget for
+- The loader uses `ensureQueryData` (prefetch + return cached) or
+  `prefetchQuery` (fire-and-forget for
   secondary data); the component always reads via `useQuery(sameOptions)`.
-- Query keys are owned by `openapi-react-query` (method + path + params); invalidate via the same
+- Query keys are owned by `openapi-react-query` (method + path + params);
+  invalidate via the same
   method+path so invalidation stays precise.
 
 ## Mutations
 
-- Mutations use `$api.useMutation('post', '/...')`. On success, **invalidate** the affected query keys
+- Mutations use `$api.useMutation('post', '/...')`. On success, **invalidate**
+  the affected query keys
   (`queryClient.invalidateQueries`, keyed by the method+path of the read).
-- Optimistic updates only **where safe** (brief): `onMutate`/rollback for low-risk, reversible changes;
-  never optimistically apply a moderation decision or a correction the server must validate/recalculate.
-- Errors surface through the app error/notification system with stable error codes (see `errors.md`),
-  not raw error text inline.
+- Honor the operation's declared success responses, including `201` creation
+  responses and their
+  generated body/identifier shape. Do not collapse every successful response to
+  a `200`-only DTO.
+- Optimistic updates only **where safe** (brief): `onMutate`/rollback for
+  low-risk, reversible changes;
+  never optimistically apply a moderation decision or a correction the server
+  must validate/recalculate.
+- Errors surface through the app error/notification system with
+  `errorCode`-specific recovery and
+  safe unknown/network/malformed-response fallback (see `errors.md`), not raw
+  error text inline.
+
+## Live cursor pagination
+
+- Consume the generated cursor query and response fields without numeric
+  coercion or a fabricated
+  offset/page API. Cursors are opaque; server filter/sort and cursor validity
+  rules remain authoritative.
+- Preserve the declared difference between an absent cursor and a nullable end
+  cursor. Reset the
+  cursor when filters/sort change and include the actual typed search in query
+  options, so cached
+  pages cannot be reused across incompatible searches. Live list changes follow
+  the API contract
+  and the realtime merge rules; do not promise a frozen snapshot the backend
+  does not provide.
 
 ## SSR & hydration
 
-- TanStack Start runs loaders on the server; the `QueryClient` is dehydrated on the server and hydrated
-  on the client, so prefetched data is in the initial HTML (SEO/LCP) and the client doesn't re-fetch on
-  mount. SEO-critical/LCP data must be prefetched in the loader, never fetched client-only.
+- TanStack Start runs loaders on the server; the `QueryClient` is dehydrated on
+  the server and hydrated
+  on the client, so prefetched data is in the initial HTML (SEO/LCP) and the
+  client doesn't re-fetch on
+  mount. SEO-critical/LCP data must be prefetched in the loader, never fetched
+  client-only.
 
 ## Cache lifetimes (policy)
 
-- Public stats use a **long `staleTime`** (brief: long public cache + SSE freshness); set explicit
+- Public stats use a **long `staleTime`** (brief: long public cache + SSE
+  freshness); set explicit
   `staleTime`/`gcTime` per query family — don't rely on defaults.
-- `gcTime` must outlive a list→detail→back round-trip so list data restores from cache instantly.
-- Auth/session and mutation-sensitive data use short `staleTime`. Exact numbers per family are set at
-  implementation (a brief follow-up) — the convention is "explicit, per-family, documented."
+- `gcTime` must outlive a list→detail→back round-trip so list data restores from
+  cache instantly.
+- Auth/session and mutation-sensitive data use short `staleTime`. Exact numbers
+  per family are set at
+  implementation (a brief follow-up) — the convention is "explicit, per-family,
+  documented."
 
 ## The list → detail → back contract
 
-Satisfied by the combination: loader `ensureQueryData` (re-uses cached list data, no refetch) + a
-`gcTime` that survives the detour + Router scroll/virtualization restoration (`routing.md`) + shareable
-state in the URL (`state.md`). A change that breaks any of these — a client-only fetch on the list, too
+Satisfied by the combination: loader `ensureQueryData` (re-uses cached list
+data, no refetch) + a
+`gcTime` that survives the detour + Router scroll/virtualization restoration
+(`routing.md`) + shareable
+state in the URL (`state.md`). A change that breaks any of these — a client-only
+fetch on the list, too
 short a `gcTime`, a blocking loader on Back — is a defect.
 
 Review flags:
 
 - Raw `fetch` or a hand-written DTO instead of `$api` / generated types.
-- `$api.queryOptions(...)` called inline in components instead of a domain factory.
-- Optimistic update on a moderation/correction action that the server must validate.
+- Types generated from an unapproved/stale export, or a contract mismatch hidden
+  by widening/casts.
+- Domain recovery based on status/message/`error`, or normalization discarding
+  `errorCode`/exact details.
+- A `200`-only success assumption losing a declared `201`, or a cursor coerced
+  into numeric pagination.
+- `$api.queryOptions(...)` called inline in components instead of a domain
+  factory.
+- Optimistic update on a moderation/correction action that the server must
+  validate.
 - SEO/LCP data fetched client-only instead of prefetched in the loader.
 - A query family with no explicit `staleTime`/`gcTime`.

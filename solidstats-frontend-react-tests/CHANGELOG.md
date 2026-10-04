@@ -1,49 +1,94 @@
 # Changelog — solidstats-frontend-react-tests
 
+## 2026-10-04 — Test public HTTP variants and recovery behavior
+
+- Require the shared HTTP contract and relevant frontend patterns for API-bound
+  testing.
+- Add behavior cases for two same-status `errorCode` variants with distinct
+  recovery, exact
+  tag/payload/details narrowing, unknown/malformed/empty/network fallback,
+  declared creation
+  responses, and live cursor behavior. Fixtures derive from precise generated
+  types.
+- Separate focused decoder/mapping oracles from real seeded-backend flow
+  evidence; mocked
+  client/hook wiring does not prove behavior, export freshness, or backend
+  conformance.
+- Keep the existing shared testing and coordinator-owned memory lifecycle
+  unchanged.
+
 ## 2026-07-04 — Prototype-stage artifacts are outside the test harness
 
-- Added the rule that `web/.visual-prototypes/` artifacts belong to the prototype stage, not
-  implementation. They are not Vitest/Playwright/axe/CLS targets. The generic no-tests rule lives in
-  global `design`; this skill adds the SolidStats path. Tests begin after an accepted `SUMMARY.md`
+- Added the rule that `web/.visual-prototypes/` artifacts belong to the
+  prototype stage, not
+  implementation. They are not Vitest/Playwright/axe/CLS targets. The generic
+  no-tests rule lives in
+  global `design`; this skill adds the SolidStats path. Tests begin after an
+  accepted `SUMMARY.md`
   becomes a durable Ladle story or route.
-- Clarified that E2E journeys derive from the global implementation surface spec, with
-  `solidstats-frontend-react-design/references/implementation-surface-overlay.md` adding only the
+- Clarified that E2E journeys derive from the global implementation surface
+  spec, with
+  `solidstats-frontend-react-design/references/implementation-surface-overlay.md`
+  adding only the
   SolidStats overlay.
 
 ## 2026-06-23 — Visibility assertions must prove paint, not box size (promoted)
 
-- *Accessibility in tests*: added the rule that an "is it shown / revealed on focus" check asserts REAL
-  visibility (computed `clip`/`clip-path` cleared, `toBeInViewport()`, or a non-empty paint), never
-  `boundingBox()` height/width alone — the layout box ignores paint-time clipping, so a SkipLink left
-  at `clip: rect(0,0,0,0)` has a 44px box yet paints nothing and a height-≥44 assertion goes green on
-  an invisible element (WCAG 2.4.1 reveal failure). Box dimensions are for hit-area sizing only.
+- *Accessibility in tests*: added the rule that an "is it shown / revealed on
+  focus" check asserts REAL
+  visibility (computed `clip`/`clip-path` cleared, `toBeInViewport()`, or a
+  non-empty paint), never
+  `boundingBox()` height/width alone — the layout box ignores paint-time
+  clipping, so a SkipLink left
+  at `clip: rect(0,0,0,0)` has a 44px box yet paints nothing and a height-≥44
+  assertion goes green on
+  an invisible element (WCAG 2.4.1 reveal failure). Box dimensions are for
+  hit-area sizing only.
 - Promoted from corrections-log `SC-2026-06-23-0701` (caused-bug, fact@1).
 
 ## 2026-06-20 — Ladle component-isolation harness + spec use-cases as the E2E source
 
-- Added the **Ladle story harness**: component/integration tests mount through the durable Ladle
-  catalog built by `solidstats-frontend-react-design` (Playwright drives one story at a time —
-  deterministic, isolated, no full-app routing/network). It is the sanctioned replacement for RTL and
+- Added the **Ladle story harness**: component/integration tests mount through
+  the durable Ladle
+  catalog built by `solidstats-frontend-react-design` (Playwright drives one
+  story at a time —
+  deterministic, isolated, no full-app routing/network). It is the sanctioned
+  replacement for RTL and
   keeps the test harness and the design catalog the same artifact.
-- **Critical journeys derive from the surface spec's use-cases / product-scenarios** section (the E2E
-  source now split between global `implementation-surface-spec.md` and the SolidStats
-  `implementation-surface-overlay.md`): one Playwright journey per use-case, the spec's scenario
+- **Critical journeys derive from the surface spec's use-cases /
+  product-scenarios** section (the E2E
+  source now split between global `implementation-surface-spec.md` and the
+  SolidStats
+  `implementation-surface-overlay.md`): one Playwright journey per use-case,
+  the spec's scenario
   endings as its assertions. Description updated to name the Ladle harness.
 
 ## 2026-06-06 — Follow-up (user directives)
+
 - CI gate now includes `vp check` (Vite+ lint/format/type-check).
 
 ## 2026-06-06 — Initial
-- The thin per-stack frontend test skill on top of `solidstats-shared-testing-standards` (which owns
-  the philosophy). Adds the frontend how-to; assumes `solidstats-frontend-react-conventions`.
-- **Runner split:** Vitest for hooks/pure logic (mappers, Model→Data, query-key factories, zod/v4-mini
-  schemas, Nano logic); Playwright for components and critical journeys. No RTL component DOM tests; no
+
+- The thin per-stack frontend test skill on top of
+  `solidstats-shared-testing-standards` (which owns
+  the philosophy). Adds the frontend how-to; assumes
+  `solidstats-frontend-react-conventions`.
+- **Runner split:** Vitest for hooks/pure logic (mappers, Model→Data, query-key
+  factories, zod/v4-mini
+  schemas, Nano logic); Playwright for components and critical journeys. No RTL
+  component DOM tests; no
   localization-object tests (kept from the estesis rule).
-- **Critical journeys (Playwright):** list→filter→scroll→detail→Back restoration, SSE behavior,
-  loading/error/empty/offline/reconnecting/stale states, keyboard navigation, responsive smoke.
-- **a11y:** axe in Playwright (serious/critical block); focus management + announced table state.
-- **CI matrix gate** (from the brief): full browser matrix per PR, axe, console-error block,
-  scroll/cache/CLS regression block, Lighthouse/budgets, bundle budgets, smoke screenshots.
-- **E2E data:** deterministic seeded `server-2`; local dev uses a reachable `server-2`, not mocks as
+- **Critical journeys (Playwright):** list→filter→scroll→detail→Back
+  restoration, SSE behavior,
+  loading/error/empty/offline/reconnecting/stale states, keyboard navigation,
+  responsive smoke.
+- **a11y:** axe in Playwright (serious/critical block); focus management +
+  announced table state.
+- **CI matrix gate** (from the brief): full browser matrix per PR, axe,
+  console-error block,
+  scroll/cache/CLS regression block, Lighthouse/budgets, bundle budgets, smoke
+  screenshots.
+- **E2E data:** deterministic seeded `server-2`; local dev uses a reachable
+  `server-2`, not mocks as
   the primary mode. Vitest stubs unit deps directly.
 - Closes the frontend cluster and the v1 skill set (11/11).

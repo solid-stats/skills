@@ -28,6 +28,7 @@ Read this entry point first. Before authoring or materially editing a contract,
 explicitly read:
 
 - `../solidstats-shared-project-standards/SKILL.md`;
+- `../solidstats-shared-project-standards/references/http-api-contract.md`;
 - `references/core-conventions.md`;
 - `references/profile-loading.md`;
 - `references/solidstats-profile.md`;
@@ -48,7 +49,7 @@ Load detailed patterns by the surface being changed:
 | Success responses, list envelopes, status codes | `references/patterns/core-response-contracts.md` |
 | Error payloads, status conditions, retry behavior | `references/patterns/core-errors.md` |
 | Schemas, nullability, references, unions, validation | `references/patterns/core-schema-design.md` |
-| Field names, enums, identifiers | `references/patterns/core-naming-and-ids.md` |
+| Paths, operations, field names, enums, identifiers | `references/patterns/core-naming-and-ids.md` |
 | Authentication, roles, ownership, public fields | `references/patterns/core-security-auth-access.md` and `references/patterns/profile-security-auth.md` |
 | Descriptions, links, wording | `references/patterns/core-wording.md` and `references/patterns/profile-locale-wording.md` |
 | YAML formatting | `references/patterns/core-cosmetic-yaml.md` |
@@ -83,8 +84,9 @@ read-file list and distinguish checked context from missing evidence.
    migration or consumer impact; do not silently preserve accidental behavior.
 5. **Record decisions.** Keep `CONTEXT.md`, `INDEX.md` and `CHANGES.md` coherent
    with the YAML, including dependencies, supersedes and implementation gaps.
-6. **Validate.** Run the bundled YAML/reference/OpenAPI validator and fix
-   errors.
+6. **Validate.** Run the bundled YAML/reference/OpenAPI validator with
+   `--profile solidstats` and the payload cases required by `validation.md`.
+   Fix errors and validate every branch of each union, including negative cases.
    Save the result with exact reviewed content identity in the phase evidence.
 7. **Review.** Self-review, then run the companion independent review. Address
    findings and revalidate/re-review changed content.
@@ -107,6 +109,11 @@ evidence: `references/gsd-phase-workflow.md`.
   user's approval. A changed contract needs a new review and approval.
 - Use string UUID entity identifiers, cursor pagination for live collections,
   and semantic success statuses including `201` for creation where applicable.
+- Apply the shared HTTP profile: plural kebab-case resource paths, camelCase
+  fields/parameters and operation IDs, PascalCase schemas, exact closed shapes,
+  tagged exclusive object variants and globally unambiguous public `errorCode`.
+  Review the effective active error-code inventory, including related approved
+  slices. A passing check over one file does not establish API-wide uniqueness.
 - Author OpenAPI **3.0.3** for the current toolchain; use its schema dialect.
   Include deliberate validation constraints. Never copy Estesis's numeric-ID,
   offset-only, `200`-only, no-validation or framework-specific multipart bans.

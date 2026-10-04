@@ -16,6 +16,22 @@
         "The review denies implementation start until fixes, validation, review, and human approval.",
         "Findings have concrete path:line evidence and use the shared severity/verdict report shape."
       ]
+    },
+    {
+      "id": 2,
+      "prompt": "Apply the supplied skill rules to evals/strict-profile-brief.md. Save the requested JSON policy review without running a full review workflow.",
+      "expected_output": "Concrete naming, union, error-code and consumer corrections with legitimate reuse and honest validation limits.",
+      "files": [
+        "evals/strict-profile-brief.md"
+      ],
+      "expectations": [
+        "Prescribes plural kebab-case resource path, camelCase fields/parameters/operationId and PascalCase schema names rather than preserving legacy naming.",
+        "Requires required distinct literal tags, precise closed branches and positive/negative payload checks; discriminator alone is insufficient.",
+        "Rejects conflict code reuse for different conditions/details across modules while accepting identical ReplayNotFoundError reuse across endpoints.",
+        "Rejects unconstrained errorCode and generic details in favor of concrete per-code typed variants.",
+        "Requires errorCode-based domain branching and safe unknown-code fallback without casting to a known variant.",
+        "Does not claim structural validation proves global semantic uniqueness or all union payloads; existing implementation does not veto approved target changes."
+      ]
     }
   ]
 }

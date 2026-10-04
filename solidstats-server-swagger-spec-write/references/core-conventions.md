@@ -12,10 +12,14 @@ the current implementation.
 
 - Write OpenAPI **3.0.3** YAML. Use `nullable: true` on typed nullable
   schemas; do not use `type: null` or `const`.
-- The standard error envelope is `{ statusCode, error, message, details? }`.
-  Its `error` value semantics remain a policy decision to be verified, rather
-  than assumed to be a code or status label. A current route with another
-  shape needs an explicit migration.
+- Read the shared [HTTP contract](../../solidstats-shared-project-standards/references/http-api-contract.md)
+  for public naming, exact schemas, exclusive variants and stable error codes.
+  It is authoritative for both server and web consumers.
+- The standard error envelope adds required `errorCode` to
+  `{ statusCode, error, message, details? }`. `error` is the HTTP status label;
+  `errorCode` identifies the condition. Each code has exact typed details.
+  The former undecided `error` semantics are deprecated; differing current
+  routes need explicit migration.
 - Entity identifiers are UUID strings. Steam IDs remain string external
   identifiers. State format and ownership where they matter to a client.
 - Creation returns `201` when it creates a resource. Other success statuses
